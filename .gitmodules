@@ -4,3 +4,6 @@
 [submodule "mosaik-api-java"]
 	path = mosaik-api-java
 	url = https://gitlab.com/AlpTorac/mosaik-api-java
+[submodule "Automata"]
+	path = Automata
+	url = https://github.com/pschichtel/Automata
