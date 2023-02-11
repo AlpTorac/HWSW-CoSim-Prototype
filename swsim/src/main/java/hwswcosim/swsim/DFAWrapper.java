@@ -43,6 +43,16 @@ public class DFAWrapper {
         }
     }
 
+    public Collection<ScriptedTransitionEntry> getTakenTransitions() {
+        ArrayList<ScriptedTransitionEntry> result = new ArrayList<ScriptedTransitionEntry>();
+        
+        for (ScriptedTransitionEntry e : this.takenTransitions) {
+            result.add(e.clone());
+        }
+
+        return result;
+    }
+
     public String getCurrentBinaryPath() {
         String binaryPath = this.currentBinaryPath;
         this.currentBinaryPath = "";
@@ -50,16 +60,6 @@ public class DFAWrapper {
     }
 
     protected Number translateTime(long time) {
-        return Double.valueOf(0);
-    }
-
-    protected class ScriptedTransitionEntry {
-        protected final Character input;
-        protected final Number time;
-
-        protected ScriptedTransitionEntry(Character input, Number time) {
-            this.input = input;
-            this.time = time;
-        }
+        return Double.valueOf(time);
     }
 }

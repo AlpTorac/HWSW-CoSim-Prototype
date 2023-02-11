@@ -16,6 +16,7 @@
     <maven.compiler.target>11</maven.compiler.target>
     <javasim.path>${basedir}/../JavaSim/target</javasim.path>
     <mosaik.path>${basedir}/../mosaik-api-java/dist</mosaik.path>
+    <automata.path>${basedir}/../Automata/target</automata.path>
   </properties>
 
   <dependencies>
@@ -49,7 +50,9 @@
     <dependency>
       <groupId>tel.schich</groupId>
       <artifactId>automata</artifactId>
-      <version>0.2.1</version>
+      <version>0.2.2</version>
+      <scope>system</scope>
+      <systemPath>${automata.path}/automata-0.2.2-SNAPSHOT.jar</systemPath>
     </dependency>
   </dependencies>
 
