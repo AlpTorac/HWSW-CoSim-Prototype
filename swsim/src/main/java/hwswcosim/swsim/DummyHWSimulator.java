@@ -12,13 +12,9 @@ import org.json.simple.JSONValue;
 import de.offis.mosaik.api.SimProcess;
 import de.offis.mosaik.api.Simulator;
 
-public class SoftwareSimulatorMosaikAPI extends Simulator {
+public class DummyHWSimulator extends Simulator {
 
-    private static final String modelName = "DFAWrapper";
-
-    private static final String DFAFilePathKeyName = "dfa_file_path";
-    private static final String binaryMapFilePathKeyName = "transition_to_binary_map_file_path";
-    private static final String transitionChainFilePathKeyName = "transition_chain_file_path";
+    private static final String modelName = "DummyHWModel";
 
     private static final String binaryPathInputName = "binary_file_path_in";
     private static final String binaryPathOutputName = "binary_file_path_out";
@@ -26,41 +22,37 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     private static final String binaryExecutionStatsOutputName = "binary_execution_stats_out";
     private static final String binaryExecutionStatsInputName = "binary_execution_stats_in";
 
+    private static final String stepSizeKeyName = "step_size";
+
     private static final JSONObject meta = (JSONObject) JSONValue.parse(("{"
             + "    'api_version': '" + Simulator.API_VERSION + "',"
             + "    'type': 'event-based',"
             + "    'models': {"
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
-            + "            'params': ['"+DFAFilePathKeyName+"', '"+binaryMapFilePathKeyName+"', '"+transitionChainFilePathKeyName+"'],"
+            + "            'params': ['init_val'],"
             + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName+"', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName+"']"
-            + "            'trigger': ['"+binaryExecutionStatsOutputName+"']"
+            + "            'trigger': ['"+binaryPathOutputName+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
 
     public static void main(String[] args) throws Throwable {
-        Simulator sim = new SoftwareSimulatorMosaikAPI();
+        Simulator sim = new DummyHWSimulator();
         SimProcess.startSimulation(args, sim);
     }
 
-    private SoftwareSimulationController softwareSimulationController;
-
+    private int idCounter = 0;
+//    private int stepSize = 1;
     private String simulatorID;
 
-    public SoftwareSimulatorMosaikAPI() {
-        super("SoftwareSimulator");
-        this.softwareSimulationController = new SoftwareSimulationController();
+    private final HashMap<String, DummyHWModel> instances;
+
+    public DummyHWSimulator() {
+        super("DummyHWSimulator");
+        this.instances = new HashMap<String, DummyHWModel>();
     }
 
     public String getSimulatorID() {
         return this.simulatorID;
-    }
-
-    public boolean hasOutput() {
-        return this.softwareSimulationController.hasBinaryFilePath();
-    }
-
-    public String getOutput() {
-        return this.softwareSimulationController.getBinaryFilePath();
     }
 
     @SuppressWarnings("unchecked")
@@ -70,19 +62,11 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
 
         for (int i = 0; i < num; i++) {
 
-            String eid = "SW_Model";
+            String eid = "HW_Model_" + (this.idCounter + i);
 
-            if (modelParams.containsKey(DFAFilePathKeyName) 
-            && modelParams.containsKey(binaryMapFilePathKeyName)
-            && modelParams.containsKey(transitionChainFilePathKeyName)) {
-                String DFAFilePath = (String) modelParams.get(DFAFilePathKeyName);
-                String binaryMapFilePath = (String) modelParams.get(binaryMapFilePathKeyName);
-                String transitionChainFilePath = (String) modelParams.get(transitionChainFilePathKeyName);
+            this.instances.put(eid, new DummyHWModel());
 
-                this.softwareSimulationController.initSoftwareSimulation(DFAFilePath, binaryMapFilePath, transitionChainFilePath);
-            } else {
-                continue;
-            }
+            System.out.println("Added DummyHWModel");
 
             JSONObject entity = new JSONObject();
             entity.put("eid", eid);
@@ -90,7 +74,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             entity.put("rel", new JSONArray());
             entities.add(entity);
         }
-        System.out.println("sw_model created");
+        this.idCounter += num;
         return entities;
     }
 
@@ -102,15 +86,16 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             String eid = entity.getKey();
             List<String> attrs = entity.getValue();
             HashMap<String, Object> values = new HashMap<String, Object>();
+            DummyHWModel instance = this.instances.get(eid);
 
-            if (this.hasOutput()) {
+            if (instance.hasOutput()) {
                 for (String attr : attrs) {
-                    System.out.println("SWSimulator output attribute: " + attr);
-                    if (attr.equals(binaryPathOutputName)) {
-                        String output = this.getOutput();
-                        System.out.println("SWSimulator outputting binaryPath: " + output);
+                    System.out.println("HWSimulator output attribute: " + attr);
+                    if (attr.equals(binaryExecutionStatsOutputName)) {
+                        String output = instance.mockExecutionStats();
+                        System.out.println("HWSimulator outputting binaryExecutionStats: " + output);
                         values.put(attr, output);
-                        System.out.println("SWSimulator output binaryPath: " + values.get(attr));
+                        System.out.println("HWSimulator output binaryExecutionStats: " + values.get(attr));
                     }
                 }
                 data.put(eid, values);
@@ -123,7 +108,12 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     @Override
     public Map<String, Object> init(String sid, Float timeResolution, Map<String, Object> simParams) throws Exception {
         this.simulatorID = sid;
-        return SoftwareSimulatorMosaikAPI.meta;
+        /*
+        if (simParams.containsKey(stepSizeKeyName)) {
+            this.stepSize = ((Number) simParams.get(stepSizeKeyName)).intValue();
+        }
+        */
+        return DummyHWSimulator.meta;
     }
 
     @SuppressWarnings("unchecked")
@@ -134,15 +124,15 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             Map<String, Object> attrs = (Map<String, Object>) entity.getValue();
 
             for (Map.Entry<String, Object> attr : attrs.entrySet()) {
-                System.out.println("SWSimulator input attribute: " + attr);
+                System.out.println("HWSimulator input attribute: " + attr);
                 String attrName = attr.getKey();
-                // Output from other simulator is the input
-                if (attrName.equals(binaryExecutionStatsOutputName)) {
-                    Collection<Object> binaryExecutionStats = ((JSONObject) attr.getValue()).values();
-                    if (!binaryExecutionStats.isEmpty()) {
-                        String input = (String) (binaryExecutionStats.stream().findFirst().get());
-                        System.out.println("SWSimulator receiving binaryExecutionStats: " + input);
-                        this.softwareSimulationController.addBinaryExecutionStats(input);
+                // Output attribute from the other simulator is the input
+                if (attrName.equals(binaryPathOutputName)) {
+                    Collection<Object> binaryPaths = ((JSONObject) attr.getValue()).values();
+                    if (!binaryPaths.isEmpty()) {
+                        String input = (String) (binaryPaths.stream().findFirst().get());
+                        System.out.println("HWSimulator receiving binaryPath: " + input);
+                        this.instances.values().forEach(model -> model.setCurrentBinaryPath(input));
                     }
                 }
                 else {
@@ -151,14 +141,33 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             }
         }
 
-        System.out.println("SWSimulator stepping at time: " + time 
+        System.out.println("HWSimulator stepped at time: " + time 
         //+ ", next step at time: " + (time + this.stepSize)
         );
 
-        if (this.softwareSimulationController.isSimulationRunning()) {
-            this.softwareSimulationController.resumeController();
+        return null;
+    }
+
+    public class DummyHWModel {
+        private String currentBinaryPath;
+
+        public DummyHWModel() {
+
         }
 
-        return null;
+        public void setCurrentBinaryPath(String binaryPath) {
+            this.currentBinaryPath = binaryPath;
+            System.out.println("DummyHWModel binaryPath set to: " + this.currentBinaryPath);
+        }
+
+        public String mockExecutionStats() {
+            String result = this.currentBinaryPath + "_stats";
+            this.currentBinaryPath = "";
+            return result;
+        }
+
+        public boolean hasOutput() {
+            return this.currentBinaryPath != null && !this.currentBinaryPath.isEmpty();
+        }
     }
 }
