@@ -27,4 +27,9 @@ public class ScriptedTransitionEntry implements Cloneable {
         return castedO.input.charValue() == this.input.charValue() &&
             castedO.time.doubleValue() == this.time.doubleValue();
     }
+
+    @Override
+    public String toString() {
+        return "input: " + this.input + ", time: " + this.time.doubleValue();
+    }
 }

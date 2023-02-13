@@ -1,20 +1,14 @@
 package hwswcosim.swsim;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import tel.schich.automata.DFA;
 import tel.schich.automata.NamedState;
@@ -156,30 +150,9 @@ public class DFAWrapperParser {
         return binaryMap;
     }
 
-    protected Collection<ScriptedTransitionEntry> parseTransitionChain(String transitionChainFilePath) {
-        JSONArray transitionChainArray = null;
-
-        try {
-            transitionChainArray = (JSONArray) JSONValue.parse(new FileReader(transitionChainFilePath));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        ArrayList<ScriptedTransitionEntry> transitionChain = new ArrayList<ScriptedTransitionEntry>();
-
-        for (Object o : transitionChainArray) {
-            JSONObject castedO = (JSONObject) o;
-
-            transitionChain.add(new ScriptedTransitionEntry(((String) castedO.get("input")).charAt(0), Double.parseDouble((String) castedO.get("time"))));
-        }
-
-        return transitionChain;
-    }
-
-    public DFAWrapper parseDFAWrapper(String DFAFilePath, String binaryMapFilePath, String transitionChainFilePath) {
+    public DFAWrapper parseDFAWrapper(String DFAFilePath, String binaryMapFilePath) {
         return new DFAWrapper(
             this.parseDFA(DFAFilePath), 
-            this.parseTransitionToBinaryMap(binaryMapFilePath),
-            this.parseTransitionChain(transitionChainFilePath));
+            this.parseTransitionToBinaryMap(binaryMapFilePath));
     }
 }
