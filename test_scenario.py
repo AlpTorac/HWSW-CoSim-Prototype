@@ -1,12 +1,26 @@
 import mosaik
 import mosaik.util
 
+import fnmatch
+import os
+
+# Get the root directory of the project
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Gather all .jar files inside the project
+dependencies = ''
+for root, dirnames, filenames in os.walk(ROOT_DIR):
+    for filename in fnmatch.filter(filenames, '*.jar'):
+        dependencies += ':' + os.path.join(root, filename)
+
+# Run the main(...) methods of the mosaik APIs
+# with the dependencies gathered above
 SIM_CONFIG = {
     'SoftwareSimulator': {
-        'cmd': 'java -cp swsim/target/swsim-1.jar:mosaik-api-java/dist/*:JavaSim/target/javasim-2.3.jar:Automata/target/automata-0.2.2-SNAPSHOT.jar hwswcosim.swsim.SoftwareSimulatorMosaikAPI %(addr)s',
+        'cmd': 'java -cp ./swsim/target/swsim-1.jar'+dependencies+' hwswcosim.swsim.SoftwareSimulatorMosaikAPI %(addr)s',
     },
     'DummyHWSimulator': {
-        'cmd': 'java -cp swsim/target/swsim-1.jar:mosaik-api-java/dist/*:JavaSim/target/javasim-2.3.jar:Automata/target/automata-0.2.2-SNAPSHOT.jar hwswcosim.swsim.DummyHWSimulator %(addr)s',
+        'cmd': 'java -cp ./swsim/target/swsim-1.jar'+dependencies+' hwswcosim.swsim.DummyHWSimulator %(addr)s',
     },
 }
 END = 7
@@ -18,11 +32,13 @@ world = mosaik.World(SIM_CONFIG)
 software_simulator = world.start('SoftwareSimulator', eid_prefix='SoftwareDFA_')
 hardware_simulator = world.start('DummyHWSimulator', eid_prefix='HWModel_')
 
+RESOURCES_FOLDER = ROOT_DIR+'/swsim/src/test/resources'
+
 # Instantiate models
 sw_model = software_simulator.DFAWrapper(
-    dfa_file_path="/root/HWSW-CoSim-Prototype-SWSim/swsim/src/test/resources/dfa.json",
-    transition_to_binary_map_file_path="/root/HWSW-CoSim-Prototype-SWSim/swsim/src/test/resources/binaryMap.json",
-    transition_chain_file_path="/root/HWSW-CoSim-Prototype-SWSim/swsim/src/test/resources/transitionChain.json")
+    dfa_file_path=RESOURCES_FOLDER+'/dfa.json',
+    transition_to_binary_map_file_path=RESOURCES_FOLDER+'/binaryMap.json',
+    transition_chain_file_path=RESOURCES_FOLDER+'/transitionChain.json')
 
 hw_model = hardware_simulator.DummyHWModel(init_val=1)
 
