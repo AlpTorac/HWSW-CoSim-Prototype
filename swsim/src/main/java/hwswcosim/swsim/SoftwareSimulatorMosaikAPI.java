@@ -14,6 +14,7 @@ import de.offis.mosaik.api.Simulator;
 
 public class SoftwareSimulatorMosaikAPI extends Simulator {
 
+    private static final String simulatorName = "SoftwareSimulator";
     private static final String modelName = "DFAWrapper";
 
     private static final String DFAFilePathKeyName = "dfa_file_path";
@@ -47,7 +48,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     private String simulatorID;
 
     public SoftwareSimulatorMosaikAPI() {
-        super("SoftwareSimulator");
+        super(simulatorName);
         this.softwareSimulationController = new SoftwareSimulationController();
     }
 
@@ -68,29 +69,28 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     public List<Map<String, Object>> create(int num, String model, Map<String, Object> modelParams) throws Exception {
         JSONArray entities = new JSONArray();
 
-        for (int i = 0; i < num; i++) {
+        String eid = "SW_Model";
 
-            String eid = "SW_Model";
+        if (modelParams.containsKey(DFAFilePathKeyName) 
+        && modelParams.containsKey(binaryMapFilePathKeyName)
+        && modelParams.containsKey(transitionChainFilePathKeyName)) {
+            String DFAFilePath = (String) modelParams.get(DFAFilePathKeyName);
+            String binaryMapFilePath = (String) modelParams.get(binaryMapFilePathKeyName);
+            String transitionChainFilePath = (String) modelParams.get(transitionChainFilePathKeyName);
 
-            if (modelParams.containsKey(DFAFilePathKeyName) 
-            && modelParams.containsKey(binaryMapFilePathKeyName)
-            && modelParams.containsKey(transitionChainFilePathKeyName)) {
-                String DFAFilePath = (String) modelParams.get(DFAFilePathKeyName);
-                String binaryMapFilePath = (String) modelParams.get(binaryMapFilePathKeyName);
-                String transitionChainFilePath = (String) modelParams.get(transitionChainFilePathKeyName);
-
-                this.softwareSimulationController.initSoftwareSimulation(DFAFilePath, binaryMapFilePath, transitionChainFilePath);
-            } else {
-                continue;
-            }
+            this.softwareSimulationController.initSoftwareSimulation(DFAFilePath, binaryMapFilePath, transitionChainFilePath);
 
             JSONObject entity = new JSONObject();
             entity.put("eid", eid);
             entity.put("type", model);
             entity.put("rel", new JSONArray());
             entities.add(entity);
+
+            System.out.println("sw_model created");
+        } else {
+
         }
-        System.out.println("sw_model created");
+
         return entities;
     }
 
