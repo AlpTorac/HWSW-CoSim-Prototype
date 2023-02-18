@@ -9,11 +9,9 @@ binary_path_output_name = 'binary_file_path_out'
 binary_execution_stats_output_name = 'binary_execution_stats_out'
 binary_execution_stats_input_name = 'binary_execution_stats_in'
 
-gem5_build_path_name = 'gem5_build_path'
-gem5_output_file_path_name = 'gem5_output_file_path'
-gem5_options_name = 'gem5_options'
-hardware_script_path_name = 'hardware_script_path'
-hardware_script_options_name = 'hardware_script_options'
+gem5_run_command_name = 'gem5_run_command'
+gem5_output_path_name = 'gem5_output_path'
+hardware_script_run_command_name = 'hardware_script_run_command'
 
 META = {
     'api_version': mosaik_api.__api_version__,
@@ -21,7 +19,7 @@ META = {
     'models': {
         modelName: {
             'public': True,
-            'params': [gem5_build_path_name, gem5_output_file_path_name, gem5_options_name, hardware_script_path_name, hardware_script_options_name],
+            'params': [gem5_run_command_name, gem5_output_path_name, hardware_script_run_command_name],
             'attrs': [binary_path_input_name, binary_path_output_name, binary_execution_stats_output_name, binary_execution_stats_input_name]
         },
     },
@@ -33,8 +31,7 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
         self.eid_prefix = ''
         self.simulator = None
 
-    def init(self, sid, time_resolution, eid_prefix=None, gem5_build_path=None,
-    hardware_script_path=None, hardware_script_options=None, gem5_options=None):
+    def init(self, sid, time_resolution, eid_prefix=None):
         #if float(time_resolution) != 1.:
         #    raise ValueError('ExampleSim only supports time_resolution=1., but'
         #                     ' %s was set.' % time_resolution)
@@ -43,12 +40,12 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
         self.simulator = hardware_simulator.HardwareSimulator()
         return self.meta
 
-    def create(self, num, model, gem5_build_path, gem5_output_file_path,
-    gem5_options, hardware_script_path, hardware_script_options):
+    def create(self, num, model, gem5_run_command, gem5_output_path,
+    hardware_script_run_command):
         entities = []
 
-        self.simulator.init_hardware_model(gem5_build_path, gem5_output_file_path,
-        gem5_options, hardware_script_path, hardware_script_options)
+        self.simulator.init_hardware_model(gem5_run_command, gem5_output_path,
+        hardware_script_run_command)
         eid = '%s%d' % (self.eid_prefix, 0)
         entities.append({'eid': eid, 'type': model})
 

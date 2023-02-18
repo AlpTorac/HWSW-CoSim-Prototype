@@ -2,30 +2,41 @@ import os
 import os.path
 import shutil
 class HardwareModel():
-    def __init__(self, gem5_build_path, gem5_output_file_path,
-    gem5_options, hardware_script_path, hardware_script_options):
-        self.gem5_build_path = gem5_build_path
-        self.gem5_output_file_path = gem5_output_file_path
-        self.gem5_options = gem5_options
-        self.hardware_script_path = hardware_script_path
-        self.hardware_script_options = hardware_script_options
+    def __init__(self, gem5_run_command, gem5_output_path,
+    hardware_script_run_command):
+        self.gem5_run_command = gem5_run_command
+        self.gem5_output_path = gem5_output_path
+        self.hardware_script_run_command = hardware_script_run_command
+
+        self.number_of_binaries_run = 0
 
         self.binary_execution_stats_path = None
     
     def run_binary(self, binary_path, binary_arguments=''):
-        self.current_binary_path = binary_path
-        os.system(self.gem5_build_path + ' ' + self.gem5_options + ' '
-        + self.hardware_script_path + ' ' + self.hardware_script_options
-        + ' --binary_path=' + binary_path + ' ' + binary_arguments)
-
-        # wait for the execution to finish
-        while not os.path.isfile('/root/HWSW-CoSim-Prototype/hwsimOut/config.json'):
-            if (os.path.isfile('/root/HWSW-CoSim-Prototype/hwsimOut/config.json')):
-                break
         
-        shutil.rmtree('/root/HWSW-CoSim-Prototype/hwsimOut')
+        current_output_dir = self.gem5_output_path + '/' + str(self.number_of_binaries_run)
 
-        self.binary_execution_stats_path = self.gem5_output_file_path
+        # Run the given hardware script from the command line with the given command,
+        # binary path and binary arguments
+        os.system(self.gem5_run_command + ' '
+        + '--outdir=' + current_output_dir + ' '
+        + self.hardware_script_run_command + ' '
+        + '--binary_path=' + binary_path + ' '
+        + binary_arguments)
+
+        # Wait for the execution to finish by checking whether the configuration
+        # file created at the end is there
+        output_config_path = current_output_dir + '/config.json'
+        while not os.path.isfile(output_config_path):
+            if (os.path.isfile(output_config_path)):
+                break
+
+        # After the wait above, the statistics should have been finalised
+        # so change the binary_execution_stats_path variable to its path
+        self.binary_execution_stats_path = current_output_dir + '/stats.txt'
+
+        # Increment the number of binaries run
+        self.number_of_binaries_run += 1
     
     def get_execution_stats(self):
         result = self.binary_execution_stats_path

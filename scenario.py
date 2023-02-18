@@ -43,11 +43,9 @@ sw_model = software_simulator.DFAWrapper(
     transition_chain_file_path=RESOURCES_FOLDER+'/transitionChain.json')
 
 hw_model = hardware_simulator.HWModel(
-    gem5_build_path=GEM5_PATH,
-    gem5_output_file_path=ROOT_DIR+'/hwsimOut/stats.txt',
-    gem5_options='--outdir='+ROOT_DIR+'/hwsimOut',
-    hardware_script_path=ROOT_DIR+'/hwsim/hardware_script.py',
-    hardware_script_options='')
+    gem5_run_command=GEM5_PATH,
+    gem5_output_path=ROOT_DIR+'/hwsimOut',
+    hardware_script_run_command=ROOT_DIR+'/hwsim/hardware_script.py')
 
 world.connect(sw_model, hw_model, 'binary_file_path_out', 'binary_file_path_in')
 world.connect(hw_model, sw_model, 'binary_execution_stats_out', 'binary_execution_stats_in', weak=True)
