@@ -22,16 +22,14 @@ public class DummyHWSimulator extends Simulator {
     private static final String binaryExecutionStatsOutputName = "binary_execution_stats_out";
     private static final String binaryExecutionStatsInputName = "binary_execution_stats_in";
 
-    private static final String stepSizeKeyName = "step_size";
-
     private static final JSONObject meta = (JSONObject) JSONValue.parse(("{"
             + "    'api_version': '" + Simulator.API_VERSION + "',"
             + "    'type': 'event-based',"
             + "    'models': {"
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
-            + "            'params': ['init_val'],"
+            + "            'params': '',"
             + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName+"', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName+"']"
-            + "            'trigger': ['"+binaryPathOutputName+"']"
+//            + "            'trigger': ['"+binaryPathOutputName+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
 

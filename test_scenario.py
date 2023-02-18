@@ -40,7 +40,7 @@ sw_model = software_simulator.DFAWrapper(
     transition_to_binary_map_file_path=RESOURCES_FOLDER+'/binaryMap.json',
     transition_chain_file_path=RESOURCES_FOLDER+'/transitionChain.json')
 
-hw_model = hardware_simulator.DummyHWModel(init_val=1)
+hw_model = hardware_simulator.DummyHWModel()
 
 world.connect(sw_model, hw_model, 'binary_file_path_out', 'binary_file_path_in')
 world.connect(hw_model, sw_model, 'binary_execution_stats_out', 'binary_execution_stats_in', weak=True)

@@ -33,7 +33,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
             + "            'params': ['"+DFAFilePathKeyName+"', '"+binaryMapFilePathKeyName+"', '"+transitionChainFilePathKeyName+"'],"
             + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName+"', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName+"']"
-            + "            'trigger': ['"+binaryExecutionStatsOutputName+"']"
+//            + "            'trigger': ['"+binaryExecutionStatsOutputName+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
 
@@ -151,13 +151,13 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             }
         }
 
-        System.out.println("SWSimulator stepping at time: " + time 
-        //+ ", next step at time: " + (time + this.stepSize)
-        );
-
         if (this.softwareSimulationController.isSimulationRunning()) {
             this.softwareSimulationController.resumeController();
         }
+
+        System.out.println("SWSimulator stepped at time: " + time 
+        //+ ", next step at time: " + (time + this.stepSize)
+        );
 
         return null;
     }
