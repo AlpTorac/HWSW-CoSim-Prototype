@@ -1,5 +1,7 @@
 package hwswcosim.swsim;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -129,7 +131,7 @@ public class DFAWrapperParser {
         return new DFA(states, transitions, startState, endStates);
     }
 
-    protected Map<PlannedTransition, String> parseTransitionToBinaryMap(String binaryMapFilePath) {
+    protected Collection<BinaryMapEntry> parseTransitionToBinaryMap(String binaryMapFilePath) {
         JSONArray binaryMapArray = null;
 
         try {
@@ -138,13 +140,21 @@ public class DFAWrapperParser {
             e.printStackTrace();
         }
 
-        Map<PlannedTransition, String> binaryMap = new HashMap<PlannedTransition, String>();
+        Collection<BinaryMapEntry> binaryMap = new ArrayList<BinaryMapEntry>();
 
         for (Object o : binaryMapArray) {
             JSONObject castedO = (JSONObject) o;
-            CharacterTransition t = this.parseTransition((String) castedO.get("transition"));
 
-            binaryMap.put(this.findTransition(t), (String) castedO.get("binary"));
+            CharacterTransition t = this.parseTransition((String) castedO.get("transition"));
+            String binaryPath = (String) castedO.get("binary");
+
+            Object binaryArguments = castedO.get("arguments");
+
+            if (binaryArguments == null) {
+                binaryMap.add(new BinaryMapEntry(this.findTransition(t), binaryPath, null));
+            } else {
+                binaryMap.add(new BinaryMapEntry(this.findTransition(t), binaryPath, (String) castedO.get("arguments")));
+            }
         }
 
         return binaryMap;

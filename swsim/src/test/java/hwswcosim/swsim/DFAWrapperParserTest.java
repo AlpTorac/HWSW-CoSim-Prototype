@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -100,15 +101,15 @@ public class DFAWrapperParserTest
 
         assertNotNull(dfa);
 
-        Map<PlannedTransition, String> map = parser.parseTransitionToBinaryMap(binaryMapFilePath);
+        Collection<BinaryMapEntry> map = parser.parseTransitionToBinaryMap(binaryMapFilePath);
 
         assertEquals(6, map.size());
 
         assertTrue(this.binaryMapContains(map, "q0", "q1", 'a', "BNP1"));
         assertTrue(this.binaryMapContains(map, "q1", "q2", 'a', "BNP2"));
-        assertTrue(this.binaryMapContains(map, "q2", "q3", 'a', "BNP3"));
-        assertTrue(this.binaryMapContains(map, "q2", "q0", 'd', "BNP4"));
-        assertTrue(this.binaryMapContains(map, "q2", "q1", 'b', "BNP5"));
+        assertTrue(this.binaryMapContains(map, "q2", "q3", 'a', "BNP3", "abc cba"));
+        assertTrue(this.binaryMapContains(map, "q2", "q0", 'd', "BNP4", ""));
+        assertTrue(this.binaryMapContains(map, "q2", "q1", 'b', "BNP5", "abc"));
         assertTrue(this.binaryMapContains(map, "q0", "q4", 'c', "BNP6"));
     }
 
@@ -118,12 +119,24 @@ public class DFAWrapperParserTest
         });
     }
 
-    private boolean binaryMapContains(Map<PlannedTransition, String> map, String sourceLabel, String targetLabel, char input, String binaryPath) {
-        return map.entrySet().stream().anyMatch(e -> {
-            CharacterTransition t = (CharacterTransition) e.getKey();
-            String bp = e.getValue();
+    private boolean binaryMapContains(Collection<BinaryMapEntry> map, String sourceLabel, String targetLabel, char input, String binaryPath) {
+        return map.stream().anyMatch(e -> {
+            CharacterTransition t = (CharacterTransition) e.transition;
+            String bp = e.binaryPath;
 
                 return transitionEquals(t, sourceLabel, targetLabel, input) && bp.equals(binaryPath);
+            });
+    }
+    private boolean binaryMapContains(Collection<BinaryMapEntry> map, String sourceLabel, String targetLabel, char input, String binaryPath, String binaryArguments) {
+        return map.stream().anyMatch(e -> {
+            CharacterTransition t = (CharacterTransition) e.transition;
+            String bp = e.binaryPath;
+            String bargs = e.binaryArguments;
+
+            boolean bargsEqual = bargs == binaryArguments || (!(bargs == null ^ binaryArguments == null) && bargs.equals(binaryArguments));
+
+                return transitionEquals(t, sourceLabel, targetLabel, input) && bp.equals(binaryPath)
+                && bargsEqual;
             });
     }
 

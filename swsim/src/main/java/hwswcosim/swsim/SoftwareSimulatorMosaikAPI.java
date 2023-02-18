@@ -23,6 +23,8 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
 
     private static final String binaryPathInputName = "binary_file_path_in";
     private static final String binaryPathOutputName = "binary_file_path_out";
+    private static final String binaryArgumentsInputName = "binary_file_arguments_in";
+    private static final String binaryArgumentsOutputName = "binary_file_arguments_out";
 
     private static final String binaryExecutionStatsOutputName = "binary_execution_stats_out";
     private static final String binaryExecutionStatsInputName = "binary_execution_stats_in";
@@ -33,7 +35,9 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             + "    'models': {"
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
             + "            'params': ['"+DFAFilePathKeyName+"', '"+binaryMapFilePathKeyName+"', '"+transitionChainFilePathKeyName+"'],"
-            + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName+"', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName+"']"
+            + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName
+            +"', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName
+            +"', '"+binaryArgumentsInputName+"', '"+binaryArgumentsOutputName+"']"
 //            + "            'trigger': ['"+binaryExecutionStatsOutputName+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
@@ -60,8 +64,12 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
         return this.softwareSimulationController.hasBinaryFilePath();
     }
 
-    public String getOutput() {
+    public String getBinaryPathOutput() {
         return this.softwareSimulationController.getBinaryFilePath();
+    }
+
+    public String getBinaryArgumentsOutput() {
+        return this.softwareSimulationController.getBinaryArguments();
     }
 
     @SuppressWarnings("unchecked")
@@ -107,10 +115,16 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
                 for (String attr : attrs) {
                     System.out.println("SWSimulator output attribute: " + attr);
                     if (attr.equals(binaryPathOutputName)) {
-                        String output = this.getOutput();
+                        String output = this.getBinaryPathOutput();
                         System.out.println("SWSimulator outputting binaryPath: " + output);
                         values.put(attr, output);
                         System.out.println("SWSimulator output binaryPath: " + values.get(attr));
+                    }
+                    else if (attr.equals(binaryArgumentsOutputName)) {
+                        String output = this.getBinaryArgumentsOutput();
+                        System.out.println("SWSimulator outputting binaryArguments: " + output);
+                        values.put(attr, output);
+                        System.out.println("SWSimulator output binaryArguments: " + values.get(attr));
                     }
                 }
                 data.put(eid, values);

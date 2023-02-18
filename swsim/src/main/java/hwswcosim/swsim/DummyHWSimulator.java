@@ -2,6 +2,7 @@ package hwswcosim.swsim;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -18,6 +19,8 @@ public class DummyHWSimulator extends Simulator {
 
     private static final String binaryPathInputName = "binary_file_path_in";
     private static final String binaryPathOutputName = "binary_file_path_out";
+    private static final String binaryArgumentsInputName = "binary_file_arguments_in";
+    private static final String binaryArgumentsOutputName = "binary_file_arguments_out";
 
     private static final String binaryExecutionStatsOutputName = "binary_execution_stats_out";
     private static final String binaryExecutionStatsInputName = "binary_execution_stats_in";
@@ -28,7 +31,9 @@ public class DummyHWSimulator extends Simulator {
             + "    'models': {"
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
             + "            'params': '',"
-            + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName+"', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName+"']"
+            + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName
+            +"', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName
+            +"', '"+binaryArgumentsInputName+"', '"+binaryArgumentsOutputName+"']"
 //            + "            'trigger': ['"+binaryPathOutputName+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
@@ -133,6 +138,17 @@ public class DummyHWSimulator extends Simulator {
                         this.instances.values().forEach(model -> model.setCurrentBinaryPath(input));
                     }
                 }
+                else if (attrName.equals(binaryArgumentsOutputName)) {
+                    Collection<Object> binaryArguments = ((JSONObject) attr.getValue()).values();
+                    if (!binaryArguments.isEmpty()) {
+                        Optional<Object> bargs = binaryArguments.stream().filter(e -> e != null).findFirst();
+                        if (bargs.isPresent()) {
+                            String input = (String) (bargs.get());
+                            System.out.println("HWSimulator receiving binaryArguments: " + input);
+                            this.instances.values().forEach(model -> model.setCurrentBinaryArguments(input));
+                        }
+                    }
+                }
                 else {
                 	continue;
                 }
@@ -148,6 +164,7 @@ public class DummyHWSimulator extends Simulator {
 
     public class DummyHWModel {
         private String currentBinaryPath;
+        private String currentBinaryArguments;
 
         public DummyHWModel() {
 
@@ -156,6 +173,11 @@ public class DummyHWSimulator extends Simulator {
         public void setCurrentBinaryPath(String binaryPath) {
             this.currentBinaryPath = binaryPath;
             System.out.println("DummyHWModel binaryPath set to: " + this.currentBinaryPath);
+        }
+
+        public void setCurrentBinaryArguments(String binaryArguments) {
+            this.currentBinaryArguments = binaryArguments;
+            System.out.println("DummyHWModel binaryArguments set to: " + this.currentBinaryArguments);
         }
 
         public String mockExecutionStats() {

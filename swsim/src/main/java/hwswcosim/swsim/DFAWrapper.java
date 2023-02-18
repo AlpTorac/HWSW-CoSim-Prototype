@@ -3,6 +3,7 @@ package hwswcosim.swsim;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 import tel.schich.automata.DFA;
 import tel.schich.automata.State;
@@ -11,13 +12,14 @@ import tel.schich.automata.transition.PlannedTransition;
 
 public class DFAWrapper {
     private DFA dfa;
-    private Map<PlannedTransition, String> binaryMap;
+    private Collection<BinaryMapEntry> binaryMap;
     private ArrayList<PlannedTransition> takenTransitions;
 
     private State currentState;
     private String currentBinaryPath;
+    private String currentBinaryArguments;
 
-    public DFAWrapper(DFA dfa, Map<PlannedTransition, String> binaryMap) {
+    public DFAWrapper(DFA dfa, Collection<BinaryMapEntry> binaryMap) {
         this.dfa = dfa;
         this.binaryMap = binaryMap;
         this.currentState = this.dfa.getStartState();
@@ -27,10 +29,15 @@ public class DFAWrapper {
     public void transition(char input) {
         PlannedTransition transition = this.dfa.getTransitionFor(currentState, input);
 
-        this.currentBinaryPath = this.binaryMap.get(transition);
+        BinaryMapEntry entry = this.getBinaryMapEntry(transition);
 
-        this.currentState = dfa.transition(this.currentState, input);
-        this.takenTransitions.add(transition);
+        if (entry != null) {
+            this.currentBinaryPath = entry.binaryPath;
+            this.currentBinaryArguments = entry.binaryArguments;
+
+            this.currentState = dfa.transition(this.currentState, input);
+            this.takenTransitions.add(transition);
+        }
     }
 
     public Collection<PlannedTransition> getTakenTransitions() {
@@ -49,11 +56,31 @@ public class DFAWrapper {
         return binaryPath;
     }
 
+    public String getCurrentBinaryArguments() {
+        String binaryArguments = this.currentBinaryArguments;
+        this.currentBinaryArguments = null;
+        return binaryArguments;
+    }
+
+    public boolean hasBinaryArguments() {
+        return this.currentBinaryArguments != null;
+    }
+
     public boolean hasBinaryFilePath() {
         return this.currentBinaryPath != null;
     }
 
     protected Number translateTime(long time) {
         return Double.valueOf(time);
+    }
+
+    private BinaryMapEntry getBinaryMapEntry(PlannedTransition transition) {
+        Optional<BinaryMapEntry> entry = this.binaryMap.stream().filter(e -> e.transition.equals(transition)).findFirst();
+
+        if (entry.isPresent()) {
+            return entry.get();
+        } else {
+            return null;
+        }
     }
 }

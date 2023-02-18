@@ -1,17 +1,12 @@
 package hwswcosim.swsim;
 
-public class ScriptedTransitionEntry implements Cloneable {
+public class ScriptedTransitionEntry {
     public final Character input;
     public final Number time;
 
     public ScriptedTransitionEntry(Character input, Number time) {
         this.input = input;
         this.time = time;
-    }
-
-    @Override
-    public ScriptedTransitionEntry clone() {
-        return new ScriptedTransitionEntry(Character.valueOf(input.charValue()), Double.valueOf(time.doubleValue()));
     }
 
     @Override

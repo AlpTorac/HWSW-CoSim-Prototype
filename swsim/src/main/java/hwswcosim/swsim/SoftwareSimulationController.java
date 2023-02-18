@@ -113,6 +113,14 @@ public class SoftwareSimulationController extends SimulationProcess {
         return this.simulator.getBinaryFilePath();
     }
 
+    public boolean hasBinaryArguments() {
+        return this.simulator.hasBinaryArguments();
+    }
+
+    public String getBinaryArguments() {
+        return this.simulator.getBinaryArguments();
+    }
+
     public void addBinaryExecutionStats(String binaryExecutionStatsText) {
         this.simulator.addBinaryExecutionStats(binaryExecutionStatsText);
     }
