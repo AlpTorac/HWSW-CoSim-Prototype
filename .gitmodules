@@ -7,3 +7,6 @@
 [submodule "Automata"]
 	path = Automata
 	url = https://github.com/pschichtel/Automata
+[submodule "gem5"]
+	path = gem5
+	url = https://gem5.googlesource.com/public/gem5
