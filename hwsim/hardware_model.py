@@ -1,15 +1,36 @@
+import os
+import os.path
+import shutil
 class HardwareModel():
-    def __init__(self):
-        self.current_binary_path = ''
+    def __init__(self, gem5_build_path, gem5_output_file_path,
+    gem5_options, hardware_script_path, hardware_script_options):
+        self.gem5_build_path = gem5_build_path
+        self.gem5_output_file_path = gem5_output_file_path
+        self.gem5_options = gem5_options
+        self.hardware_script_path = hardware_script_path
+        self.hardware_script_options = hardware_script_options
+
+        self.binary_execution_stats_path = None
     
-    def set_current_binary_path(self, binary_path):
+    def run_binary(self, binary_path, binary_arguments=''):
         self.current_binary_path = binary_path
-        return None
+        os.system(self.gem5_build_path + ' ' + self.gem5_options + ' '
+        + self.hardware_script_path + ' ' + self.hardware_script_options
+        + ' --binary_path=' + binary_path + ' ' + binary_arguments)
+
+        # wait for the execution to finish
+        while not os.path.isfile('/root/HWSW-CoSim-Prototype/hwsimOut/config.json'):
+            if (os.path.isfile('/root/HWSW-CoSim-Prototype/hwsimOut/config.json')):
+                break
+        
+        shutil.rmtree('/root/HWSW-CoSim-Prototype/hwsimOut')
+
+        self.binary_execution_stats_path = self.gem5_output_file_path
     
     def get_execution_stats(self):
-        result = self.current_binary_path+'_stats'
-        self.current_binary_path = ''
+        result = self.binary_execution_stats_path
+        self.binary_execution_stats_path = None
         return result
 
     def has_output(self):
-        return self.current_binary_path != ''
+        return self.binary_execution_stats_path != None
