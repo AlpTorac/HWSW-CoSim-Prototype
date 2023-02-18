@@ -5,12 +5,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.javasim.Simulation;
 import org.junit.Test;
 
 import tel.schich.automata.DFA;
@@ -18,7 +16,6 @@ import tel.schich.automata.NamedState;
 import tel.schich.automata.State;
 import tel.schich.automata.transition.CharacterTransition;
 import tel.schich.automata.transition.PlannedTransition;
-import de.offis.mosaik.api.Simulator;
 
 /**
  * Unit test for simple App.

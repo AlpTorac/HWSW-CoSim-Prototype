@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.NoSuchElementException;
 
 import org.javasim.RestartException;
-import org.javasim.Scheduler;
 import org.javasim.Simulation;
 import org.javasim.SimulationException;
 import org.javasim.SimulationProcess;
