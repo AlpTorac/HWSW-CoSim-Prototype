@@ -34,6 +34,14 @@ public class SoftwareSimulator {
         return this.model.getCurrentBinaryPath();
     }
 
+    public boolean hasBinaryArguments() {
+        return this.model.hasBinaryArguments();
+    }
+
+    public String getBinaryArguments() {
+        return this.model.getCurrentBinaryArguments();
+    }
+
     protected DFAWrapper parseDFAWrapper(String DFAFilePath, String binaryMapFilePath) {
         return new DFAWrapperParser().parseDFAWrapper(DFAFilePath, binaryMapFilePath);
     }

@@ -1,8 +1,8 @@
 [
 	{"transition": "(q0;q1;a)", "binary": "BNP1"},
 	{"transition": "(q1;q2;a)", "binary": "BNP2"},
-	{"transition": "(q2;q3;a)", "binary": "BNP3"},
-	{"transition": "(q2;q0;d)", "binary": "BNP4"},
-	{"transition": "(q2;q1;b)", "binary": "BNP5"},
+	{"transition": "(q2;q3;a)", "binary": "BNP3", "arguments": "abc cba"},
+	{"transition": "(q2;q0;d)", "binary": "BNP4", "arguments": ""},
+	{"transition": "(q2;q1;b)", "binary": "BNP5", "arguments": "abc"},
 	{"transition": "(q0;q4;c)", "binary": "BNP6"}
 ]
