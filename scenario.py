@@ -13,6 +13,8 @@ for root, dirnames, filenames in os.walk(ROOT_DIR):
     for filename in fnmatch.filter(filenames, '*.jar'):
         dependencies += ':' + os.path.join(root, filename)
 
+GEM5_PATH = ROOT_DIR+'/gem5/build/X86/gem5.opt'
+
 # Run the main(...) methods of the mosaik APIs
 # with the dependencies gathered above
 SIM_CONFIG = {
@@ -32,7 +34,7 @@ world = mosaik.World(SIM_CONFIG)
 software_simulator = world.start('SoftwareSimulator', eid_prefix='SoftwareDFA_')
 hardware_simulator = world.start('HWSimulator', eid_prefix='HWModel_')
 
-RESOURCES_FOLDER = ROOT_DIR+'/swsim/src/test/resources'
+RESOURCES_FOLDER = ROOT_DIR+'/cosim_scenario'
 
 # Instantiate models
 sw_model = software_simulator.DFAWrapper(
@@ -40,7 +42,12 @@ sw_model = software_simulator.DFAWrapper(
     transition_to_binary_map_file_path=RESOURCES_FOLDER+'/binaryMap.json',
     transition_chain_file_path=RESOURCES_FOLDER+'/transitionChain.json')
 
-hw_model = hardware_simulator.HWModel()
+hw_model = hardware_simulator.HWModel(
+    gem5_build_path=GEM5_PATH,
+    gem5_output_file_path=ROOT_DIR+'/hwsimOut/stats.txt',
+    gem5_options='--outdir='+ROOT_DIR+'/hwsimOut',
+    hardware_script_path=ROOT_DIR+'/hwsim/hardware_script.py',
+    hardware_script_options='')
 
 world.connect(sw_model, hw_model, 'binary_file_path_out', 'binary_file_path_in')
 world.connect(hw_model, sw_model, 'binary_execution_stats_out', 'binary_execution_stats_in', weak=True)
