@@ -25,7 +25,14 @@ SIM_CONFIG = {
         'cmd': '%(python)s ./hwsim/hardware_simulator_mosaik_API.py %(addr)s',
     },
 }
-END = 7
+# End needs a buffer of at least 2 time steps, otherwise the software simulator
+# cannot receive its last input from the hardware simulator.
+# 
+# Receiving input is a part of the step() method and if the time it outputs
+# is >= END, step() will not be called again. Therefore, to ensure that step() is
+# called to receive the last input, one has to give it a buffer of at least 2
+# time steps.
+END = 4
 
 # Create World
 world = mosaik.World(SIM_CONFIG)
