@@ -20,11 +20,11 @@ public class TransitionChainParserTest {
         assertEquals(chain.size(), 6);
 
         assertTrue(this.transitionChainContains(chain, 'a', Double.valueOf(1)));
-        assertTrue(this.transitionChainContains(chain, 'a', Double.valueOf(2)));
-        assertTrue(this.transitionChainContains(chain, 'b', Double.valueOf(3)));
-        assertTrue(this.transitionChainContains(chain, 'a', Double.valueOf(4)));
-        assertTrue(this.transitionChainContains(chain, 'd', Double.valueOf(5)));
-        assertTrue(this.transitionChainContains(chain, 'c', Double.valueOf(6)));
+        assertTrue(this.transitionChainContains(chain, 'a', Double.valueOf(3)));
+        assertTrue(this.transitionChainContains(chain, 'b', Double.valueOf(4)));
+        assertTrue(this.transitionChainContains(chain, 'a', Double.valueOf(7)));
+        assertTrue(this.transitionChainContains(chain, 'd', Double.valueOf(8)));
+        assertTrue(this.transitionChainContains(chain, 'c', Double.valueOf(10)));
     }
 
     private boolean transitionChainContains(Collection<ScriptedTransitionEntry> transitionChain, char input, Number time) {

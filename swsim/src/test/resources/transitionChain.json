@@ -1,8 +1,8 @@
 [
     {"input": "a", "time": "1"},
-    {"input": "a", "time": "2"},
-    {"input": "b", "time": "3"},
-    {"input": "a", "time": "4"},
-    {"input": "d", "time": "5"},
-    {"input": "c", "time": "6"}
+    {"input": "a", "time": "3"},
+    {"input": "b", "time": "4"},
+    {"input": "a", "time": "7"},
+    {"input": "d", "time": "8"},
+    {"input": "c", "time": "10"}
 ]
