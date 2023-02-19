@@ -165,8 +165,10 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             }
         }
 
-        if (this.softwareSimulationController.isSimulationRunning()) {
-            this.softwareSimulationController.resumeController();
+        this.softwareSimulationController.step();
+
+        while (!this.hasOutput() && !this.softwareSimulationController.isSimulationTerminated()) {
+
         }
 
         System.out.println("SWSimulator stepped at time: " + time 

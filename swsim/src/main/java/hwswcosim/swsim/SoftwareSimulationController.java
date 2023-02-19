@@ -1,7 +1,6 @@
 package hwswcosim.swsim;
 
 import java.util.Collection;
-import java.util.NoSuchElementException;
 
 import org.javasim.RestartException;
 import org.javasim.Simulation;
@@ -14,12 +13,12 @@ public class SoftwareSimulationController extends SimulationProcess {
 
     private TransitionChainParser transitionChainParser;
 
-    private WaitingProcess waitingProcess;
-
+    private volatile boolean isSimulationTerminated;
     private volatile boolean isSimulationRunning;
 
     public SoftwareSimulationController() {
-        this.isSimulationRunning = true;
+        this.isSimulationTerminated = false;
+        this.isSimulationRunning = false;
         this.transitionChainParser = new TransitionChainParser();
     }
 
@@ -41,7 +40,7 @@ public class SoftwareSimulationController extends SimulationProcess {
         this.transitionChain = this.transitionChainParser.parseTransitionChain(transitionChainFilePath);
     }
 
-    protected void scheduleNextTransitionEvent() {
+    protected TransitionEvent scheduleNextTransitionEvent() {
         ScriptedTransitionEntry ste = this.transitionChain.stream().findFirst().get();
         Number activationTime = ste.time;
         TransitionEvent event = new TransitionEvent(ste.input.charValue());
@@ -52,23 +51,7 @@ public class SoftwareSimulationController extends SimulationProcess {
         }
         this.transitionChain.remove(ste);
         System.out.println("Next event scheduled at time: " + activationTime.doubleValue());
-
-        this.waitingProcess = new WaitingProcess();
-
-        try {
-            this.waitingProcess.activateAfter(event);
-            System.out.println("Wait scheduled: " + this.waitingProcess.evtime());
-        } catch (NoSuchElementException | SimulationException | RestartException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            System.out.println("Switching to event, controller resumes at: " + this.waitingProcess.evtime());
-            this.suspendProcess();
-            System.out.println("Switching to controller");
-        } catch (RestartException e) {
-            e.printStackTrace();
-        }
+        return event;
     }
 
     @Override
@@ -77,9 +60,8 @@ public class SoftwareSimulationController extends SimulationProcess {
         Simulation.start();
         System.out.println("SWSimulation running");
 
-        while (!this.transitionChain.isEmpty()) {
-            System.out.println("SWSimulator simulation time = " + this.time());
-            this.scheduleNextTransitionEvent();
+        while (this.isSimulationRunning()) {
+            
         }
 
         Simulation.stop();
@@ -89,19 +71,11 @@ public class SoftwareSimulationController extends SimulationProcess {
 
     public void await() {
         this.resumeProcess();
-        SimulationProcess.mainSuspend();
     }
 
     public void exit() {
         System.out.println("Exiting simulation");
-        this.isSimulationRunning = false;
-
-        try {
-            SimulationProcess.mainResume();
-        } catch (SimulationException e) {
-            e.printStackTrace();
-        }
-
+        this.isSimulationTerminated = true;
         System.out.println("Exited simulation");
     }
 
@@ -125,39 +99,43 @@ public class SoftwareSimulationController extends SimulationProcess {
         this.simulator.addBinaryExecutionStats(binaryExecutionStatsText);
     }
 
-    public void resumeController() {
-        System.out.println("Resuming software simulation controller");
-        if (this.waitingProcess != null && !this.waitingProcess.terminated()) {
-            this.waitingProcess.terminate();
-            this.waitingProcess = null;
-            System.out.println("Waiting over");
+    public boolean hasUnscheduledTransitionEvents() {
+        return !this.transitionChain.isEmpty();
+    }
+
+    public void step() {
+        if (!this.isSimulationTerminated()) {
+            System.out.println("Switching to controller");
+            this.await();
+
+            if (this.hasUnscheduledTransitionEvents()) {
+                this.isSimulationRunning = true;
+                System.out.println("SWSimulator simulation time = " + this.time());
+                TransitionEvent scheduledEvent = this.scheduleNextTransitionEvent();
+
+                try {
+                    System.out.println("Switching to event");
+                    this.reactivateAfter(scheduledEvent);
+                } catch (SimulationException | RestartException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                this.isSimulationRunning = false;
+            }
         }
-        this.await();
     }
 
     public boolean isSimulationRunning() {
         return this.isSimulationRunning;
     }
 
+    public boolean isSimulationTerminated() {
+        return this.isSimulationTerminated;
+    }
+
     private void triggerTransitionEvent(char input) {
         this.simulator.performTransition(input);
         System.out.println("Transition event performed");
-    }
-
-    protected class WaitingProcess extends SimulationProcess {
-        public void run() {
-            try {
-                SimulationProcess.mainResume();
-            } catch (SimulationException e) {
-                e.printStackTrace();
-            }
-
-            System.out.println("Waiting ...");
-
-            while (isSimulationRunning()) {
-                
-            }
-        }
     }
 
     protected class TransitionEvent extends SimulationProcess {
@@ -173,7 +151,6 @@ public class SoftwareSimulationController extends SimulationProcess {
             triggerTransitionEvent(this.input);
             System.out.println("TransitionEvent terminating");
             this.terminate();
-            System.out.println("TransitionEvent terminated");
         }
     }
 }
