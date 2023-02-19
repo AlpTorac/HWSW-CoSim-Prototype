@@ -8,6 +8,8 @@ binary_path_output_name = 'binary_file_path_out'
 
 binary_execution_stats_output_name = 'binary_execution_stats_out'
 binary_execution_stats_input_name = 'binary_execution_stats_in'
+binary_arguments_input_name = "binary_file_arguments_in"
+binary_arguments_output_name = "binary_file_arguments_out"
 
 gem5_run_command_name = 'gem5_run_command'
 gem5_output_path_name = 'gem5_output_path'
@@ -20,7 +22,9 @@ META = {
         modelName: {
             'public': True,
             'params': [gem5_run_command_name, gem5_output_path_name, hardware_script_run_command_name],
-            'attrs': [binary_path_input_name, binary_path_output_name, binary_execution_stats_output_name, binary_execution_stats_input_name]
+            'attrs': [binary_path_input_name, binary_path_output_name,
+            binary_execution_stats_output_name, binary_execution_stats_input_name,
+            binary_arguments_input_name, binary_arguments_output_name]
         },
     },
 }
@@ -64,11 +68,19 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
 
     def step(self, time, inputs, max_advance):
         for eid, attrs in inputs.items():
+            new_binary_path = None
+            binary_arguments = None
             for attr, values in attrs.items():
                 if attr == binary_path_output_name:
                     new_binary_path = list(values.values())[0]
-                    if new_binary_path != None:
-                        self.simulator.run_binary(new_binary_path)
+                if attr == binary_arguments_output_name:
+                    binary_arguments = list(values.values())[0]
+            
+            if new_binary_path is not None:
+                if binary_arguments is not None:
+                    self.simulator.run_binary(new_binary_path, binary_arguments)
+                else:
+                    self.simulator.run_binary(new_binary_path)
 
         return None
 

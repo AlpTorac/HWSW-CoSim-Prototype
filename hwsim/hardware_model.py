@@ -13,7 +13,6 @@ class HardwareModel():
         self.binary_execution_stats_path = None
     
     def run_binary(self, binary_path, binary_arguments=''):
-        
         current_output_dir = self.gem5_output_path + '/' + str(self.number_of_binaries_run)
 
         # Run the given hardware script from the command line with the given command,

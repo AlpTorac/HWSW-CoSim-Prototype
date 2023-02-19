@@ -95,7 +95,13 @@ process = Process()
 # Set the command
 # cmd is a list which begins with the executable (like argv)
 print('running binary: ' + binary_path)
-process.cmd = [binary_path]
+
+cmd_string = binary_path
+
+if (binary_args) != None:
+    cmd_string += ' ' + binary_args
+
+process.cmd = [cmd_string]
 # Set the cpu to use the process as its workload and create thread contexts
 system.cpu.workload = process
 system.cpu.createThreads()

@@ -48,6 +48,7 @@ hw_model = hardware_simulator.HWModel(
     hardware_script_run_command=ROOT_DIR+'/hwsim/hardware_script.py')
 
 world.connect(sw_model, hw_model, 'binary_file_path_out', 'binary_file_path_in')
+world.connect(sw_model, hw_model, 'binary_file_arguments_out', 'binary_file_arguments_in')
 world.connect(hw_model, sw_model, 'binary_execution_stats_out', 'binary_execution_stats_in', weak=True)
 
 # Run simulation
