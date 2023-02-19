@@ -105,7 +105,6 @@ public class SoftwareSimulationController extends SimulationProcess {
 
     public void step() {
         if (!this.isSimulationTerminated()) {
-            System.out.println("Switching to controller");
             this.await();
 
             if (this.hasUnscheduledTransitionEvents()) {
@@ -116,6 +115,7 @@ public class SoftwareSimulationController extends SimulationProcess {
                 try {
                     System.out.println("Switching to event");
                     this.reactivateAfter(scheduledEvent);
+                    System.out.println("Switching to controller");
                 } catch (SimulationException | RestartException e) {
                     e.printStackTrace();
                 }
@@ -131,6 +131,13 @@ public class SoftwareSimulationController extends SimulationProcess {
 
     public boolean isSimulationTerminated() {
         return this.isSimulationTerminated;
+    }
+
+    public Number getNextEventTime() {
+        if (this.hasUnscheduledTransitionEvents()) {
+            return this.transitionChain.stream().findFirst().get().time;
+        }
+        return null;
     }
 
     private void triggerTransitionEvent(char input) {

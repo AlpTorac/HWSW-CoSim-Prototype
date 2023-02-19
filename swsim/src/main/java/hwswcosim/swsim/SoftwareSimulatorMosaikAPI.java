@@ -31,7 +31,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
 
     private static final JSONObject meta = (JSONObject) JSONValue.parse(("{"
             + "    'api_version': '" + Simulator.API_VERSION + "',"
-            + "    'type': 'event-based',"
+            + "    'type': 'time-based',"
             + "    'models': {"
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
             + "            'params': ['"+DFAFilePathKeyName+"', '"+binaryMapFilePathKeyName+"', '"+transitionChainFilePathKeyName+"'],"
@@ -48,7 +48,6 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     }
 
     private SoftwareSimulationController softwareSimulationController;
-
     private String simulatorID;
 
     public SoftwareSimulatorMosaikAPI() {
@@ -167,14 +166,17 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
 
         this.softwareSimulationController.step();
 
-        while (!this.hasOutput() && !this.softwareSimulationController.isSimulationTerminated()) {
-
-        }
-
         System.out.println("SWSimulator stepped at time: " + time 
         //+ ", next step at time: " + (time + this.stepSize)
         );
 
-        return null;
+        Number nextStepTime = this.softwareSimulationController.getNextEventTime();
+
+        if (nextStepTime == null) {
+            nextStepTime = Long.valueOf(time+1);
+        }
+        
+        System.out.println("SWSimulator next step at: " + nextStepTime.longValue());
+        return nextStepTime.longValue();
     }
 }
