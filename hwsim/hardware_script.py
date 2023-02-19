@@ -14,29 +14,12 @@ parser.add_argument("--binary_args",
 
 options = parser.parse_args()
 
-#hardware_opts = []
+# binary_args is a single string, parse individual arguments, if necessary
 binary_args = options.binary_args
+
 binary_path = options.binary_path
 
-print(binary_args)
-print(binary_path)
-
-#opts, args = getopt.getopt(argv, 'h', ['hardware-opt=', 'binary-arg=', 'binary-path='])
-
-#for opt, arg in opts:
-#    if opt == 'h':
-#        print('help option')
-#        sys.exit
-#    elif opt == 'hardware-opt':
-#        hardware_opts.append(arg)
-#    elif opt == 'binary-arg':
-#        binary_args.append(arg)
-#    elif opt == 'binary-path':
-#        binary_path = arg
-#    else:
-#        raise ValueError('Unknown option/argument: option=' + opt + ' argument=' + arg)
-
-# create the system we are going to simulate
+# Create the system
 system = System()
 
 # Set the clock frequency of the system (and all of its children)
@@ -87,21 +70,15 @@ system.system_port = system.membus.cpu_side_ports
 #    thispath,
 #    "../gem5/tests/test-progs/hello/bin/x86/linux/hello",
 #)
-print('initalising binary: ' + binary_path)
+
 system.workload = SEWorkload.init_compatible(binary_path)
 
-# Create a process for a simple "Hello World" application
+# Create a process
 process = Process()
-# Set the command
+
 # cmd is a list which begins with the executable (like argv)
-print('running binary: ' + binary_path)
-
-cmd_string = binary_path
-
-if (binary_args) != None:
-    cmd_string += ' ' + binary_args
-
-process.cmd = [cmd_string]
+# each element in the list after binary_path is an argument
+process.cmd = [binary_path, binary_args]
 # Set the cpu to use the process as its workload and create thread contexts
 system.cpu.workload = process
 system.cpu.createThreads()

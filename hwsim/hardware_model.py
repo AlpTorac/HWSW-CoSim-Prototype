@@ -21,7 +21,7 @@ class HardwareModel():
         + '--outdir=' + current_output_dir + ' '
         + self.hardware_script_run_command + ' '
         + '--binary_path=' + binary_path + ' '
-        + binary_arguments)
+        + '--binary_args=' + '\"' + binary_arguments + '\"')
 
         # Wait for the execution to finish by checking whether the configuration
         # file created at the end is there
