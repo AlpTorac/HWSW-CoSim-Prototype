@@ -41,7 +41,7 @@ world = mosaik.World(SIM_CONFIG)
 software_simulator = world.start('SoftwareSimulator', eid_prefix='SoftwareDFA_')
 hardware_simulator = world.start('HWSimulator', eid_prefix='HWModel_')
 
-RESOURCES_FOLDER = ROOT_DIR+'/cosim_scenario'
+RESOURCES_FOLDER = ROOT_DIR+'/cosim-scenario'
 
 # Instantiate models
 sw_model = software_simulator.DFAWrapper(

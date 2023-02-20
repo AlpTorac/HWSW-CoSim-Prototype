@@ -1,6 +1,0 @@
-[
-	{"transition": "(q0,q1,a)", "binary": "/root/HWSW-CoSim-Prototype/cosim_scenario/test", "arguments": ["arg1", "arg2", "arg3"]},
-	{"transition": "(q1,q2,a)", "binary": "/root/HWSW-CoSim-Prototype/cosim_scenario/test", "arguments": [""]},
-	{"transition": "(q1,q1,c)", "binary": "/root/HWSW-CoSim-Prototype/cosim_scenario/test"},
-	{"transition": "(q1,q1,b)", "binary": "/root/HWSW-CoSim-Prototype/cosim_scenario/test", "arguments": ["arg5"]}
-]
