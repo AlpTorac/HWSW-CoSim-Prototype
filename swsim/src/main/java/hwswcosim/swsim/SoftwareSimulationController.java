@@ -1,5 +1,6 @@
 package hwswcosim.swsim;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.javasim.RestartException;
@@ -16,13 +17,14 @@ public class SoftwareSimulationController extends SimulationProcess {
 
     private volatile boolean isSimulationTerminated;
     private volatile boolean isSimulationRunning;
-
-    private volatile boolean transitionEventRunning;
+    private volatile boolean hasSimulationBegun;
+    private volatile boolean isTransitionEventRunning;
 
     public SoftwareSimulationController() {
+        this.hasSimulationBegun = false;
         this.isSimulationTerminated = false;
         this.isSimulationRunning = false;
-        this.transitionEventRunning = false;
+        this.isTransitionEventRunning = false;
         this.transitionChainParser = new TransitionChainParser();
     }
 
@@ -64,6 +66,8 @@ public class SoftwareSimulationController extends SimulationProcess {
         Simulation.start();
         System.out.println("SWSimulation running");
 
+        this.hasSimulationBegun = true;
+        this.isSimulationRunning = true;
         while (this.isSimulationRunning()) {
             
         }
@@ -108,19 +112,28 @@ public class SoftwareSimulationController extends SimulationProcess {
     }
 
     public void step() {
+        while (this.isTransitionEventRunning) {
+
+        }
         if (!this.isSimulationTerminated()) {
             this.await();
 
+            // Wait for the simulation to start, if not
+            while (!this.hasSimulationBegun) {
+
+            }
+
             if (this.hasUnscheduledTransitionEvents()) {
-                this.isSimulationRunning = true;
                 System.out.println("SWSimulator simulation time = " + this.time());
                 TransitionEvent scheduledEvent = this.scheduleNextTransitionEvent();
 
                 try {
                     System.out.println("Switching to event");
-                    this.transitionEventRunning = true;
+                    this.isTransitionEventRunning = true;
                     this.reactivateAfter(scheduledEvent);
-                    while (this.transitionEventRunning) {
+
+                    // Wait for the transition event to terminate
+                    while (this.isTransitionEventRunning) {
 
                     }
                     System.out.println("Switching to controller");
@@ -148,6 +161,18 @@ public class SoftwareSimulationController extends SimulationProcess {
         return null;
     }
 
+    public Collection<ScriptedTransitionEntry> getRemainingTransitionChain() {
+        ArrayList<ScriptedTransitionEntry> remainingChain = new ArrayList<ScriptedTransitionEntry>();
+
+        if (this.transitionChain != null) {
+            for (ScriptedTransitionEntry ste : this.transitionChain) {
+                remainingChain.add(ste.clone());
+            }
+        }
+
+        return remainingChain;
+    }
+
     private void triggerTransitionEvent(char input) {
         this.simulator.performTransition(input);
         System.out.println("Transition event performed");
@@ -166,7 +191,7 @@ public class SoftwareSimulationController extends SimulationProcess {
             triggerTransitionEvent(this.input);
             System.out.println("TransitionEvent terminating");
             this.terminate();
-            transitionEventRunning = false;
+            isTransitionEventRunning = false;
         }
     }
 }
