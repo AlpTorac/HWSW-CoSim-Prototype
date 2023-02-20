@@ -6,7 +6,7 @@ class HardwareSimulator():
 
     def init_hardware_model(self, gem5_run_command, gem5_output_path,
     hardware_script_run_command):
-        if self.model == None:
+        if self.model is None:
             self.model = hardware_model.HardwareModel(gem5_run_command, gem5_output_path,
     hardware_script_run_command)
 

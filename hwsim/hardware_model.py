@@ -49,4 +49,4 @@ class HardwareModel():
         return result
 
     def has_output(self):
-        return self.binary_execution_stats_path != None
+        return self.binary_execution_stats_path is not None
