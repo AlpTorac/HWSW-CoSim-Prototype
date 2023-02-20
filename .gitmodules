@@ -1,12 +1,12 @@
 [submodule "JavaSim"]
-	path = JavaSim
+	path = git-modules/JavaSim
 	url = https://github.com/nmcl/JavaSim
 [submodule "mosaik-api-java"]
-	path = mosaik-api-java
+	path = git-modules/mosaik-api-java
 	url = https://gitlab.com/AlpTorac/mosaik-api-java
 [submodule "Automata"]
-	path = Automata
+	path = git-modules/Automata
 	url = https://github.com/pschichtel/Automata
 [submodule "gem5"]
-	path = gem5
+	path = git-modules/gem5
 	url = https://gem5.googlesource.com/public/gem5

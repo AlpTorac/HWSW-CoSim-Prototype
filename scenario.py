@@ -13,7 +13,7 @@ for root, dirnames, filenames in os.walk(ROOT_DIR):
     for filename in fnmatch.filter(filenames, '*.jar'):
         dependencies += ':' + os.path.join(root, filename)
 
-GEM5_PATH = ROOT_DIR+'/gem5/build/X86/gem5.opt'
+GEM5_PATH = ROOT_DIR+'/git-modules/gem5/build/X86/gem5.opt'
 
 # Run the main(...) methods of the mosaik APIs
 # with the dependencies gathered above

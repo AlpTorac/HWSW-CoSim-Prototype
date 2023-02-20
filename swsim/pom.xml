@@ -14,9 +14,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-    <javasim.path>${basedir}/../JavaSim/target</javasim.path>
-    <mosaik.path>${basedir}/../mosaik-api-java/dist</mosaik.path>
-    <automata.path>${basedir}/../Automata/target</automata.path>
+    <javasim.path>${basedir}/../git-modules/JavaSim/target</javasim.path>
+    <mosaik.path>${basedir}/../git-modules/mosaik-api-java/dist</mosaik.path>
+    <automata.path>${basedir}/../git-modules/Automata/target</automata.path>
   </properties>
 
   <dependencies>
