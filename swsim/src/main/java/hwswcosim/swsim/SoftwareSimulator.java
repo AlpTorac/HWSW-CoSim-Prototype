@@ -1,5 +1,7 @@
 package hwswcosim.swsim;
 
+import org.json.simple.JSONArray;
+
 public class SoftwareSimulator {
 
     private DFAWrapper model;
@@ -38,7 +40,7 @@ public class SoftwareSimulator {
         return this.model.hasBinaryArguments();
     }
 
-    public String getBinaryArguments() {
+    public JSONArray getBinaryArguments() {
         return this.model.getCurrentBinaryArguments();
     }
 

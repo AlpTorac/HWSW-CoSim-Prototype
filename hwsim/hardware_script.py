@@ -1,23 +1,20 @@
-#import sys, getopt
 # import the m5 (gem5) library created when gem5 is built
 import m5
 # import all of the SimObjects
 from m5.objects import *
 
+import itertools
 import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--binary_path",
                     help="Path to the binary to execute.")
-parser.add_argument("--binary_args",
+parser.add_argument("--binary_arg", action='append', nargs='*',
                     help="List of binary arguments")
 
-options = parser.parse_args()
-
-# binary_args is a single string, parse individual arguments, if necessary
-binary_args = options.binary_args
-
-binary_path = options.binary_path
+options = vars(parser.parse_args())
+binary_args = options['binary_arg']
+binary_path = options['binary_path']
 
 # Create the system
 system = System()
@@ -78,7 +75,11 @@ process = Process()
 
 # cmd is a list which begins with the executable (like argv)
 # each element in the list after binary_path is an argument
-process.cmd = [binary_path, binary_args]
+process.cmd = [binary_path]
+if binary_args is not None:
+    binary_args = list(itertools.chain.from_iterable(binary_args))
+    process.cmd += binary_args
+
 # Set the cpu to use the process as its workload and create thread contexts
 system.cpu.workload = process
 system.cpu.createThreads()

@@ -32,7 +32,7 @@ SIM_CONFIG = {
 # is >= END, step() will not be called again. Therefore, to ensure that step() is
 # called to receive the last input, one has to give it a buffer of at least 2
 # time steps.
-END = 4
+END = 9
 
 # Create World
 world = mosaik.World(SIM_CONFIG)

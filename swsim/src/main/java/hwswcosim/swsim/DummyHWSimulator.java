@@ -143,7 +143,7 @@ public class DummyHWSimulator extends Simulator {
                     if (!binaryArguments.isEmpty()) {
                         Optional<Object> bargs = binaryArguments.stream().filter(e -> e != null).findFirst();
                         if (bargs.isPresent()) {
-                            String input = (String) (bargs.get());
+                            JSONArray input = (JSONArray) (bargs.get());
                             System.out.println("HWSimulator receiving binaryArguments: " + input);
                             this.instances.values().forEach(model -> model.setCurrentBinaryArguments(input));
                         }
@@ -164,7 +164,7 @@ public class DummyHWSimulator extends Simulator {
 
     public class DummyHWModel {
         private String currentBinaryPath;
-        private String currentBinaryArguments;
+        private JSONArray currentBinaryArguments;
 
         public DummyHWModel() {
 
@@ -175,9 +175,12 @@ public class DummyHWSimulator extends Simulator {
             System.out.println("DummyHWModel binaryPath set to: " + this.currentBinaryPath);
         }
 
-        public void setCurrentBinaryArguments(String binaryArguments) {
+        public void setCurrentBinaryArguments(JSONArray binaryArguments) {
             this.currentBinaryArguments = binaryArguments;
-            System.out.println("DummyHWModel binaryArguments set to: " + this.currentBinaryArguments);
+            System.out.println("DummyHWModel binaryArguments set to: ");
+            for (int i = 0; i < binaryArguments.size(); i++) {
+                System.out.println("Argument " + i + " = " + binaryArguments.get(i));
+            }
         }
 
         public String mockExecutionStats() {

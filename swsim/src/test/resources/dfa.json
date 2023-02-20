@@ -1,6 +1,6 @@
 {
 	"states": ["q0", "q1", "q2", "q3", "q4"],
-	"transitions": ["(q0;q1;a)", "(q1;q2;a)", "(q2;q3;a)", "(q2;q0;d)", "(q2;q1;b)", "(q0;q4;c)"],
+	"transitions": ["(q0,q1,a)", "(q1,q2,a)", "(q2,q3,a)", "(q2,q0,d)", "(q2,q1,b)", "(q0,q4,c)"],
 	"start_state": "q0",
 	"end_states": ["q3", "q4"]
 }

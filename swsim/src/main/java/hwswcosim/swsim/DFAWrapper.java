@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.json.simple.JSONArray;
+
 import tel.schich.automata.DFA;
 import tel.schich.automata.State;
 import tel.schich.automata.transition.CharacterTransition;
@@ -16,7 +18,7 @@ public class DFAWrapper {
 
     private State currentState;
     private String currentBinaryPath;
-    private String currentBinaryArguments;
+    private JSONArray currentBinaryArguments;
 
     public DFAWrapper(DFA dfa, Collection<BinaryMapEntry> binaryMap) {
         this.dfa = dfa;
@@ -31,8 +33,8 @@ public class DFAWrapper {
         BinaryMapEntry entry = this.getBinaryMapEntry(transition);
 
         if (entry != null) {
-            this.currentBinaryPath = entry.binaryPath;
-            this.currentBinaryArguments = entry.binaryArguments;
+            this.currentBinaryPath = entry.getBinaryPath();
+            this.currentBinaryArguments = entry.getBinaryArguments();
 
             this.currentState = dfa.transition(this.currentState, input);
             this.takenTransitions.add(transition);
@@ -55,8 +57,8 @@ public class DFAWrapper {
         return binaryPath;
     }
 
-    public String getCurrentBinaryArguments() {
-        String binaryArguments = this.currentBinaryArguments;
+    public JSONArray getCurrentBinaryArguments() {
+        JSONArray binaryArguments = this.currentBinaryArguments;
         this.currentBinaryArguments = null;
         return binaryArguments;
     }
@@ -74,7 +76,7 @@ public class DFAWrapper {
     }
 
     private BinaryMapEntry getBinaryMapEntry(PlannedTransition transition) {
-        Optional<BinaryMapEntry> entry = this.binaryMap.stream().filter(e -> e.transition.equals(transition)).findFirst();
+        Optional<BinaryMapEntry> entry = this.binaryMap.stream().filter(e -> e.getTransition().equals(transition)).findFirst();
 
         if (entry.isPresent()) {
             return entry.get();

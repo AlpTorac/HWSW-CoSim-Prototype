@@ -28,6 +28,6 @@ public class TransitionChainParserTest {
     }
 
     private boolean transitionChainContains(Collection<ScriptedTransitionEntry> transitionChain, char input, Number time) {
-        return transitionChain.stream().anyMatch(e -> e.input.charValue() == input && e.time.doubleValue() == time.doubleValue());
+        return transitionChain.stream().anyMatch(e -> e.getInput().charValue() == input && e.getTime().doubleValue() == time.doubleValue());
     }
 }

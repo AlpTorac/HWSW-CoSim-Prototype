@@ -77,10 +77,7 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
                     binary_arguments = list(values.values())[0]
             
             if new_binary_path is not None:
-                if binary_arguments is not None:
-                    self.simulator.run_binary(new_binary_path, binary_arguments)
-                else:
-                    self.simulator.run_binary(new_binary_path)
+                self.simulator.run_binary(new_binary_path, binary_arguments)
 
         return None
 

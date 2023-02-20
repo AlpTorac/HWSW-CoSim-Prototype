@@ -1,8 +1,8 @@
 package hwswcosim.swsim;
 
 public class ScriptedTransitionEntry {
-    public final Character input;
-    public final Number time;
+    private final Character input;
+    private final Number time;
 
     public ScriptedTransitionEntry(Character input, Number time) {
         this.input = input;
@@ -26,5 +26,13 @@ public class ScriptedTransitionEntry {
     @Override
     public String toString() {
         return "input: " + this.input + ", time: " + this.time.doubleValue();
+    }
+
+    public Character getInput() {
+        return this.input;
+    }
+
+    public Number getTime() {
+        return this.time;
     }
 }

@@ -9,6 +9,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
 import org.junit.Test;
 
 import tel.schich.automata.DFA;
@@ -106,9 +108,9 @@ public class DFAWrapperParserTest
 
         assertTrue(this.binaryMapContains(map, "q0", "q1", 'a', "BNP1"));
         assertTrue(this.binaryMapContains(map, "q1", "q2", 'a', "BNP2"));
-        assertTrue(this.binaryMapContains(map, "q2", "q3", 'a', "BNP3", "abc cba"));
-        assertTrue(this.binaryMapContains(map, "q2", "q0", 'd', "BNP4", ""));
-        assertTrue(this.binaryMapContains(map, "q2", "q1", 'b', "BNP5", "abc"));
+        assertTrue(this.binaryMapContains(map, "q2", "q3", 'a', "BNP3", (JSONArray) JSONValue.parse("[\"abc\", \"cba\"]")));
+        assertTrue(this.binaryMapContains(map, "q2", "q0", 'd', "BNP4", (JSONArray) JSONValue.parse("[]")));
+        assertTrue(this.binaryMapContains(map, "q2", "q1", 'b', "BNP5", (JSONArray) JSONValue.parse("[\"abc\"]")));
         assertTrue(this.binaryMapContains(map, "q0", "q4", 'c', "BNP6"));
     }
 
@@ -120,17 +122,17 @@ public class DFAWrapperParserTest
 
     private boolean binaryMapContains(Collection<BinaryMapEntry> map, String sourceLabel, String targetLabel, char input, String binaryPath) {
         return map.stream().anyMatch(e -> {
-            CharacterTransition t = (CharacterTransition) e.transition;
-            String bp = e.binaryPath;
+            CharacterTransition t = (CharacterTransition) e.getTransition();
+            String bp = e.getBinaryPath();
 
                 return transitionEquals(t, sourceLabel, targetLabel, input) && bp.equals(binaryPath);
             });
     }
-    private boolean binaryMapContains(Collection<BinaryMapEntry> map, String sourceLabel, String targetLabel, char input, String binaryPath, String binaryArguments) {
+    private boolean binaryMapContains(Collection<BinaryMapEntry> map, String sourceLabel, String targetLabel, char input, String binaryPath, JSONArray binaryArguments) {
         return map.stream().anyMatch(e -> {
-            CharacterTransition t = (CharacterTransition) e.transition;
-            String bp = e.binaryPath;
-            String bargs = e.binaryArguments;
+            CharacterTransition t = (CharacterTransition) e.getTransition();
+            String bp = e.getBinaryPath();
+            JSONArray bargs = e.getBinaryArguments();
 
             boolean bargsEqual = bargs == binaryArguments || (!(bargs == null ^ binaryArguments == null) && bargs.equals(binaryArguments));
 

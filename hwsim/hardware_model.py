@@ -12,8 +12,14 @@ class HardwareModel():
 
         self.binary_execution_stats_path = None
     
-    def run_binary(self, binary_path, binary_arguments=''):
+    def run_binary(self, binary_path, binary_arguments):
         current_output_dir = self.gem5_output_path + '/' + str(self.number_of_binaries_run)
+
+        args = ''
+
+        if binary_arguments is not None:
+            for arg in binary_arguments:
+                args += '--binary_arg=' +'\"'+ arg + '\"' + ' '
 
         # Run the given hardware script from the command line with the given command,
         # binary path and binary arguments
@@ -21,7 +27,7 @@ class HardwareModel():
         + '--outdir=' + current_output_dir + ' '
         + self.hardware_script_run_command + ' '
         + '--binary_path=' + binary_path + ' '
-        + '--binary_args=' + '\"' + binary_arguments + '\"')
+        + args)
 
         # Wait for the execution to finish by checking whether the configuration
         # file created at the end is there

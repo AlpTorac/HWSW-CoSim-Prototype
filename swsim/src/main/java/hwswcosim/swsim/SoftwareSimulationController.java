@@ -6,6 +6,7 @@ import org.javasim.RestartException;
 import org.javasim.Simulation;
 import org.javasim.SimulationException;
 import org.javasim.SimulationProcess;
+import org.json.simple.JSONArray;
 
 public class SoftwareSimulationController extends SimulationProcess {
     Collection<ScriptedTransitionEntry> transitionChain;
@@ -42,8 +43,8 @@ public class SoftwareSimulationController extends SimulationProcess {
 
     protected TransitionEvent scheduleNextTransitionEvent() {
         ScriptedTransitionEntry ste = this.transitionChain.stream().findFirst().get();
-        Number activationTime = ste.time;
-        TransitionEvent event = new TransitionEvent(ste.input.charValue());
+        Number activationTime = ste.getTime();
+        TransitionEvent event = new TransitionEvent(ste.getInput().charValue());
         try {
             event.activateAt(activationTime.doubleValue());
         } catch (SimulationException | RestartException e) {
@@ -91,7 +92,7 @@ public class SoftwareSimulationController extends SimulationProcess {
         return this.simulator.hasBinaryArguments();
     }
 
-    public String getBinaryArguments() {
+    public JSONArray getBinaryArguments() {
         return this.simulator.getBinaryArguments();
     }
 
@@ -135,7 +136,7 @@ public class SoftwareSimulationController extends SimulationProcess {
 
     public Number getNextEventTime() {
         if (this.hasUnscheduledTransitionEvents()) {
-            return this.transitionChain.stream().findFirst().get().time;
+            return this.transitionChain.stream().findFirst().get().getTime();
         }
         return null;
     }

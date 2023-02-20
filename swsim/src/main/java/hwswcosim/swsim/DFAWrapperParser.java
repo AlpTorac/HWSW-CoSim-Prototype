@@ -30,8 +30,8 @@ public class DFAWrapperParser {
     private final Pattern statePattern = Pattern.compile("\\w+");
     private final Pattern transitionPattern = Pattern.compile("\\(" 
         + "(" + statePattern.pattern() + ")" 
-        + ";(" + statePattern.pattern() + ")" 
-        + ";(" + "\\w" + ")"
+        + ",(" + statePattern.pattern() + ")" 
+        + ",(" + "\\w" + ")"
         + "\\)");
 
     public DFAWrapperParser() {
@@ -151,7 +151,7 @@ public class DFAWrapperParser {
             if (binaryArguments == null) {
                 binaryMap.add(new BinaryMapEntry(this.findTransition(t), binaryPath, null));
             } else {
-                binaryMap.add(new BinaryMapEntry(this.findTransition(t), binaryPath, (String) castedO.get("arguments")));
+                binaryMap.add(new BinaryMapEntry(this.findTransition(t), binaryPath, (JSONArray) binaryArguments));
             }
         }
 

@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +72,7 @@ public class DFAWrapperTest {
         assertTrue(this.wrapper.hasBinaryFilePath());
 		assertTrue(this.wrapper.hasBinaryArguments());
         assertEquals("BNP5", this.wrapper.getCurrentBinaryPath());
-        assertEquals("abc", this.wrapper.getCurrentBinaryArguments());
+        assertEquals((JSONArray) JSONValue.parse("[\"abc\"]"), this.wrapper.getCurrentBinaryArguments());
         assertFalse(this.wrapper.hasBinaryFilePath());
 		assertFalse(this.wrapper.hasBinaryArguments());
         assertEquals(null, this.wrapper.getCurrentBinaryPath());
@@ -96,7 +98,7 @@ public class DFAWrapperTest {
         assertTrue(this.wrapper.hasBinaryFilePath());
 		assertTrue(this.wrapper.hasBinaryArguments());
         assertEquals("BNP4", this.wrapper.getCurrentBinaryPath());
-        assertEquals("", this.wrapper.getCurrentBinaryArguments());
+        assertEquals(JSONValue.parse("[]"), this.wrapper.getCurrentBinaryArguments());
         assertFalse(this.wrapper.hasBinaryFilePath());
 		assertFalse(this.wrapper.hasBinaryArguments());
         assertEquals(null, this.wrapper.getCurrentBinaryPath());

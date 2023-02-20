@@ -67,7 +67,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
         return this.softwareSimulationController.getBinaryFilePath();
     }
 
-    public String getBinaryArgumentsOutput() {
+    public JSONArray getBinaryArgumentsOutput() {
         return this.softwareSimulationController.getBinaryArguments();
     }
 
@@ -120,7 +120,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
                         System.out.println("SWSimulator output binaryPath: " + values.get(attr));
                     }
                     else if (attr.equals(binaryArgumentsOutputName)) {
-                        String output = this.getBinaryArgumentsOutput();
+                        JSONArray output = this.getBinaryArgumentsOutput();
                         System.out.println("SWSimulator outputting binaryArguments: " + output);
                         values.put(attr, output);
                         System.out.println("SWSimulator output binaryArguments: " + values.get(attr));

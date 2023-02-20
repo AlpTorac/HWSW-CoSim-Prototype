@@ -1,14 +1,16 @@
 package hwswcosim.swsim;
 
+import org.json.simple.JSONArray;
+
 import tel.schich.automata.transition.PlannedTransition;
 
 public class BinaryMapEntry {
-    public final PlannedTransition transition;
-    public final String binaryPath;
-    public final String binaryArguments;
+    private final PlannedTransition transition;
+    private final String binaryPath;
+    private final JSONArray binaryArguments;
 
     public BinaryMapEntry(PlannedTransition transition, String binaryPath,
-    String binaryArguments) {
+    JSONArray binaryArguments) {
         this.transition = transition;
         this.binaryPath = binaryPath;
         this.binaryArguments = binaryArguments;
@@ -37,5 +39,17 @@ public class BinaryMapEntry {
             castedO.binaryPath.equals(this.binaryPath) &&
             castedO.binaryArguments.equals(this.binaryArguments);
         }
+    }
+
+    public PlannedTransition getTransition() {
+        return this.transition;
+    }
+
+    public String getBinaryPath() {
+        return this.binaryPath;
+    }
+
+    public JSONArray getBinaryArguments() {
+        return this.binaryArguments;
     }
 }
