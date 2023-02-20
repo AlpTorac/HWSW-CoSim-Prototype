@@ -17,9 +17,12 @@ public class SoftwareSimulationController extends SimulationProcess {
     private volatile boolean isSimulationTerminated;
     private volatile boolean isSimulationRunning;
 
+    private volatile boolean transitionEventRunning;
+
     public SoftwareSimulationController() {
         this.isSimulationTerminated = false;
         this.isSimulationRunning = false;
+        this.transitionEventRunning = false;
         this.transitionChainParser = new TransitionChainParser();
     }
 
@@ -115,7 +118,11 @@ public class SoftwareSimulationController extends SimulationProcess {
 
                 try {
                     System.out.println("Switching to event");
+                    this.transitionEventRunning = true;
                     this.reactivateAfter(scheduledEvent);
+                    while (this.transitionEventRunning) {
+
+                    }
                     System.out.println("Switching to controller");
                 } catch (SimulationException | RestartException e) {
                     e.printStackTrace();
@@ -159,6 +166,7 @@ public class SoftwareSimulationController extends SimulationProcess {
             triggerTransitionEvent(this.input);
             System.out.println("TransitionEvent terminating");
             this.terminate();
+            transitionEventRunning = false;
         }
     }
 }
