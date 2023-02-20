@@ -4,23 +4,29 @@ import mosaik.util
 import fnmatch
 import os
 
+import re
+
 # Get the root directory of the project
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Gather all .jar files inside the project
 dependencies = ''
+swsim_jar_pattern = re.compile('swsim.*\.jar')
+swsim_jar_path = ''
 for root, dirnames, filenames in os.walk(ROOT_DIR):
     for filename in fnmatch.filter(filenames, '*.jar'):
         dependencies += ':' + os.path.join(root, filename)
+        if swsim_jar_pattern.match(filename) is not None:
+            swsim_jar_path = os.path.join(root, filename)
 
 # Run the main(...) methods of the mosaik APIs
 # with the dependencies gathered above
 SIM_CONFIG = {
     'SoftwareSimulator': {
-        'cmd': 'java -cp ./swsim/target/swsim-1.jar'+dependencies+' hwswcosim.swsim.SoftwareSimulatorMosaikAPI %(addr)s',
+        'cmd': 'java -cp '+swsim_jar_path+dependencies+' hwswcosim.swsim.SoftwareSimulatorMosaikAPI %(addr)s',
     },
     'DummyHWSimulator': {
-        'cmd': 'java -cp ./swsim/target/swsim-1.jar'+dependencies+' hwswcosim.swsim.DummyHWSimulator %(addr)s',
+        'cmd': 'java -cp '+swsim_jar_path+dependencies+' hwswcosim.swsim.DummyHWSimulator %(addr)s',
     },
 }
 
