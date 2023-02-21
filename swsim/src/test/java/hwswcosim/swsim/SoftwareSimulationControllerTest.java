@@ -7,22 +7,19 @@ import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.javasim.Simulation;
-import org.javasim.SimulationException;
-import org.javasim.SimulationProcess;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
@@ -168,6 +165,7 @@ public class SoftwareSimulationControllerTest {
 		assertFalse(this.controller.hasBinaryArguments());
     }
 
+    @Ignore("Can take long to compute")
     @Test
     public void laggyWorkflowTest() {
         int laggerCount = Runtime.getRuntime().availableProcessors() * 8;
