@@ -10,13 +10,16 @@
   <name>swsim</name>
   <url>http://www.example.com</url>
 
+  <!-- Override the *.path properties by providing values with the "-D" flag
+  from the command line, if necessary -->
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-    <javasim.path>${basedir}/../git-modules/JavaSim/target</javasim.path>
-    <mosaik.path>${basedir}/../git-modules/mosaik-api-java/dist</mosaik.path>
-    <automata.path>${basedir}/../git-modules/Automata/target</automata.path>
+    <javasim.path>${basedir}/../git-modules/JavaSim/target/javasim-2.3.jar</javasim.path>
+    <mosaik.path>${basedir}/../git-modules/mosaik-api-java/dist/mosaik-api-java-3.0.jar</mosaik.path>
+    <json.simple.path>${basedir}/../git-modules/mosaik-api-java/dist/json-simple-1.1.1.jar</json.simple.path>
+    <automata.path>${basedir}/../git-modules/Automata/target/automata-0.2.2-SNAPSHOT.jar</automata.path>
   </properties>
 
   <dependencies>
@@ -31,28 +34,28 @@
       <artifactId>javasim</artifactId>
       <version>2.3</version>
       <scope>system</scope>
-      <systemPath>${javasim.path}/javasim-2.3.jar</systemPath>
+      <systemPath>${javasim.path}</systemPath>
     </dependency>
     <dependency>
       <groupId>mosaik-api-java</groupId>
       <artifactId>mosaik-api-java</artifactId>
       <version>3.0</version>
       <scope>system</scope>
-      <systemPath>${mosaik.path}/mosaik-api-java-3.0.jar</systemPath>
+      <systemPath>${mosaik.path}</systemPath>
     </dependency>
     <dependency>
       <groupId>json-simple</groupId>
       <artifactId>json-simple</artifactId>
       <version>1.1.1</version>
       <scope>system</scope>
-      <systemPath>${mosaik.path}/json-simple-1.1.1.jar</systemPath>
+      <systemPath>${json.simple.path}</systemPath>
     </dependency>
     <dependency>
       <groupId>tel.schich</groupId>
       <artifactId>automata</artifactId>
       <version>0.2.2</version>
       <scope>system</scope>
-      <systemPath>${automata.path}/automata-0.2.2-SNAPSHOT.jar</systemPath>
+      <systemPath>${automata.path}</systemPath>
     </dependency>
   </dependencies>
 
