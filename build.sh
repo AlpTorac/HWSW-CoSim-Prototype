@@ -63,7 +63,7 @@ if ${INSTALL_REQUIRED_PACKAGES} ; then
         export PATH="${PATH}":${M2_HOME}/bin
     fi
 
-    # Install packages required to build gem5
+    # Install packages required to build gem5, if desired
     if ${INSTALL_GEM5} ; then
         apt -y install build-essential m4 \
         scons zlib1g zlib1g-dev libprotobuf-dev protobuf-compiler \
@@ -74,11 +74,14 @@ if ${INSTALL_REQUIRED_PACKAGES} ; then
 fi
 
 if ${INSTALL_MOSAIK} ; then
-    # Setup a Python environment
-    PY_ENV_PATH="/opt/venv"
-    export PY_ENV=${PY_ENV_PATH}
-    python3 -m venv --system-site-packages ${PY_ENV}
-    export PATH="${PY_ENV}/bin:${PATH}"
+
+    # Setup a Python environment, if not already there
+    if [ ! "${PY_ENV}" ] ; then
+        PY_ENV_PATH="/opt/venv"
+        export PY_ENV=${PY_ENV_PATH}
+        python3 -m venv --system-site-packages ${PY_ENV}
+        export PATH="${PY_ENV}/bin:${PATH}"
+    fi
 
     # Install mosaik
     pip install mosaik
