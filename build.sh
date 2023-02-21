@@ -1,29 +1,104 @@
 #!/bin/sh
 
+Help() 
+{
+    echo "/bin/sh build.sh [arg1] [arg2] ..."
+    echo ""
+    echo "This script builds the project with the given arguments"
+    echo "described below."
+    echo ""
+    echo "To build the project successfully, one has to install"
+    echo "the necessary packages, mosaik and the git-submodules"
+    echo "beforehand. That can be achieved by running this script"
+    echo "with the arguments \"package mosaik modules\". The gem5"
+    echo "is not mandatory to build this project."
+    echo ""
+    echo "This script always attempts to builds the software simulator"
+    echo "part (swsim) regardless of the arguments provided."
+    echo ""
+    echo "Script arguments:"
+    echo ""
+    echo "      package:    Install the required packages."
+    echo "                  Installs gem5 related packages"
+    echo "                  only if used with the \"gem5\""
+    echo "                  argument"
+    echo ""
+    echo "      mosaik:     Make a virtual python environment"
+    echo "                  for mosaik and install mosaik"
+    echo ""
+    echo "      modules:    Build the git submodules"
+    echo ""
+    echo "      gem5:       Build gem5 with the target ISA"
+    echo "                  X86, the \"opt\" build option using"
+    echo "                  the recommended amount of threads."
+    echo "                  Note that building gem5 can take a"
+    echo "                  very long time and is not mandatory"
+}
+
 # Install the required packages
 #
 # Passing "true" for any of the following install variables implies
 # that this script has been run with its first argument set to "true" before
 #
 # Does not install packages required to build gem5, unless INSTALL_GEM5=true
-INSTALL_REQUIRED_PACKAGES=${1:-false}
+INSTALL_REQUIRED_PACKAGES=false
 
 # Install mosaik
 #
 # Required for installing the git submodules
-INSTALL_MOSAIK=${2:-false}
+INSTALL_MOSAIK=false
 
 # Install the git submodules
 #
 # Passing "true" for this argument implies that the required packages 
 # and mosaik have been installed
-INSTALL_GIT_MODULES=${3:-false}
+INSTALL_GIT_MODULES=false
 
 # Install gem5 (can take multiple hours)
 #
 # Only run, if the "gem5_scenario.py" has to be run, otherwise
 # leaving this variable with the value "false" is recommended
-INSTALL_GEM5=${4:-false}
+INSTALL_GEM5=false
+
+OPTIONS=""
+
+# Iterate all given arguments and set the corresponding variables to true
+#
+# Using an undefined argument calls the Help() function and returns
+for arg in "$@"
+do
+    case ${arg} in
+
+        package)
+            INSTALL_REQUIRED_PACKAGES=true
+            OPTIONS=${OPTIONS}" ${arg}"
+            ;;
+
+        mosaik)
+            INSTALL_MOSAIK=true
+            OPTIONS=${OPTIONS}" ${arg}"
+            ;;
+
+        modules)
+            INSTALL_GIT_MODULES=true
+            OPTIONS=${OPTIONS}" ${arg}"
+            ;;
+
+        gem5)
+            INSTALL_GEM5=true
+            OPTIONS=${OPTIONS}" ${arg}"
+            ;;
+
+        *)
+            echo "Unknown build argument: ${arg}"
+            Help
+            return
+            ;;
+            
+    esac
+done
+
+echo "Building with the options:${OPTIONS}"
 
 if ${INSTALL_REQUIRED_PACKAGES} ; then
     # Make sure that everything is up to date
@@ -56,7 +131,7 @@ if ${INSTALL_REQUIRED_PACKAGES} ; then
     fi
 
     # Set environment variables for Maven and
-    # append it to the PATH variable, if not already done
+    # append them to the PATH variable, if not already done
     if [ ! "${M2_HOME}" ] || [ ! "${MAVEN_HOME}" ] ; then
         export M2_HOME=/usr/share/maven
         export MAVEN_HOME=/usr/share/maven
@@ -75,7 +150,7 @@ fi
 
 if ${INSTALL_MOSAIK} ; then
 
-    # Setup a Python environment, if not already there
+    # Setup a Python environment, if not already done
     if [ ! "${PY_ENV}" ] ; then
         PY_ENV_PATH="/opt/venv"
         export PY_ENV=${PY_ENV_PATH}
@@ -86,6 +161,7 @@ if ${INSTALL_MOSAIK} ; then
     # Install mosaik
     pip install mosaik
     pip install mosaik-api
+
 fi
 
 # Get the absolute path
@@ -125,28 +201,23 @@ fi
 if ${INSTALL_GIT_MODULES} ; then
     # Clean and build the DFA library
     mvn clean install -f "${GIT_MODULE_PATH}/Automata/pom.xml"
-    DFA_DEPENDENCY=$(find "${GIT_MODULE_PATH}" -type f -iname "automata*.jar")
 
     # Clean and build the JavaSim library
     mvn clean install -f "${GIT_MODULE_PATH}/JavaSim/pom.xml"
-    JAVASIM_DEPENDENCY=$(find "${GIT_MODULE_PATH}" -type f -iname "javasim*.jar")
 
     # Clean and build the mosaik API for Java
     ant -f "${GIT_MODULE_PATH}/mosaik-api-java/build.xml"
-    MOSAIK_DEPENDENCY=$(find "${GIT_MODULE_PATH}" -type f -iwholename "*dist/mosaik-api-java*.jar")
-    JSON_SIMPLE_DEPENDENCY=$(find "${GIT_MODULE_PATH}" -type f -iwholename "*dist/json-simple*.jar")
-
-    # Clean and build the software simulator
-    mvn clean install -f "swsim/pom.xml" \
-    "-Dautomata.path=${DFA_DEPENDENCY}" \
-    "-Djavasim.path=${JAVASIM_DEPENDENCY}" \
-    "-Dmosaik.path=${MOSAIK_DEPENDENCY}" \
-    "-Djson.simple.path=${JSON_SIMPLE_DEPENDENCY}"
 fi
 
-Help() 
-{
-    # ToDo: Implement Help() {} function
-    
-    echo "To be implemented"
-}
+# Locate the jar files of the built git submodules
+DFA_DEPENDENCY=$(find "${GIT_MODULE_PATH}" -type f -iname "automata*.jar")
+JAVASIM_DEPENDENCY=$(find "${GIT_MODULE_PATH}" -type f -iname "javasim*.jar")
+MOSAIK_DEPENDENCY=$(find "${GIT_MODULE_PATH}" -type f -iwholename "*dist/mosaik-api-java*.jar")
+JSON_SIMPLE_DEPENDENCY=$(find "${GIT_MODULE_PATH}" -type f -iwholename "*dist/json-simple*.jar")
+
+# Clean and build the software simulator
+mvn clean install -f "swsim/pom.xml" \
+"-Dautomata.path=${DFA_DEPENDENCY}" \
+"-Djavasim.path=${JAVASIM_DEPENDENCY}" \
+"-Dmosaik.path=${MOSAIK_DEPENDENCY}" \
+"-Djson.simple.path=${JSON_SIMPLE_DEPENDENCY}"
