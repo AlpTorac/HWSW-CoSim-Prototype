@@ -68,7 +68,6 @@ OPTIONS=""
 for arg in "$@"
 do
     case ${arg} in
-
         package)
             INSTALL_REQUIRED_PACKAGES=true
             OPTIONS=${OPTIONS}" ${arg}"
@@ -94,7 +93,6 @@ do
             Help
             return
             ;;
-            
     esac
 done
 
@@ -137,19 +135,9 @@ if ${INSTALL_REQUIRED_PACKAGES} ; then
         export MAVEN_HOME=/usr/share/maven
         export PATH="${PATH}":${M2_HOME}/bin
     fi
-
-    # Install packages required to build gem5, if desired
-    if ${INSTALL_GEM5} ; then
-        apt -y install build-essential m4 \
-        scons zlib1g zlib1g-dev libprotobuf-dev protobuf-compiler \
-        libprotoc-dev libgoogle-perftools-dev doxygen \
-        libboost-all-dev libhdf5-serial-dev python3-pydot libpng-dev \
-        libelf-dev pkg-config black valgrind
-    fi
 fi
 
 if ${INSTALL_MOSAIK} ; then
-
     # Setup a Python environment, if not already done
     if [ ! "${PY_ENV}" ] ; then
         PY_ENV_PATH="/opt/venv"
@@ -161,7 +149,6 @@ if ${INSTALL_MOSAIK} ; then
     # Install mosaik
     pip install mosaik
     pip install mosaik-api
-
 fi
 
 # Get the absolute path
@@ -179,6 +166,12 @@ GIT_MODULE_PATH=${BASE_DIR}"/git-modules"
 # | WARNING : This can take a very long time to build depending on the machine|
 # -----------------------------------------------------------------------------
 if ${INSTALL_GEM5} ; then
+    # Install packages required to build gem5
+    apt -y install build-essential m4 \
+    scons zlib1g zlib1g-dev libprotobuf-dev protobuf-compiler \
+    libprotoc-dev libgoogle-perftools-dev doxygen \
+    libboost-all-dev libhdf5-serial-dev python3-pydot libpng-dev \
+    libelf-dev pkg-config black valgrind
 
     # The instruction set that gem5 will model
     GEM5_TARGET_ISA="X86"
