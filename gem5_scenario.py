@@ -13,7 +13,6 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 dependencies = ''
 swsim_jar_pattern = re.compile('swsim.*\.jar')
 swsim_jar_path = ''
-hwsim_path = ''
 for root, dirnames, filenames in os.walk(ROOT_DIR):
     for filename in fnmatch.filter(filenames, '*.jar'):
         dependencies += ':' + os.path.join(root, filename)
@@ -44,9 +43,14 @@ END = 9
 # Create World
 world = mosaik.World(SIM_CONFIG)
 
+OUTPUT_DIR = ROOT_DIR+'/out'
+
 # Start simulators
-software_simulator = world.start('SoftwareSimulator', eid_prefix='SoftwareDFA_')
-hardware_simulator = world.start('HWSimulator', eid_prefix='HWModel_')
+software_simulator = world.start('SoftwareSimulator',software_simulator_output_dir=OUTPUT_DIR+'/swsimOut', software_simulator_output={
+    'simSeconds': 'add',
+    'simFreq': 'none'
+})
+hardware_simulator = world.start('HWSimulator')
 
 RESOURCES_FOLDER = ROOT_DIR+'/cosim-scenario'
 
@@ -58,7 +62,7 @@ sw_model = software_simulator.DFAWrapper(
 
 hw_model = hardware_simulator.HWModel(
     gem5_run_command=GEM5_PATH,
-    gem5_output_path=ROOT_DIR+'/hwsimOut',
+    gem5_output_path=OUTPUT_DIR+'/hwsimOut',
     hardware_script_run_command=ROOT_DIR+'/hwsim/hardware_script.py')
 
 world.connect(sw_model, hw_model, 'binary_file_path_out', 'binary_file_path_in')

@@ -10,4 +10,4 @@ target
 *.out
 *~*
 __pycache__
-hwsimOut
+out

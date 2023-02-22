@@ -8,6 +8,7 @@ import org.javasim.Simulation;
 import org.javasim.SimulationException;
 import org.javasim.SimulationProcess;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class SoftwareSimulationController extends SimulationProcess {
     Collection<ScriptedTransitionEntry> transitionChain;
@@ -103,8 +104,12 @@ public class SoftwareSimulationController extends SimulationProcess {
         return this.simulator.getBinaryArguments();
     }
 
-    public void addBinaryExecutionStats(String binaryExecutionStatsText) {
-        this.simulator.addBinaryExecutionStats(binaryExecutionStatsText);
+    public Collection<Object> getExecutionStats(String statName) {
+        return this.simulator.getExecutionStats(statName);
+    }
+
+    public void addBinaryExecutionStats(Number time, JSONObject binaryExecutionStatsText) {
+        this.simulator.addBinaryExecutionStats(time, binaryExecutionStatsText);
     }
 
     public boolean hasUnscheduledTransitionEvents() {

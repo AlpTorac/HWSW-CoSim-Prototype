@@ -95,7 +95,7 @@ public class DummyHWSimulator extends Simulator {
                 for (String attr : attrs) {
                     System.out.println("HWSimulator output attribute: " + attr);
                     if (attr.equals(binaryExecutionStatsOutputName)) {
-                        String output = instance.mockExecutionStats();
+                        JSONObject output = instance.mockExecutionStats();
                         System.out.println("HWSimulator outputting binaryExecutionStats: " + output);
                         values.put(attr, output);
                         System.out.println("HWSimulator output binaryExecutionStats: " + values.get(attr));
@@ -183,9 +183,10 @@ public class DummyHWSimulator extends Simulator {
             }
         }
 
-        public String mockExecutionStats() {
-            String result = this.currentBinaryPath + "_stats";
+        public JSONObject mockExecutionStats() {
+            JSONObject result = (JSONObject) JSONValue.parse("{\""+this.currentBinaryPath+"\": \"stats\""+"}");
             this.currentBinaryPath = "";
+            this.currentBinaryArguments = null;
             return result;
         }
 

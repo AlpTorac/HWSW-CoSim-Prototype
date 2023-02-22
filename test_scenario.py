@@ -42,9 +42,11 @@ END = 12
 # Create World
 world = mosaik.World(SIM_CONFIG)
 
+OUTPUT_DIR = ROOT_DIR+'/out'
+
 # Start simulators
-software_simulator = world.start('SoftwareSimulator', eid_prefix='SoftwareDFA_')
-hardware_simulator = world.start('DummyHWSimulator', eid_prefix='HWModel_')
+software_simulator = world.start('SoftwareSimulator')
+hardware_simulator = world.start('DummyHWSimulator')
 
 RESOURCES_FOLDER = ROOT_DIR+'/swsim/src/test/resources'
 

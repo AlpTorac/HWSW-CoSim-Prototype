@@ -1,13 +1,20 @@
 package hwswcosim.swsim;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class SoftwareSimulator {
 
     private DFAWrapper model;
+    private Map<Number, JSONObject> binaryExecutionStats;
 
     public SoftwareSimulator() {
-        
+        this.binaryExecutionStats = new HashMap<Number, JSONObject>();
     }
 
     public void addDFAWrapper(String DFAFilePath, String binaryMapFilePath) {
@@ -24,8 +31,21 @@ public class SoftwareSimulator {
         }
     }
 
-    public void addBinaryExecutionStats(Object binaryExecutionStats) {
-        System.out.println("SWSimulator received binaryExecutionStats " + binaryExecutionStats.toString());
+    public Collection<Object> getExecutionStats(String statName) {
+        ArrayList<Object> result = new ArrayList<Object>();
+
+        for (JSONObject binaryExecutionStatsEntry : this.binaryExecutionStats.values()) {
+            if (binaryExecutionStatsEntry.containsKey(statName)) {
+                result.add(binaryExecutionStatsEntry.get(statName));
+            }
+        }
+
+        return result;
+    }
+
+    public void addBinaryExecutionStats(Number time, JSONObject binaryExecutionStats) {
+        this.binaryExecutionStats.put(time, binaryExecutionStats);
+        System.out.println("SWSimulator received binaryExecutionStats:\n" + binaryExecutionStats);
     }
 
     public boolean hasBinaryFilePath() {
