@@ -22,7 +22,7 @@ public class DFAWrapperTest {
 
     @Before
     public void setUp() {
-        DFAWrapperParser parser = new DFAWrapperParser();
+        DFAWrapperParser parser = new DFAWrapperParser(new BinaryMapParser(new DFAParser()));
         this.wrapper = parser.parseDFAWrapper(dfaFilePath, binaryMapFilePath);
     }
 

@@ -20,7 +20,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     private static final String DFAFilePathKeyName = "dfa_file_path";
     private static final String binaryMapFilePathKeyName = "transition_to_binary_map_file_path";
     private static final String transitionChainFilePathKeyName = "transition_chain_file_path";
-    private static final String softwareSimulatorOutputName = "software_simulator_output";
+    private static final String softwareSimulatorOutputDescName = "software_simulator_output_desc";
     private static final String softwareSimulatorOutputDirName = "software_simulator_output_dir";
 
     private static final String binaryPathInputName = "binary_file_path_in";
@@ -37,11 +37,10 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             + "    'models': {"
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
             + "            'params': ['"+DFAFilePathKeyName+"', '"+binaryMapFilePathKeyName
-            +"', '"+transitionChainFilePathKeyName+"'],"
+            + "', '"+transitionChainFilePathKeyName+"'],"
             + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName
-            +"', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName
-            +"', '"+binaryArgumentsInputName+"', '"+binaryArgumentsOutputName+"']"
-//            + "            'trigger': ['"+binaryExecutionStatsOutputName+"']"
+            + "', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName
+            + "', '"+binaryArgumentsInputName+"', '"+binaryArgumentsOutputName+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
 
@@ -63,16 +62,28 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
         return this.simulatorID;
     }
 
+    /*
+     * Checks whether the software simulator currently has a binary
+     * that needs to be simulated.
+     */
     public boolean hasOutput() {
-        return this.softwareSimulationController.hasBinaryFilePath();
+        return this.softwareSimulationController.getSoftwareSimulator().hasBinaryFilePath();
     }
 
+    /*
+     * Gets the path of the binary that is to be simulated.
+     */
     public String getBinaryPathOutput() {
-        return this.softwareSimulationController.getBinaryFilePath();
+        return this.softwareSimulationController.getSoftwareSimulator().getBinaryFilePath();
     }
 
+
+    /*
+     * Gets the arguments, with which the binary will be run
+     * for simulation.
+     */
     public JSONArray getBinaryArgumentsOutput() {
-        return this.softwareSimulationController.getBinaryArguments();
+        return this.softwareSimulationController.getSoftwareSimulator().getBinaryArguments();
     }
 
     @SuppressWarnings("unchecked")
@@ -99,13 +110,19 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
 
             System.out.println("sw_model created");
         } else {
-
+            throw new IllegalArgumentException("Creating a model requires all of the folowing parameters: "
+            + DFAFilePathKeyName + ", " + binaryMapFilePathKeyName + " and " + transitionChainFilePathKeyName);
         }
 
         return entities;
     }
 
-    protected void prepareOutputData(List<String> attrs, Map<String, Object> values) {
+    /*
+     * Gather the data that will be output by the software simulator and return it.
+     */
+    protected Map<String, Object> prepareOutputData(List<String> attrs) {
+        Map<String, Object> values = new HashMap<String, Object>();
+
         for (String attr : attrs) {
             System.out.println("SWSimulator output attribute: " + attr);
             if (attr.equals(binaryPathOutputName)) {
@@ -121,6 +138,8 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
                 System.out.println("SWSimulator output binaryArguments: " + values.get(attr));
             }
         }
+
+        return values;
     }
 
     @Override
@@ -130,11 +149,9 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
         for (Map.Entry<String, List<String>> entity : outputs.entrySet()) {
             String eid = entity.getKey();
             List<String> attrs = entity.getValue();
-            Map<String, Object> values = new HashMap<String, Object>();
 
             if (this.hasOutput()) {
-                this.prepareOutputData(attrs, values);
-                data.put(eid, values);
+                data.put(eid, this.prepareOutputData(attrs));
             }
         }
         return data;
@@ -144,8 +161,8 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
         JSONObject softwareSimulatorOutput = null;
         String softwareSimulatorOutputDir = null;
 
-        if (simParams.containsKey(softwareSimulatorOutputName)) {
-            softwareSimulatorOutput = (JSONObject) simParams.get(softwareSimulatorOutputName);
+        if (simParams.containsKey(softwareSimulatorOutputDescName)) {
+            softwareSimulatorOutput = (JSONObject) simParams.get(softwareSimulatorOutputDescName);
         }
 
         if (simParams.containsKey(softwareSimulatorOutputDirName)) {
@@ -157,8 +174,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
         }
 
         if (softwareSimulatorOutput != null && softwareSimulatorOutputDir != null) {
-            return new SoftwareSimulatorOutputManager(softwareSimulatorOutputDir,
-            softwareSimulatorOutput, this.softwareSimulationController);
+            return new SoftwareSimulatorOutputManager(softwareSimulatorOutputDir, softwareSimulatorOutput);
         } else {
             return null;
         }
@@ -187,7 +203,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
                     if (!binaryExecutionStats.isEmpty()) {
                         JSONObject input = (JSONObject) (binaryExecutionStats.stream().findFirst().get());
                         System.out.println("SWSimulator receiving binaryExecutionStats: " + input);
-                        this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), input);
+                        this.softwareSimulationController.getSoftwareSimulator().addBinaryExecutionStats(Long.valueOf(time), input);
                     }
                 }
                 else {
@@ -197,10 +213,11 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
         }
     }
 
+    /**
+     * @return The next time step the software simulator needs to step.
+     */
     protected Long getNextTimeStep(long time, long maxAdvance) {
-        System.out.println("SWSimulator stepped at time: " + time 
-        //+ ", next step at time: " + (time + this.stepSize)
-        );
+        System.out.println("SWSimulator stepped at time: " + time);
 
         Number nextStepTime = this.softwareSimulationController.getNextEventTime();
 
@@ -225,7 +242,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     @Override
     public void cleanup() {
         if (this.softwareSimulatorOutputManager != null) {
-            this.softwareSimulatorOutputManager.writeOutput();
+            this.softwareSimulatorOutputManager.writeOutput(this.softwareSimulationController.getSoftwareSimulator().getExecutionStats());
         }
     }
 }

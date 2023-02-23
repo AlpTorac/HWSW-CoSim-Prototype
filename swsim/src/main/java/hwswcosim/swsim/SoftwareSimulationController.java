@@ -7,8 +7,6 @@ import org.javasim.RestartException;
 import org.javasim.Simulation;
 import org.javasim.SimulationException;
 import org.javasim.SimulationProcess;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 public class SoftwareSimulationController extends SimulationProcess {
     Collection<ScriptedTransitionEntry> transitionChain;
@@ -88,28 +86,8 @@ public class SoftwareSimulationController extends SimulationProcess {
         System.out.println("Exited simulation");
     }
 
-    public boolean hasBinaryFilePath() {
-        return this.simulator.hasBinaryFilePath();
-    }
-
-    public String getBinaryFilePath() {
-        return this.simulator.getBinaryFilePath();
-    }
-
-    public boolean hasBinaryArguments() {
-        return this.simulator.hasBinaryArguments();
-    }
-
-    public JSONArray getBinaryArguments() {
-        return this.simulator.getBinaryArguments();
-    }
-
-    public Collection<Object> getExecutionStats(String statName) {
-        return this.simulator.getExecutionStats(statName);
-    }
-
-    public void addBinaryExecutionStats(Number time, JSONObject binaryExecutionStatsText) {
-        this.simulator.addBinaryExecutionStats(time, binaryExecutionStatsText);
+    public SoftwareSimulator getSoftwareSimulator() {
+        return this.simulator;
     }
 
     public boolean hasUnscheduledTransitionEvents() {

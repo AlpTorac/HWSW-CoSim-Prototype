@@ -6,24 +6,37 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.json.simple.JSONObject;
 
+/**
+ * This class encapsulates what and how the software simulator
+ * outputs.
+ */
 public class SoftwareSimulatorOutputManager {
     private String softwareSimulatorOutputDir;
-    private JSONObject softwareSimulatorOutput;
-    private SoftwareSimulationController softwareSimulationController;
+    private JSONObject softwareSimulatorOutputDesc;
 
-    public SoftwareSimulatorOutputManager(String softwareSimulatorOutputDir, JSONObject softwareSimulatorOutput, SoftwareSimulationController softwareSimulationController) {
+    public SoftwareSimulatorOutputManager(String softwareSimulatorOutputDir, JSONObject softwareSimulatorOutput) {
         this.softwareSimulatorOutputDir = softwareSimulatorOutputDir;
-        this.softwareSimulatorOutput = softwareSimulatorOutput;
-        this.softwareSimulationController = softwareSimulationController;
+        this.softwareSimulatorOutputDesc = softwareSimulatorOutput;
     }
 
-    protected Object prepareSoftwareSimulatorOutputValue(Collection<Object> stats, String action) {
+    /**
+     * Computes the value of a single output entry
+     * 
+     * @param stats A given collection of output values that have been gathered
+     * throughout the simulation that belong to a specific output.
+     * @param action A given accumulation action that will be used to compute
+     * the corresponding output.
+     * @return The final output value of the corresponding output entry of the
+     * software simulator
+     */
+    protected Object computeOutputEntryValue(Collection<Object> stats, String action) {
         switch ((String) action) {
             case "add":
                 return stats.stream().reduce((val1, val2) -> {
@@ -39,39 +52,51 @@ public class SoftwareSimulatorOutputManager {
         }
     }
 
+    /**
+     * @return A map that contains the names of the desired output entries as key
+     * and their value as value.
+     */
     @SuppressWarnings("unchecked")
-    protected Map<String, Object> prepareSoftwareSimulatorOutput() {
+    protected Map<String, Object> prepareOutput(Map<Number, JSONObject> accumulatedOutput) {
         Map<String, Object> result = new HashMap<String, Object>();
 
-        this.softwareSimulatorOutput.forEach((outputName, action) -> {
-            Collection<Object> stats = this.softwareSimulationController.getExecutionStats((String) outputName);
-            result.put((String) outputName, this.prepareSoftwareSimulatorOutputValue(stats, (String) action));
+        this.softwareSimulatorOutputDesc.forEach((outputName, action) -> {
+            Collection<Object> stats = new ArrayList<Object>();
+
+            accumulatedOutput.values().forEach(json -> {
+                stats.add(json.get((String) outputName));
+            });
+
+            result.put((String) outputName, this.computeOutputEntryValue(stats, (String) action));
         });
 
         return result;
     }
 
-    public void writeOutput() {
-        File dir = new File(this.softwareSimulatorOutputDir);
-        File fout = new File(dir.getAbsolutePath()+"/swsimOutput.txt");
+    /**
+     * Writes the accumulated output to a file.
+     */
+    public void writeOutput(Map<Number, JSONObject> accumulatedOutput) {
+        File outputDir = new File(this.softwareSimulatorOutputDir);
+        File outputFile = new File(outputDir.getAbsolutePath()+"/swsimOutput.txt");
 
         try {
-            dir.mkdirs();
-            fout.createNewFile();
+            outputDir.mkdirs();
+            outputFile.createNewFile();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         FileOutputStream fos = null;
         try {
-            fos = new FileOutputStream(fout);
+            fos = new FileOutputStream(outputFile);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
      
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
      
-        this.prepareSoftwareSimulatorOutput().forEach((outputName, outputValue)->{
+        this.prepareOutput(accumulatedOutput).forEach((outputName, outputValue)->{
             try {
                 bw.write(outputName + ": " + outputValue);
                 bw.newLine();

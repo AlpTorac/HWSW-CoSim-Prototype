@@ -46,7 +46,7 @@ world = mosaik.World(SIM_CONFIG)
 OUTPUT_DIR = ROOT_DIR+'/out'
 
 # Start simulators
-software_simulator = world.start('SoftwareSimulator',software_simulator_output_dir=OUTPUT_DIR+'/swsimOut', software_simulator_output={
+software_simulator = world.start('SoftwareSimulator',software_simulator_output_dir=OUTPUT_DIR+'/swsimOut', software_simulator_output_desc={
     'simSeconds': 'add',
     'simFreq': 'none'
 })

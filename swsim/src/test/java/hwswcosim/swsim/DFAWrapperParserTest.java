@@ -28,6 +28,9 @@ public class DFAWrapperParserTest
     private final String dfaFilePath = absPath + "/src/test/resources/dfa.json";
     private final String binaryMapFilePath = absPath + "/src/test/resources/binaryMap.json";
 
+    private DFAWrapperParser parser = new DFAWrapperParser(new BinaryMapParser(new DFAParser()));
+
+    @SuppressWarnings("unused")
     private DFA makeTestDFA() {
         Set<State> expectedStates = new HashSet<State>();
         Set<PlannedTransition> expectedTransitions = new HashSet<PlannedTransition>();
@@ -69,8 +72,7 @@ public class DFAWrapperParserTest
     @Test
     public void parseDFATest()
     {
-        DFAWrapperParser parser = new DFAWrapperParser();
-        DFA parsedDFA = parser.parseDFA(dfaFilePath);
+        DFA parsedDFA = parser.getBinaryMapParser().getDFAParser().parseDFA(dfaFilePath);
 
         Set<State> states = parsedDFA.getStates();
         Set<PlannedTransition> transitions = parsedDFA.getTransitions();
@@ -97,12 +99,11 @@ public class DFAWrapperParserTest
 
     @Test
     public void parseBinaryMapTest() {
-        DFAWrapperParser parser = new DFAWrapperParser();
-        DFA dfa = parser.parseDFA(dfaFilePath);
+        DFA dfa = parser.getBinaryMapParser().getDFAParser().parseDFA(dfaFilePath);
 
         assertNotNull(dfa);
 
-        Collection<BinaryMapEntry> map = parser.parseTransitionToBinaryMap(binaryMapFilePath);
+        Collection<BinaryMapEntry> map = parser.getBinaryMapParser().parseBinaryMap(dfa.getStates(), dfa.getTransitions(), binaryMapFilePath);
 
         assertEquals(6, map.size());
 
@@ -147,6 +148,7 @@ public class DFAWrapperParserTest
             && (t1.getWith() == input);
     }
 
+    @SuppressWarnings("unused")
     private boolean transitionsEqual(CharacterTransition t1, CharacterTransition t2) {
         return t1.getOrigin().getLabel().equals(t2.getOrigin().getLabel())
             && t1.getDestination().getLabel().equals(t2.getDestination().getLabel())

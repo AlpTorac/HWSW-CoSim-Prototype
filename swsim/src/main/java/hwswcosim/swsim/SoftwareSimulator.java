@@ -13,8 +13,15 @@ public class SoftwareSimulator {
     private DFAWrapper model;
     private Map<Number, JSONObject> binaryExecutionStats;
 
+    private DFAWrapperParser dfaWrapperParser;
+
     public SoftwareSimulator() {
         this.binaryExecutionStats = new HashMap<Number, JSONObject>();
+        this.dfaWrapperParser = new DFAWrapperParser(new BinaryMapParser(new DFAParser()));
+    }
+
+    public DFAWrapperParser getDFAWrapperParser() {
+        return this.dfaWrapperParser;
     }
 
     public void addDFAWrapper(String DFAFilePath, String binaryMapFilePath) {
@@ -31,7 +38,11 @@ public class SoftwareSimulator {
         }
     }
 
-    public Collection<Object> getExecutionStats(String statName) {
+    public Map<Number, JSONObject> getExecutionStats() {
+        return this.binaryExecutionStats;
+    }
+
+    public Collection<Object> getExecutionStatValues(String statName) {
         ArrayList<Object> result = new ArrayList<Object>();
 
         for (JSONObject binaryExecutionStatsEntry : this.binaryExecutionStats.values()) {
@@ -65,6 +76,6 @@ public class SoftwareSimulator {
     }
 
     protected DFAWrapper parseDFAWrapper(String DFAFilePath, String binaryMapFilePath) {
-        return new DFAWrapperParser().parseDFAWrapper(DFAFilePath, binaryMapFilePath);
+        return this.getDFAWrapperParser().parseDFAWrapper(DFAFilePath, binaryMapFilePath);
     }
 }
