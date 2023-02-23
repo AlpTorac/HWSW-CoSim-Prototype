@@ -45,17 +45,21 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             + "    }" + "}").replace("'", "\""));
 
     public static void main(String[] args) throws Throwable {
-        Simulator sim = new SoftwareSimulatorMosaikAPI();
+        Simulator sim = new SoftwareSimulatorMosaikAPI(simulatorName);
         SimProcess.startSimulation(args, sim);
     }
 
     private SoftwareSimulationController softwareSimulationController;
     private String simulatorID;
-    private SoftwareSimulatorOutputManager softwareSimulatorOutputManager;
+    protected SoftwareSimulatorOutputManager softwareSimulatorOutputManager;
 
-    public SoftwareSimulatorMosaikAPI() {
+    public SoftwareSimulatorMosaikAPI(String simulatorName) {
         super(simulatorName);
-        this.softwareSimulationController = new SoftwareSimulationController();
+        this.softwareSimulationController = this.initSoftwareSimulationController();
+    }
+
+    protected SoftwareSimulationController initSoftwareSimulationController() {
+        return new SoftwareSimulationController();
     }
 
     public String getSimulatorID() {
@@ -66,14 +70,14 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
      * Checks whether the software simulator currently has a binary
      * that needs to be simulated.
      */
-    public boolean hasOutput() {
+    protected boolean hasOutput() {
         return this.softwareSimulationController.getSoftwareSimulator().hasBinaryFilePath();
     }
 
     /*
      * Gets the path of the binary that is to be simulated.
      */
-    public String getBinaryPathOutput() {
+    protected String getBinaryPathOutput() {
         return this.softwareSimulationController.getSoftwareSimulator().getBinaryFilePath();
     }
 
@@ -82,7 +86,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
      * Gets the arguments, with which the binary will be run
      * for simulation.
      */
-    public JSONArray getBinaryArgumentsOutput() {
+    protected JSONArray getBinaryArgumentsOutput() {
         return this.softwareSimulationController.getSoftwareSimulator().getBinaryArguments();
     }
 
@@ -242,7 +246,9 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     @Override
     public void cleanup() {
         if (this.softwareSimulatorOutputManager != null) {
-            this.softwareSimulatorOutputManager.writeOutput(this.softwareSimulationController.getSoftwareSimulator().getExecutionStats());
+            this.softwareSimulatorOutputManager.writeAccumulatedOutputToFile(
+                this.softwareSimulationController.getSoftwareSimulator()
+                .getExecutionStats(), "swsimOutput.txt");
         }
     }
 }

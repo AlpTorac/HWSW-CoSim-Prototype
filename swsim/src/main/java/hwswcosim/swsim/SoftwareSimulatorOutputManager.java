@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -73,12 +74,9 @@ public class SoftwareSimulatorOutputManager {
         return result;
     }
 
-    /**
-     * Writes the accumulated output to a file.
-     */
-    public void writeOutput(Map<Number, JSONObject> accumulatedOutput) {
+    protected File createOutputFile(String fileName) {
         File outputDir = new File(this.softwareSimulatorOutputDir);
-        File outputFile = new File(outputDir.getAbsolutePath()+"/swsimOutput.txt");
+        File outputFile = new File(outputDir.getAbsolutePath()+"/"+fileName);
 
         try {
             outputDir.mkdirs();
@@ -87,6 +85,18 @@ public class SoftwareSimulatorOutputManager {
             e.printStackTrace();
         }
 
+        return outputFile;
+    }
+
+    protected void writeOutputEntryToFile(Writer w, String outputName, String outputValue) {
+        try {
+            w.write(outputName + ": " + outputValue + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected Writer getOutputWriter(File outputFile) {
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(outputFile);
@@ -95,18 +105,27 @@ public class SoftwareSimulatorOutputManager {
         }
      
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+
+        return bw;
+    }
+
+    /**
+     * Writes the accumulated output to a file after reducing it.
+     */
+    public void writeAccumulatedOutputToFile(Map<Number, JSONObject> accumulatedOutput, String fileName) {
+        this.writeOutputMapToFile(this.prepareOutput(accumulatedOutput), fileName);
+    }
+
+    public <T> void writeOutputMapToFile(Map<String, T> outputMap, String fileName) {
+        File outputFile = this.createOutputFile(fileName);
+        Writer w = this.getOutputWriter(outputFile);
      
-        this.prepareOutput(accumulatedOutput).forEach((outputName, outputValue)->{
-            try {
-                bw.write(outputName + ": " + outputValue);
-                bw.newLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        outputMap.forEach((outputName, outputValue)->{
+            this.writeOutputEntryToFile(w, outputName, outputValue.toString());
         });
 
         try {
-            bw.close();
+            w.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
