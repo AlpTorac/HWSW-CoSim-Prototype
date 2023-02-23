@@ -36,9 +36,6 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
         self.simulator = None
 
     def init(self, sid, time_resolution, eid_prefix=None):
-        #if float(time_resolution) != 1.:
-        #    raise ValueError('ExampleSim only supports time_resolution=1., but'
-        #                     ' %s was set.' % time_resolution)
         if eid_prefix is not None:
             self.eid_prefix = eid_prefix
         self.simulator = hardware_simulator.HardwareSimulator()
@@ -77,7 +74,7 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
                     binary_arguments = list(values.values())[0]
             
             if new_binary_path is not None:
-                self.simulator.run_binary(new_binary_path, binary_arguments, time)
+                self.simulator.run_binary(new_binary_path, binary_arguments, time=time)
 
         return None
 
