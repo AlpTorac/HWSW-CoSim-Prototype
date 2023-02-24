@@ -35,11 +35,14 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
         self.eid_prefix = ''
         self.simulator = None
 
-    def init(self, sid, time_resolution, eid_prefix=None):
-        if eid_prefix is not None:
-            self.eid_prefix = eid_prefix
-        self.simulator = hardware_simulator.HardwareSimulator()
+    def init(self, sid, time_resolution, **sim_params):
+        if 'eid_prefix' in sim_params:
+            self.eid_prefix = sim_params['eid_prefix']
+        self.simulator = self.init_simulator()
         return self.meta
+
+    def init_simulator(self):
+        return hardware_simulator.HardwareSimulator()
 
     def create(self, num, model, gem5_run_command, gem5_output_path,
     hardware_script_run_command):

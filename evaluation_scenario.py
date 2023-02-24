@@ -27,8 +27,8 @@ SIM_CONFIG = {
     'EvaluationSoftwareSimulator': {
         'cmd': 'java -cp '+swsim_jar_path+dependencies+' hwswcosim.swsim.EvaluationSoftwareSimulatorMosaikAPI %(addr)s',
     },
-    'HWSimulator': {
-        'cmd': '%(python)s ./hwsim/hardware_simulator_mosaik_API.py %(addr)s',
+    'EvaluationHWSimulator': {
+        'cmd': '%(python)s ./hwsim/evaluation_hardware_simulator_mosaik_API.py %(addr)s',
     },
 }
 # End needs a buffer of at least 2 time steps, otherwise the software simulator
@@ -44,13 +44,15 @@ END = 9
 world = mosaik.World(SIM_CONFIG)
 
 OUTPUT_DIR = ROOT_DIR+'/out'
+SWSIM_OUTPUT_DIR = OUTPUT_DIR+'/swsimOut'
+HWSIM_OUTPUT_DIR = OUTPUT_DIR+'/hwsimOut'
 
 # Start simulators
-software_simulator = world.start('EvaluationSoftwareSimulator',software_simulator_output_dir=OUTPUT_DIR+'/swsimOut', software_simulator_output_desc={
+software_simulator = world.start('EvaluationSoftwareSimulator',software_simulator_output_dir=SWSIM_OUTPUT_DIR, software_simulator_output_desc={
     'simSeconds': 'add',
     'simFreq': 'none'
 })
-hardware_simulator = world.start('HWSimulator')
+hardware_simulator = world.start('EvaluationHWSimulator')
 
 RESOURCES_FOLDER = ROOT_DIR+'/cosim-scenario'
 
@@ -62,7 +64,7 @@ sw_model = software_simulator.DFAWrapper(
 
 hw_model = hardware_simulator.HWModel(
     gem5_run_command=GEM5_PATH,
-    gem5_output_path=OUTPUT_DIR+'/hwsimOut',
+    gem5_output_path=HWSIM_OUTPUT_DIR,
     hardware_script_run_command=ROOT_DIR+'/hwsim/hardware_script.py')
 
 world.connect(sw_model, hw_model, 'binary_file_path_out', 'binary_file_path_in')

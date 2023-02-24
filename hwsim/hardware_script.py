@@ -1,20 +1,13 @@
+import hardware_script_util
+
 # import the m5 (gem5) library created when gem5 is built
 import m5
 # import all of the SimObjects
 from m5.objects import *
 
 import itertools
-import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--binary_path",
-                    help="Path to the binary to execute.")
-parser.add_argument("--binary_arg", action='append', nargs='*',
-                    help="List of binary arguments")
-
-options = vars(parser.parse_args())
-binary_args = options['binary_arg']
-binary_path = options['binary_path']
+(binary_args, binary_path) = hardware_script_util.get_options()
 
 # Create the system
 system = System()
@@ -58,15 +51,6 @@ system.mem_ctrl.port = system.membus.mem_side_ports
 
 # Connect the system up to the membus
 system.system_port = system.membus.cpu_side_ports
-
-# Here we set the X86 "hello world" binary. With other ISAs you must specify
-# workloads compiled to those ISAs. Other "hello world" binaries for other ISAs
-# can be found in "tests/test-progs/hello".
-#thispath = os.path.dirname(os.path.realpath(__file__))
-#binary = os.path.join(
-#    thispath,
-#    "../gem5/tests/test-progs/hello/bin/x86/linux/hello",
-#)
 
 system.workload = SEWorkload.init_compatible(binary_path)
 
