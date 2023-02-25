@@ -1,17 +1,29 @@
 import evaluation_object
 import evaluation_hardware_simulator
+
 import hardware_simulator_mosaik_API
 import mosaik_api
+
+import time
+
+hardware_simulator_eval_output_file_name = 'hardware_simulator_eval_output_file'
 
 class EvaluationHardwareSimulatorMosaikAPI(hardware_simulator_mosaik_API.HardwareSimulatorMosaikAPI, evaluation_object.EvaluationObject):
     def __init__(self):
         hardware_simulator_mosaik_API.HardwareSimulatorMosaikAPI.__init__(self)
+        self.hardware_simulator_eval_output_file = None
         self.hardware_simulator_output_dir = None
+        self.start_time = None
+        self.end_time = None
     
     def get_full_method_name(self, method_name):
         return 'EvaluationHardwareSimulatorMosaikAPI.'+method_name
 
     def init(self, sid, time_resolution, **sim_params):
+        if hardware_simulator_eval_output_file_name in sim_params:
+            self.hardware_simulator_eval_output_file = sim_params[hardware_simulator_eval_output_file_name]
+
+        self.start_time = time.time_ns()
         return self.add_time_measurement(self, 'init',
             hardware_simulator_mosaik_API.HardwareSimulatorMosaikAPI.init,
             sid=sid, time_resolution=time_resolution, **sim_params)
@@ -40,11 +52,16 @@ class EvaluationHardwareSimulatorMosaikAPI(hardware_simulator_mosaik_API.Hardwar
             time=time, inputs=inputs, max_advance=max_advance)
     
     def finalize(self):
-        file = open(self.hardware_simulator_output_dir+'/hwsimEvalOutput.txt', 'x')
+        self.end_time = time.time_ns()
+        file = open(self.hardware_simulator_eval_output_file, 'x')
         
+        file.write('Hardware simulator time measurements:\n')
+
         output_data = self.get_collector().reduce_time_measurements()
         for output_name, output_value in output_data.items():
             file.write(output_name+': '+str(output_value)+'\n')
+
+        file.write('\nHardware simulator ran for: %.0f\n' % (self.end_time - self.start_time))
 
         file.close()
 

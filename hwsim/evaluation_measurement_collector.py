@@ -18,9 +18,9 @@ class EvaluationMeasurementCollector():
             self.time_measurement_collector[method_name] = [time]
 
     def add_time_measurement(self, method_caller, method_name, method, *args, **kwargs):
-        start = time.time()
+        start = time.time_ns()
         result = method(self=method_caller, *args, **kwargs)
-        end = time.time()
+        end = time.time_ns()
 
         self.add_time_measurement_entry(method_name, end - start)
         return result
@@ -34,8 +34,7 @@ class EvaluationMeasurementCollector():
             for time in time_list:
                 sum += time
             
-            sum *= 1000
-            reduced_measurements[method_name] = '%.{}f'.format(0) % sum
+            reduced_measurements[method_name] = '%.0f' % sum
         
         return reduced_measurements
     

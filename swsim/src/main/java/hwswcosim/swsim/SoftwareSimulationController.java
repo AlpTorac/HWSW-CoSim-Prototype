@@ -2,11 +2,14 @@ package hwswcosim.swsim;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 import org.javasim.RestartException;
 import org.javasim.Simulation;
 import org.javasim.SimulationException;
 import org.javasim.SimulationProcess;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class SoftwareSimulationController extends SimulationProcess {
     Collection<ScriptedTransitionEntry> transitionChain;
@@ -76,6 +79,10 @@ public class SoftwareSimulationController extends SimulationProcess {
         this.exit();
     }
 
+    protected SoftwareSimulator getSoftwareSimulator() {
+        return this.simulator;
+    }
+
     public void await() {
         this.resumeProcess();
     }
@@ -86,8 +93,28 @@ public class SoftwareSimulationController extends SimulationProcess {
         System.out.println("Exited simulation");
     }
 
-    public SoftwareSimulator getSoftwareSimulator() {
-        return this.simulator;
+    public boolean hasBinaryFilePath() {
+        return this.simulator.hasBinaryFilePath();
+    }
+
+    public boolean hasBinaryArguments() {
+        return this.simulator.hasBinaryArguments();
+    }
+
+    public String getBinaryFilePath() {
+        return this.simulator.getBinaryFilePath();
+    }
+
+    public JSONArray getBinaryArguments() {
+        return this.simulator.getBinaryArguments();
+    }
+
+    public void addBinaryExecutionStats(Long time, JSONObject binaryExecutionStats) {
+        this.simulator.addBinaryExecutionStats(time, binaryExecutionStats);
+    }
+
+    public Map<Number, JSONObject> getExecutionStats() {
+        return this.simulator.getExecutionStats();
     }
 
     public boolean hasUnscheduledTransitionEvents() {
@@ -156,7 +183,7 @@ public class SoftwareSimulationController extends SimulationProcess {
         return remainingChain;
     }
 
-    private void triggerTransitionEvent(char input) {
+    protected void triggerTransitionEvent(char input) {
         this.simulator.performTransition(input);
         System.out.println("Transition event performed");
     }

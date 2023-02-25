@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-public class EvaluationMeasurementCollector {
+public class EvaluationMeasurementCollector implements IEvaluationObject {
     private static EvaluationMeasurementCollector instance;
 
     private Map<String, Collection<Number>> timeMeasurementCollector;
@@ -28,6 +28,7 @@ public class EvaluationMeasurementCollector {
         this.timeMeasurementCollector.put(methodName, this.initTimeMeasurementCollectorValue());
     }
 
+    @Override
     public void addTimeMeasurement(String methodName, Number measurement) {
         if (!this.timeMeasurementCollector.containsKey(methodName)) {
             Collection<Number> entry = this.initTimeMeasurementCollectorValue();
@@ -38,17 +39,21 @@ public class EvaluationMeasurementCollector {
         }
     }
 
-    protected <T> T addTimeMeasurement(String methodName, Callable<T> method) throws Exception {
-        long start = System.currentTimeMillis();
+    @Override
+    public <T> T addTimeMeasurement(String methodName, Callable<T> method) throws Exception {
+        long start = this.getCurrentSystemTime();
         T result = method.call();
-        this.addTimeMeasurement(methodName, Long.valueOf(System.currentTimeMillis() - start));
+        long end = this.getCurrentSystemTime();
+        this.addTimeMeasurement(methodName, start, end);
         return result;
     }
 
-    protected void addTimeMeasurement(String methodName, Runnable method) {
-        long start = System.currentTimeMillis();
+    @Override
+    public void addTimeMeasurement(String methodName, Runnable method) {
+        long start = this.getCurrentSystemTime();
         method.run();
-        this.addTimeMeasurement(methodName, Long.valueOf(System.currentTimeMillis() - start));
+        long end = this.getCurrentSystemTime();
+        this.addTimeMeasurement(methodName, start, end);
     }
 
     protected Map<String, Number> reduceTimeMeasurements() {
@@ -73,5 +78,15 @@ public class EvaluationMeasurementCollector {
         }
 
         return instance;
+    }
+
+    @Override
+    public EvaluationMeasurementCollector getCollector() {
+        return EvaluationMeasurementCollector.getInstance();
+    }
+
+    @Override
+    public String getFullMethodName(String methodName) {
+        return "EvaluationMeasurementCollector."+methodName;
     }
 }

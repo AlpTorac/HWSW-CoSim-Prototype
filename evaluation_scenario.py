@@ -5,6 +5,9 @@ import fnmatch
 import os
 
 import re
+import time
+
+start_time = time.time_ns()
 
 # Get the root directory of the project
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -47,12 +50,28 @@ OUTPUT_DIR = ROOT_DIR+'/out'
 SWSIM_OUTPUT_DIR = OUTPUT_DIR+'/swsimOut'
 HWSIM_OUTPUT_DIR = OUTPUT_DIR+'/hwsimOut'
 
+SWSIM_EVAL_OUTPUT_FILE = SWSIM_OUTPUT_DIR+'/swsimEvalOutput.txt'
+HWSIM_EVAL_OUTPUT_FILE = HWSIM_OUTPUT_DIR+'/hwsimEvalOutput.txt'
+EVAL_OUTPUT_FILE = OUTPUT_DIR+'/evalOutput.txt'
+
 # Start simulators
-software_simulator = world.start('EvaluationSoftwareSimulator',software_simulator_output_dir=SWSIM_OUTPUT_DIR, software_simulator_output_desc={
+software_simulator = world.start('EvaluationSoftwareSimulator',software_simulator_output_dir=SWSIM_OUTPUT_DIR
+        , software_simulator_eval_output_file_path=SWSIM_EVAL_OUTPUT_FILE
+        , software_simulator_output_desc={
     'simSeconds': 'add',
-    'simFreq': 'none'
+    'hostSeconds': 'add',
+    'simTicks': 'add',
+    'finalTick': 'add',
+    'hostMemory': 'add',
+    'simInsts': 'add',
+    'simOps': 'add',
+    'simFreq': 'none',
+    'hostTickRate': 'avg',
+    'hostInstRate': 'avg',
+    'hostOpRate': 'avg'
 })
-hardware_simulator = world.start('EvaluationHWSimulator')
+hardware_simulator = world.start('EvaluationHWSimulator'
+        , hardware_simulator_eval_output_file=HWSIM_EVAL_OUTPUT_FILE)
 
 RESOURCES_FOLDER = ROOT_DIR+'/cosim-scenario'
 
@@ -72,5 +91,22 @@ world.connect(sw_model, hw_model, 'binary_file_arguments_out', 'binary_file_argu
 world.connect(hw_model, sw_model, 'binary_execution_stats_out', 'binary_execution_stats_in', weak=True)
 
 # Run simulation
-world.set_initial_event(software_simulator._sim.sid, time=0)
 world.run(until=END)
+
+end_time = time.time_ns()
+
+eval_output = open(EVAL_OUTPUT_FILE, 'x')
+swsim_eval_output = open(SWSIM_EVAL_OUTPUT_FILE)
+hwsim_eval_output = open(HWSIM_EVAL_OUTPUT_FILE)
+
+eval_output.write('swsim evaluation outputs:\n')
+eval_output.writelines(swsim_eval_output.readlines())
+eval_output.write('\n')
+eval_output.write('hwsim evaluation outputs:\n')
+eval_output.writelines(hwsim_eval_output.readlines())
+eval_output.write('\n')
+eval_output.write('Entire simulation took: %.0f' % (end_time - start_time))
+
+eval_output.close()
+swsim_eval_output.close()
+hwsim_eval_output.close()

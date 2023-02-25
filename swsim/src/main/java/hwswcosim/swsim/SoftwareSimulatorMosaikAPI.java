@@ -53,8 +53,11 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     private String simulatorID;
     protected SoftwareSimulatorOutputManager softwareSimulatorOutputManager;
 
+    private String outputFileName;
+
     public SoftwareSimulatorMosaikAPI(String simulatorName) {
         super(simulatorName);
+        this.outputFileName = "swsimOutput.txt";
         this.softwareSimulationController = this.initSoftwareSimulationController();
     }
 
@@ -71,14 +74,14 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
      * that needs to be simulated.
      */
     protected boolean hasOutput() {
-        return this.softwareSimulationController.getSoftwareSimulator().hasBinaryFilePath();
+        return this.softwareSimulationController.hasBinaryFilePath();
     }
 
     /*
      * Gets the path of the binary that is to be simulated.
      */
     protected String getBinaryPathOutput() {
-        return this.softwareSimulationController.getSoftwareSimulator().getBinaryFilePath();
+        return this.softwareSimulationController.getBinaryFilePath();
     }
 
 
@@ -87,7 +90,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
      * for simulation.
      */
     protected JSONArray getBinaryArgumentsOutput() {
-        return this.softwareSimulationController.getSoftwareSimulator().getBinaryArguments();
+        return this.softwareSimulationController.getBinaryArguments();
     }
 
     @SuppressWarnings("unchecked")
@@ -207,7 +210,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
                     if (!binaryExecutionStats.isEmpty()) {
                         JSONObject input = (JSONObject) (binaryExecutionStats.stream().findFirst().get());
                         System.out.println("SWSimulator receiving binaryExecutionStats: " + input);
-                        this.softwareSimulationController.getSoftwareSimulator().addBinaryExecutionStats(Long.valueOf(time), input);
+                        this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), input);
                     }
                 }
                 else {
@@ -246,9 +249,8 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     @Override
     public void cleanup() {
         if (this.softwareSimulatorOutputManager != null) {
-            this.softwareSimulatorOutputManager.writeAccumulatedOutputToFile(
-                this.softwareSimulationController.getSoftwareSimulator()
-                .getExecutionStats(), "swsimOutput.txt");
+            this.softwareSimulatorOutputManager.writeAccumulatedOutputToFileInOutputDir(
+                this.softwareSimulationController.getExecutionStats(), this.outputFileName);
         }
     }
 }

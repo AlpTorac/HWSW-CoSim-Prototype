@@ -8,8 +8,14 @@ import de.offis.mosaik.api.Simulator;
 
 public class EvaluationSoftwareSimulatorMosaikAPI extends SoftwareSimulatorMosaikAPI implements IEvaluationObject {
 
+    private static final String softwareSimulatorEvalOutputFilePathName = "software_simulator_eval_output_file_path";
     private static final String simulatorName = "EvaluationSoftwareSimulator";
     private EvaluationMeasurementCollector collector;
+
+    private long startTime;
+    private long endTime;
+
+    private String evalOutputFilePath;
 
     public static void main(String[] args) throws Throwable {
         Simulator sim = new EvaluationSoftwareSimulatorMosaikAPI(simulatorName);
@@ -48,6 +54,11 @@ public class EvaluationSoftwareSimulatorMosaikAPI extends SoftwareSimulatorMosai
 
     @Override
     public Map<String, Object> init(String sid, Float timeResolution, Map<String, Object> simParams) throws Exception {
+        if (simParams.containsKey(softwareSimulatorEvalOutputFilePathName)) {
+            this.evalOutputFilePath = (String) simParams.get(softwareSimulatorEvalOutputFilePathName);
+        }
+
+        this.startTime = this.getCurrentSystemTime();
         return this.addTimeMeasurement("init", ()->super.init(sid, timeResolution, simParams));
     }
 
@@ -57,15 +68,19 @@ public class EvaluationSoftwareSimulatorMosaikAPI extends SoftwareSimulatorMosai
     }
 
     protected void writeEvaluationResults() {
-        if (this.softwareSimulatorOutputManager != null) {
+        if (this.softwareSimulatorOutputManager != null && this.evalOutputFilePath != null) {
             this.softwareSimulatorOutputManager.writeOutputMapToFile(
-                this.collector.reduceTimeMeasurements(), "swsimEvalOutput.txt");
+                this.collector.reduceTimeMeasurements(), this.evalOutputFilePath,
+                "Software simulator time measurements:\n",
+                "\nSoftware simulator ran for: "
+                + (this.endTime - this.startTime) + "\n");
         }
     }
 
     @Override
     public void cleanup() {
-        super.cleanup();
+        this.addTimeMeasurement("cleanup", ()->super.cleanup());
+        this.endTime = this.getCurrentSystemTime();
         this.writeEvaluationResults();
     }
 }
