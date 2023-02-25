@@ -4,8 +4,6 @@ import evaluation_hardware_simulator
 import hardware_simulator_mosaik_API
 import mosaik_api
 
-import time
-
 hardware_simulator_eval_output_file_name = 'hardware_simulator_eval_output_file'
 
 class EvaluationHardwareSimulatorMosaikAPI(hardware_simulator_mosaik_API.HardwareSimulatorMosaikAPI, evaluation_object.EvaluationObject):
@@ -23,7 +21,7 @@ class EvaluationHardwareSimulatorMosaikAPI(hardware_simulator_mosaik_API.Hardwar
         if hardware_simulator_eval_output_file_name in sim_params:
             self.hardware_simulator_eval_output_file = sim_params[hardware_simulator_eval_output_file_name]
 
-        self.start_time = time.time_ns()
+        self.start_time = self.get_current_system_time()
         return self.add_time_measurement(self, 'init',
             hardware_simulator_mosaik_API.HardwareSimulatorMosaikAPI.init,
             sid=sid, time_resolution=time_resolution, **sim_params)
@@ -52,7 +50,7 @@ class EvaluationHardwareSimulatorMosaikAPI(hardware_simulator_mosaik_API.Hardwar
             time=time, inputs=inputs, max_advance=max_advance)
     
     def finalize(self):
-        self.end_time = time.time_ns()
+        self.end_time = self.get_current_system_time()
         file = open(self.hardware_simulator_eval_output_file, 'x')
         
         file.write('Hardware simulator time measurements:\n')

@@ -5,9 +5,14 @@ import fnmatch
 import os
 
 import re
-import time
 
-start_time = time.time_ns()
+import sys
+
+sys.path.append('./hwsim')
+
+import evaluation_object
+
+start_time = evaluation_object.get_current_system_time()
 
 # Get the root directory of the project
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -93,7 +98,7 @@ world.connect(hw_model, sw_model, 'binary_execution_stats_out', 'binary_executio
 # Run simulation
 world.run(until=END)
 
-end_time = time.time_ns()
+end_time = evaluation_object.get_current_system_time()
 
 eval_output = open(EVAL_OUTPUT_FILE, 'x')
 swsim_eval_output = open(SWSIM_EVAL_OUTPUT_FILE)

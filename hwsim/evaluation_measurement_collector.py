@@ -1,4 +1,4 @@
-import time
+import evaluation_object
 
 """
 This class is used to collect measurement data from child classes of
@@ -7,7 +7,7 @@ EvaluationObject.
 It should be treated as a singleton, whose only instance is
 evaluation_measurement_collector.collector (see the end of the file)
 """
-class EvaluationMeasurementCollector():
+class EvaluationMeasurementCollector(evaluation_object.EvaluationObject):
     def __init__(self):
         self.time_measurement_collector = {}
 
@@ -18,9 +18,9 @@ class EvaluationMeasurementCollector():
             self.time_measurement_collector[method_name] = [time]
 
     def add_time_measurement(self, method_caller, method_name, method, *args, **kwargs):
-        start = time.time_ns()
+        start = self.get_current_system_time()
         result = method(self=method_caller, *args, **kwargs)
-        end = time.time_ns()
+        end = self.get_current_system_time()
 
         self.add_time_measurement_entry(method_name, end - start)
         return result
