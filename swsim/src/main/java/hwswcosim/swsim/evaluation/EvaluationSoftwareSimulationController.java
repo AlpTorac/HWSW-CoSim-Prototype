@@ -1,4 +1,4 @@
-package hwswcosim.swsim;
+package hwswcosim.swsim.evaluation;
 
 import java.util.Collection;
 import java.util.Map;
@@ -6,48 +6,36 @@ import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-public class EvaluationSoftwareSimulationController extends SoftwareSimulationController implements IEvaluationObject {
-    private EvaluationMeasurementCollector collector;
+import hwswcosim.swsim.ScriptedTransitionEntry;
+import hwswcosim.swsim.SoftwareSimulationController;
 
+public class EvaluationSoftwareSimulationController extends SoftwareSimulationController implements IEvaluationObject {
     public EvaluationSoftwareSimulationController() {
         super();
-        this.collector = EvaluationMeasurementCollector.getInstance();
     }
 
     @Override
     public boolean hasBinaryFilePath() {
-        long start = this.getCurrentSystemTime();
-        boolean result = super.hasBinaryFilePath();
-        long end = this.getCurrentSystemTime();
-        this.addTimeMeasurement("hasBinaryFilePath", start, end);
-        return result;
+        return this.addTimeMeasurement("hasBinaryFilePath",
+        (r)->super.hasBinaryFilePath());
     }
 
     @Override
     public boolean hasBinaryArguments() {
-        long start = this.getCurrentSystemTime();
-        boolean result = super.hasBinaryArguments();
-        long end = this.getCurrentSystemTime();
-        this.addTimeMeasurement("hasBinaryArguments", start, end);
-        return result;
+        return this.addTimeMeasurement("hasBinaryArguments",
+        (r)->super.hasBinaryArguments());
     }
 
     @Override
     public String getBinaryFilePath() {
-        long start = this.getCurrentSystemTime();
-        String result = super.getBinaryFilePath();
-        long end = this.getCurrentSystemTime();
-        this.addTimeMeasurement("getBinaryFilePath", start, end);
-        return result;
+        return this.addTimeMeasurement("getBinaryFilePath",
+        (r)->super.getBinaryFilePath());
     }
 
     @Override
     public JSONArray getBinaryArguments() {
-        long start = this.getCurrentSystemTime();
-        JSONArray result = super.getBinaryArguments();
-        long end = this.getCurrentSystemTime();
-        this.addTimeMeasurement("getBinaryArguments", start, end);
-        return result;
+        return this.addTimeMeasurement("getBinaryArguments",
+        (r)->super.getBinaryArguments());
     }
 
     @Override
@@ -57,11 +45,8 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
 
     @Override
     public Map<Number, JSONObject> getExecutionStats() {
-        long start = this.getCurrentSystemTime();
-        Map<Number, JSONObject> result = super.getExecutionStats();
-        long end = this.getCurrentSystemTime();
-        this.addTimeMeasurement("getExecutionStats", start, end);
-        return result;
+        return this.addTimeMeasurement("getExecutionStats",
+        (r)->super.getExecutionStats());
     }
 
     @Override
@@ -87,11 +72,8 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
 
     @Override
     protected TransitionEvent scheduleNextTransitionEvent() {
-        long start = this.getCurrentSystemTime();
-        TransitionEvent result = super.scheduleNextTransitionEvent();
-        long end = this.getCurrentSystemTime();
-        this.addTimeMeasurement("scheduleNextTransitionEvent", start, end);
-        return result;
+        return this.addTimeMeasurement("scheduleNextTransitionEvent",
+        (r)->super.scheduleNextTransitionEvent());
     }
 
     @Override
@@ -106,29 +88,20 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
 
     @Override
     public boolean hasUnscheduledTransitionEvents() {
-        long start = this.getCurrentSystemTime();
-        boolean result = super.hasUnscheduledTransitionEvents();
-        long end = this.getCurrentSystemTime();
-        this.addTimeMeasurement("hasUnscheduledTransitionEvents", start, end);
-        return result;
+        return this.addTimeMeasurement("hasUnscheduledTransitionEvents",
+        (r)->super.hasUnscheduledTransitionEvents());
     }
 
     @Override
     public Number getNextEventTime() {
-        long start = this.getCurrentSystemTime();
-        Number result = super.getNextEventTime();
-        long end = this.getCurrentSystemTime();
-        this.addTimeMeasurement("getNextEventTime", start, end);
-        return result;
+        return this.addTimeMeasurement("getNextEventTime",
+        (r)->super.getNextEventTime());
     }
 
     @Override
     public Collection<ScriptedTransitionEntry> getRemainingTransitionChain() {
-        long start = this.getCurrentSystemTime();
-        Collection<ScriptedTransitionEntry> result = super.getRemainingTransitionChain();
-        long end = this.getCurrentSystemTime();
-        this.addTimeMeasurement("getRemainingTransitionChain", start, end);
-        return result;
+        return this.addTimeMeasurement("getRemainingTransitionChain",
+        (r)->super.getRemainingTransitionChain());
     }
 
     @Override
@@ -144,11 +117,6 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
     @Override
     public void step() {
         this.addTimeMeasurement("step", ()->super.step());
-    }
-
-    @Override
-    public EvaluationMeasurementCollector getCollector() {
-        return this.collector;
     }
 
     @Override

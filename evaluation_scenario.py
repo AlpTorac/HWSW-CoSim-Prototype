@@ -9,6 +9,7 @@ import re
 import sys
 
 sys.path.append('./hwsim')
+sys.path.append('./hwsim/evaluation')
 
 import evaluation_object
 
@@ -33,10 +34,10 @@ GEM5_PATH = ROOT_DIR+'/git-modules/gem5/build/X86/gem5.opt'
 # with the dependencies gathered above
 SIM_CONFIG = {
     'EvaluationSoftwareSimulator': {
-        'cmd': 'java -cp '+swsim_jar_path+dependencies+' hwswcosim.swsim.EvaluationSoftwareSimulatorMosaikAPI %(addr)s',
+        'cmd': 'java -cp '+swsim_jar_path+dependencies+' hwswcosim.swsim.evaluation.EvaluationSoftwareSimulatorMosaikAPI %(addr)s',
     },
     'EvaluationHWSimulator': {
-        'cmd': '%(python)s ./hwsim/evaluation_hardware_simulator_mosaik_API.py %(addr)s',
+        'cmd': '%(python)s ./hwsim/evaluation/evaluation_hardware_simulator_mosaik_API.py %(addr)s',
     },
 }
 # End needs a buffer of at least 2 time steps, otherwise the software simulator

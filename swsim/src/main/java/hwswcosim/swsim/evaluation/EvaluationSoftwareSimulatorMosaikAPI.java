@@ -1,16 +1,16 @@
-package hwswcosim.swsim;
+package hwswcosim.swsim.evaluation;
 
 import java.util.List;
 import java.util.Map;
 
 import de.offis.mosaik.api.SimProcess;
 import de.offis.mosaik.api.Simulator;
+import hwswcosim.swsim.SoftwareSimulatorMosaikAPI;
 
 public class EvaluationSoftwareSimulatorMosaikAPI extends SoftwareSimulatorMosaikAPI implements IEvaluationObject {
 
     private static final String softwareSimulatorEvalOutputFilePathName = "software_simulator_eval_output_file_path";
     private static final String simulatorName = "EvaluationSoftwareSimulator";
-    private EvaluationMeasurementCollector collector;
 
     private long startTime;
     private long endTime;
@@ -23,18 +23,12 @@ public class EvaluationSoftwareSimulatorMosaikAPI extends SoftwareSimulatorMosai
     }
 
     @Override
-    public EvaluationMeasurementCollector getCollector() {
-        return this.collector;
-    }
-
-    @Override
     public String getFullMethodName(String methodName) {
         return this.getSimName() + "." + methodName;
     }
 
     public EvaluationSoftwareSimulatorMosaikAPI(String simulatorName) {
         super(simulatorName);
-        this.collector = EvaluationMeasurementCollector.getInstance();
     }
 
     @Override
@@ -70,7 +64,7 @@ public class EvaluationSoftwareSimulatorMosaikAPI extends SoftwareSimulatorMosai
     protected void writeEvaluationResults() {
         if (this.softwareSimulatorOutputManager != null && this.evalOutputFilePath != null) {
             this.softwareSimulatorOutputManager.writeOutputMapToFile(
-                this.collector.reduceTimeMeasurements(), this.evalOutputFilePath,
+                this.getCollector().reduceTimeMeasurements(), this.evalOutputFilePath,
                 "Software simulator time measurements:\n",
                 "\nSoftware simulator ran for: "
                 + (this.endTime - this.startTime) + "\n");

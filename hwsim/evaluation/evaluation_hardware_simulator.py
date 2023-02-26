@@ -1,6 +1,7 @@
-import hardware_simulator
 import evaluation_object
 import evaluation_hardware_model
+
+import hardware_simulator
 
 class EvaluationHardwareSimulator(hardware_simulator.HardwareSimulator, evaluation_object.EvaluationObject):
     def __init__(self):

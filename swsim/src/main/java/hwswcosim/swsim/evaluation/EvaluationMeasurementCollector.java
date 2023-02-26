@@ -1,4 +1,4 @@
-package hwswcosim.swsim;
+package hwswcosim.swsim.evaluation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class EvaluationMeasurementCollector implements IEvaluationObject {
     private static EvaluationMeasurementCollector instance;
@@ -49,11 +50,12 @@ public class EvaluationMeasurementCollector implements IEvaluationObject {
     }
 
     @Override
-    public void addTimeMeasurement(String methodName, Runnable method) {
+    public <I,O> O addTimeMeasurement(String methodName, Function<I, O> functionToApply, I input) {
         long start = this.getCurrentSystemTime();
-        method.run();
+        O result = functionToApply.apply(input);
         long end = this.getCurrentSystemTime();
         this.addTimeMeasurement(methodName, start, end);
+        return result;
     }
 
     protected Map<String, Number> reduceTimeMeasurements() {

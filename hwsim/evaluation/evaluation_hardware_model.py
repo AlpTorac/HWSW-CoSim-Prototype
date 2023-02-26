@@ -1,6 +1,7 @@
-import hardware_model
 import evaluation_object
 import evaluation_binary_runner
+
+import hardware_model
 
 class EvaluationHardwareModel(hardware_model.HardwareModel, evaluation_object.EvaluationObject):
     def __init__(self, hardware_simulator_run_command, output_path, hardware_script_run_command, binary_run_settings):

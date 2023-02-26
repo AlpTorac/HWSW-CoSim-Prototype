@@ -1,5 +1,6 @@
-import binary_runner
 import evaluation_object
+
+import binary_runner
 
 class EvaluationBinaryRunner(binary_runner.BinaryRunner, evaluation_object.EvaluationObject):
     def __init__(self, hardware_simulator_run_command, hardware_script_run_command, binary_run_settings):

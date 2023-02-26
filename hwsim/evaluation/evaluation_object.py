@@ -1,5 +1,8 @@
 import time
 
+import sys
+sys.path.append('./hwsim')
+
 def get_current_system_time():
     return time.time_ns()
 
