@@ -52,7 +52,7 @@ software_simulator = world.start('SoftwareSimulator',software_simulator_output_d
 })
 hardware_simulator = world.start('HWSimulator')
 
-RESOURCES_FOLDER = ROOT_DIR+'/cosim-scenario'
+RESOURCES_FOLDER = ROOT_DIR+'/gem5-scenario-resources'
 
 # Instantiate models
 sw_model = software_simulator.DFAWrapper(

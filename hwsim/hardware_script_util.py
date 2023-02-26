@@ -1,14 +1,19 @@
 import argparse
 
-def get_options():
+def get_options(**defaults):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--binary_path",
-                    help="Path to the binary to execute.")
-    parser.add_argument("--binary_arg", action='append', nargs='*',
-                    help="List of binary arguments")
+    parser.add_argument('--binary_path',
+                    help='Path to the binary to execute.')
+    parser.add_argument('--binary_arg', action='append', nargs='*',
+                    help='List of binary arguments')
 
-    options = vars(parser.parse_args())
-    binary_args = options['binary_arg']
-    binary_path = options['binary_path']
+    if defaults is not None:
+        for option, defaultValue in defaults.items():
+            parser.add_argument('--'+option, default=defaultValue)
 
-    return (binary_args, binary_path)
+    options = parser.parse_args()
+    dict_options = vars(options)
+    binary_args = dict_options['binary_arg']
+    binary_path = dict_options['binary_path']
+
+    return (options, binary_args, binary_path)
