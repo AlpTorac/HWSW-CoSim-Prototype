@@ -3,17 +3,17 @@ import hardware_simulator
 
 modelName = 'HWModel'
 
-binary_path_input_name = 'binary_file_path_in'
-binary_path_output_name = 'binary_file_path_out'
+binary_path_input_field = 'binary_file_path_in'
+binary_path_output_field = 'binary_file_path_out'
 
-binary_execution_stats_output_name = 'binary_execution_stats_out'
-binary_execution_stats_input_name = 'binary_execution_stats_in'
-binary_arguments_input_name = "binary_file_arguments_in"
-binary_arguments_output_name = "binary_file_arguments_out"
+binary_execution_stats_output_field = 'binary_execution_stats_out'
+binary_execution_stats_input_field = 'binary_execution_stats_in'
+binary_arguments_input_field = "binary_file_arguments_in"
+binary_arguments_output_field = "binary_file_arguments_out"
 
-gem5_run_command_name = 'gem5_run_command'
-gem5_output_path_name = 'gem5_output_path'
-hardware_script_run_command_name = 'hardware_script_run_command'
+gem5_run_command_field = 'gem5_run_command'
+gem5_output_path_field = 'gem5_output_path'
+hardware_script_run_command_field = 'hardware_script_run_command'
 
 META = {
     'api_version': mosaik_api.__api_version__,
@@ -21,10 +21,10 @@ META = {
     'models': {
         modelName: {
             'public': True,
-            'params': [gem5_run_command_name, gem5_output_path_name, hardware_script_run_command_name],
-            'attrs': [binary_path_input_name, binary_path_output_name,
-            binary_execution_stats_output_name, binary_execution_stats_input_name,
-            binary_arguments_input_name, binary_arguments_output_name]
+            'params': [gem5_run_command_field, gem5_output_path_field, hardware_script_run_command_field],
+            'attrs': [binary_path_input_field, binary_path_output_field,
+            binary_execution_stats_output_field, binary_execution_stats_input_field,
+            binary_arguments_input_field, binary_arguments_output_field]
         },
     },
 }
@@ -61,7 +61,7 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
             model = self.simulator.model
             data[eid] = {}
             for attr in attrs:
-                if attr == binary_execution_stats_output_name:
+                if attr == binary_execution_stats_output_field:
                     data[eid][attr] = model.get_execution_stats()
 
         return data
@@ -71,9 +71,9 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
             new_binary_path = None
             binary_arguments = None
             for attr, values in attrs.items():
-                if attr == binary_path_output_name:
+                if attr == binary_path_output_field:
                     new_binary_path = list(values.values())[0]
-                if attr == binary_arguments_output_name:
+                if attr == binary_arguments_output_field:
                     binary_arguments = list(values.values())[0]
             
             if new_binary_path is not None:

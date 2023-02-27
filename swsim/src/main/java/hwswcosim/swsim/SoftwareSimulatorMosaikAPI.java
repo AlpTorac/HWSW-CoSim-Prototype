@@ -17,33 +17,33 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     private static final String simulatorName = "SoftwareSimulator";
     private static final String modelName = "DFAWrapper";
 
-    private static final String DFAFilePathKeyName = "dfa_file_path";
-    private static final String binaryMapFilePathKeyName = "transition_to_binary_map_file_path";
-    private static final String transitionChainFilePathKeyName = "transition_chain_file_path";
-    private static final String resourceFolderPathKeyName = "resource_folder_path";
+    private static final String DFAFileNameField = "dfa_file_name";
+    private static final String binaryMapFileNameField = "transition_to_binary_map_file_name";
+    private static final String transitionChainFileNameField = "transition_chain_file_name";
+    private static final String resourceFolderPathField = "resource_folder_path";
 
-    private static final String softwareSimulatorOutputDescName = "software_simulator_output_desc";
-    private static final String softwareSimulatorOutputDirName = "software_simulator_output_dir";
-    private static final String softwareSimulatorOutputFileName = "software_simulator_output_file_name";
+    private static final String softwareSimulatorOutputDescField = "software_simulator_output_desc";
+    private static final String softwareSimulatorOutputDirField = "software_simulator_output_dir";
+    private static final String softwareSimulatorOutputFileField = "software_simulator_output_file_name";
 
-    private static final String binaryPathInputName = "binary_file_path_in";
-    private static final String binaryPathOutputName = "binary_file_path_out";
-    private static final String binaryArgumentsInputName = "binary_file_arguments_in";
-    private static final String binaryArgumentsOutputName = "binary_file_arguments_out";
+    private static final String binaryPathInputField = "binary_file_path_in";
+    private static final String binaryPathOutputField = "binary_file_path_out";
+    private static final String binaryArgumentsInputField = "binary_file_arguments_in";
+    private static final String binaryArgumentsOutputField = "binary_file_arguments_out";
 
-    private static final String binaryExecutionStatsOutputName = "binary_execution_stats_out";
-    private static final String binaryExecutionStatsInputName = "binary_execution_stats_in";
+    private static final String binaryExecutionStatsOutputField = "binary_execution_stats_out";
+    private static final String binaryExecutionStatsInputField = "binary_execution_stats_in";
 
     private static final JSONObject meta = (JSONObject) JSONValue.parse(("{"
             + "    'api_version': '" + Simulator.API_VERSION + "',"
             + "    'type': 'time-based',"
             + "    'models': {"
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
-            + "            'params': ['"+resourceFolderPathKeyName+"', '"+DFAFilePathKeyName+"', '"+binaryMapFilePathKeyName
-            + "', '"+transitionChainFilePathKeyName+"'],"
-            + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName
-            + "', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName
-            + "', '"+binaryArgumentsInputName+"', '"+binaryArgumentsOutputName+"']"
+            + "            'params': ['"+resourceFolderPathField+"', '"+DFAFileNameField+"', '"+binaryMapFileNameField
+            + "', '"+transitionChainFileNameField+"'],"
+            + "            'attrs': ['"+binaryPathOutputField+"', '"+binaryExecutionStatsInputField
+            + "', '"+binaryPathInputField+"', '"+binaryExecutionStatsOutputField
+            + "', '"+binaryArgumentsInputField+"', '"+binaryArgumentsOutputField+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
 
@@ -100,14 +100,14 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
 
         String eid = "SW_Model";
 
-        if (modelParams.containsKey(resourceFolderPathKeyName) 
-        && modelParams.containsKey(DFAFilePathKeyName) 
-        && modelParams.containsKey(binaryMapFilePathKeyName)
-        && modelParams.containsKey(transitionChainFilePathKeyName)) {
-            String resourceFolderPath = (String) modelParams.get(resourceFolderPathKeyName);
-            String DFAFilePath = (String) modelParams.get(DFAFilePathKeyName);
-            String binaryMapFilePath = (String) modelParams.get(binaryMapFilePathKeyName);
-            String transitionChainFilePath = (String) modelParams.get(transitionChainFilePathKeyName);
+        if (modelParams.containsKey(resourceFolderPathField) 
+        && modelParams.containsKey(DFAFileNameField) 
+        && modelParams.containsKey(binaryMapFileNameField)
+        && modelParams.containsKey(transitionChainFileNameField)) {
+            String resourceFolderPath = (String) modelParams.get(resourceFolderPathField);
+            String DFAFilePath = (String) modelParams.get(DFAFileNameField);
+            String binaryMapFilePath = (String) modelParams.get(binaryMapFileNameField);
+            String transitionChainFilePath = (String) modelParams.get(transitionChainFileNameField);
 
             this.softwareSimulationController.initSoftwareSimulation(resourceFolderPath, DFAFilePath, binaryMapFilePath, transitionChainFilePath);
 
@@ -120,7 +120,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             System.out.println("sw_model created");
         } else {
             throw new IllegalArgumentException("Creating a model requires all of the folowing parameters: "
-            + DFAFilePathKeyName + ", " + binaryMapFilePathKeyName + " and " + transitionChainFilePathKeyName);
+            + DFAFileNameField + ", " + binaryMapFileNameField + " and " + transitionChainFileNameField);
         }
 
         return entities;
@@ -134,13 +134,13 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
 
         for (String attr : attrs) {
             System.out.println("SWSimulator output attribute: " + attr);
-            if (attr.equals(binaryPathOutputName)) {
+            if (attr.equals(binaryPathOutputField)) {
                 String output = this.getBinaryPathOutput();
                 System.out.println("SWSimulator outputting binaryPath: " + output);
                 values.put(attr, output);
                 System.out.println("SWSimulator output binaryPath: " + values.get(attr));
             }
-            else if (attr.equals(binaryArgumentsOutputName)) {
+            else if (attr.equals(binaryArgumentsOutputField)) {
                 JSONArray output = this.getBinaryArgumentsOutput();
                 System.out.println("SWSimulator outputting binaryArguments: " + output);
                 values.put(attr, output);
@@ -171,20 +171,20 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
         String softwareSimulatorOutputDir = null;
         String softwareSimulatorOutputFile = null;
 
-        if (simParams.containsKey(softwareSimulatorOutputDescName)) {
-            softwareSimulatorOutput = (JSONObject) simParams.get(softwareSimulatorOutputDescName);
+        if (simParams.containsKey(softwareSimulatorOutputDescField)) {
+            softwareSimulatorOutput = (JSONObject) simParams.get(softwareSimulatorOutputDescField);
         }
 
-        if (simParams.containsKey(softwareSimulatorOutputDirName)) {
-            softwareSimulatorOutputDir = (String) simParams.get(softwareSimulatorOutputDirName);
+        if (simParams.containsKey(softwareSimulatorOutputDirField)) {
+            softwareSimulatorOutputDir = (String) simParams.get(softwareSimulatorOutputDirField);
         } else {
             if (softwareSimulatorOutput != null) {
                 throw new IllegalArgumentException("Software simulator has output description but no output directory");
             }
         }
 
-        if (simParams.containsKey(softwareSimulatorOutputFileName)) {
-            softwareSimulatorOutputFile = (String) simParams.get(softwareSimulatorOutputFileName);
+        if (simParams.containsKey(softwareSimulatorOutputFileField)) {
+            softwareSimulatorOutputFile = (String) simParams.get(softwareSimulatorOutputFileField);
         } else {
             if (softwareSimulatorOutputDir != null) {
                 throw new IllegalArgumentException("Software simulator has output file name but no output directory");
@@ -216,7 +216,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
                 System.out.println("SWSimulator input attribute: " + attr);
                 String attrName = attr.getKey();
                 // Output from other simulator is the input
-                if (attrName.equals(binaryExecutionStatsOutputName)) {
+                if (attrName.equals(binaryExecutionStatsOutputField)) {
                     Collection<Object> binaryExecutionStats = ((JSONObject) attr.getValue()).values();
                     if (!binaryExecutionStats.isEmpty()) {
                         JSONObject input = (JSONObject) (binaryExecutionStats.stream().findFirst().get());

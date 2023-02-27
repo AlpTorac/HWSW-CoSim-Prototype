@@ -217,7 +217,11 @@ if number_of_eval_runs > 0:
         eval_scenario.set_hwsim_eval_output_file_path()
 
         eval_scenario.set_sim_config()
-        eval_scenario.set_world_end(7)
+        # Get the time of the last transition
+        transition_chain_file = open(eval_scenario.get_transition_chain_file_path())
+        world_end_time = int(((json.loads(transition_chain_file.read()))[-1])['time'])
+        transition_chain_file.close()
+        eval_scenario.set_world_end(world_end_time)
 
         eval_scenario.create_mosaik_world()
         eval_scenario.start_software_simulator()

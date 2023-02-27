@@ -191,9 +191,9 @@ class EvaluationScenario():
     def init_software_model(self):
         self.sw_model = self.swsim.DFAWrapper(
             resource_folder_path=self.resources_folder_path,
-            dfa_file_path=self.dfa_file_name,
-            transition_to_binary_map_file_path=self.transition_to_binary_map_file_name,
-            transition_chain_file_path=self.transition_chain_file_name)
+            dfa_file_name=self.dfa_file_name,
+            transition_to_binary_map_file_name=self.transition_to_binary_map_file_name,
+            transition_chain_file_name=self.transition_chain_file_name)
 
     def set_hardware_script_file_path(self, relative_path='hwsim/hardware_script.py'):
         self.hardware_script_file_path = self.root_dir_path+'/'+relative_path
