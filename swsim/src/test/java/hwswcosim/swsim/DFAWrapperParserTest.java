@@ -19,14 +19,13 @@ import tel.schich.automata.State;
 import tel.schich.automata.transition.CharacterTransition;
 import tel.schich.automata.transition.PlannedTransition;
 
-/**
- * Unit test for simple App.
- */
 public class DFAWrapperParserTest 
 {
     private final String absPath = new File("").getAbsolutePath();
-    private final String dfaFilePath = absPath + "/src/test/resources/dfa.json";
-    private final String binaryMapFilePath = absPath + "/src/test/resources/binaryMap.json";
+    private final String resourceFolderPath = absPath + "/src/test/resources";
+
+    private final String dfaFileName = "dfa.json";
+    private final String binaryMapFileName = "binaryMap.json";
 
     private DFAWrapperParser parser = new DFAWrapperParser(new BinaryMapParser(new DFAParser()));
 
@@ -72,7 +71,7 @@ public class DFAWrapperParserTest
     @Test
     public void parseDFATest()
     {
-        DFA parsedDFA = parser.getBinaryMapParser().getDFAParser().parseDFA(dfaFilePath);
+        DFA parsedDFA = parser.getBinaryMapParser().getDFAParser().parseDFA(resourceFolderPath, dfaFileName);
 
         Set<State> states = parsedDFA.getStates();
         Set<PlannedTransition> transitions = parsedDFA.getTransitions();
@@ -99,20 +98,20 @@ public class DFAWrapperParserTest
 
     @Test
     public void parseBinaryMapTest() {
-        DFA dfa = parser.getBinaryMapParser().getDFAParser().parseDFA(dfaFilePath);
+        DFA dfa = parser.getBinaryMapParser().getDFAParser().parseDFA(resourceFolderPath, dfaFileName);
 
         assertNotNull(dfa);
 
-        Collection<BinaryMapEntry> map = parser.getBinaryMapParser().parseBinaryMap(dfa.getStates(), dfa.getTransitions(), binaryMapFilePath);
+        Collection<BinaryMapEntry> map = parser.getBinaryMapParser().parseBinaryMap(dfa.getStates(), dfa.getTransitions(), resourceFolderPath, binaryMapFileName);
 
         assertEquals(6, map.size());
 
-        assertTrue(this.binaryMapContains(map, "q0", "q1", 'a', "BNP1"));
-        assertTrue(this.binaryMapContains(map, "q1", "q2", 'a', "BNP2"));
-        assertTrue(this.binaryMapContains(map, "q2", "q3", 'a', "BNP3", (JSONArray) JSONValue.parse("[\"abc\", \"cba\"]")));
-        assertTrue(this.binaryMapContains(map, "q2", "q0", 'd', "BNP4", (JSONArray) JSONValue.parse("[]")));
-        assertTrue(this.binaryMapContains(map, "q2", "q1", 'b', "BNP5", (JSONArray) JSONValue.parse("[\"abc\"]")));
-        assertTrue(this.binaryMapContains(map, "q0", "q4", 'c', "BNP6"));
+        assertTrue(this.binaryMapContains(map, "q0", "q1", 'a', resourceFolderPath+"/"+"BNP1"));
+        assertTrue(this.binaryMapContains(map, "q1", "q2", 'a', resourceFolderPath+"/"+"BNP2"));
+        assertTrue(this.binaryMapContains(map, "q2", "q3", 'a', resourceFolderPath+"/"+"BNP3", (JSONArray) JSONValue.parse("[\"abc\", \"cba\"]")));
+        assertTrue(this.binaryMapContains(map, "q2", "q0", 'd', resourceFolderPath+"/"+"BNP4", (JSONArray) JSONValue.parse("[]")));
+        assertTrue(this.binaryMapContains(map, "q2", "q1", 'b', resourceFolderPath+"/"+"BNP5", (JSONArray) JSONValue.parse("[\"abc\"]")));
+        assertTrue(this.binaryMapContains(map, "q0", "q4", 'c', resourceFolderPath+"/"+"BNP6"));
     }
 
     private boolean transitionSetContains(Set<PlannedTransition> parsedTransitions, String sourceLabel, String targetLabel, char input) {

@@ -82,9 +82,10 @@ def summarise_resources_used(relative_file_path, resource_note_and_file_tuples):
 Runs the given transition chain on the actual machine
 run_multiplier time per co-simulation evaluation run
 
-scenario_resources_tuples[0] = dfa
-scenario_resources_tuples[1] = binary map
-scenario_resources_tuples[2] = transition chain
+scenario_resources_tuples[0] = resource folder path
+scenario_resources_tuples[1] = dfa file name
+scenario_resources_tuples[2] = binary map file name
+scenario_resources_tuples[3] = transition chain file name
 
 returns the average run time per binary run (in nanoseconds)
 """
@@ -94,9 +95,10 @@ def run_transition_chain(scenario_resources_tuples, run_multiplier=1):
 
     for x in range(run_multiplier):
         for resource_tuple in scenario_resources_tuples:
-            dfa_file_path = resource_tuple[0]
-            transition_to_binary_map_file_path = resource_tuple[1]
-            transition_chain_file_path = resource_tuple[2]
+            resource_folder_path = resource_tuple[0]
+            dfa_file_path = resource_folder_path + '/' + resource_tuple[1]
+            transition_to_binary_map_file_path = resource_folder_path + '/' + resource_tuple[2]
+            transition_chain_file_path = resource_folder_path + '/' + resource_tuple[3]
 
             print(dfa_file_path+'\n'+transition_to_binary_map_file_path+'\n'+transition_chain_file_path)
 
@@ -126,7 +128,7 @@ def run_transition_chain(scenario_resources_tuples, run_multiplier=1):
 
                     if origin_state == state and transition_input == input:
                         state = target_state
-                        binary_path = binary_map_entry['binary']
+                        binary_path = resource_folder_path + '/' + binary_map_entry['binary']
 
                         if binary_map_entry.get('arguments') is not None:
                             binary_args = binary_map_entry['arguments']
@@ -202,9 +204,9 @@ if number_of_eval_runs > 0:
 
         eval_scenario.set_swsim_output_dir_path()
         eval_scenario.set_swsim_output_file_name()
-        eval_scenario.set_dfa_file_path()
-        eval_scenario.set_transition_to_binary_map_file_path()
-        eval_scenario.set_transition_chain_file_path()
+        eval_scenario.set_dfa_file_name()
+        eval_scenario.set_transition_to_binary_map_file_name()
+        eval_scenario.set_transition_chain_file_name()
 
         eval_scenario.set_swsim_eval_output_file_path()
         eval_scenario.set_swsim_output_description()
@@ -229,12 +231,14 @@ if number_of_eval_runs > 0:
 
         eval_scenario.write_evaluation_output()
 
-        resource_file_tuples.append((eval_scenario.dfa_file_path, eval_scenario.transition_to_binary_map_file_path,
-                                     eval_scenario.transition_chain_file_path))
+        resource_file_tuples.append((eval_scenario.resources_folder_path,
+                                     eval_scenario.dfa_file_name,
+                                     eval_scenario.transition_to_binary_map_file_name,
+                                     eval_scenario.transition_chain_file_name))
 
-        resource_note_and_file_tuples.append(('DFA used in run='+str(x), eval_scenario.dfa_file_path))
-        resource_note_and_file_tuples.append(('Binary map used in run='+str(x), eval_scenario.transition_to_binary_map_file_path))
-        resource_note_and_file_tuples.append(('Transition chain used in run='+str(x), eval_scenario.transition_chain_file_path))
+        resource_note_and_file_tuples.append(('DFA used in run='+str(x), eval_scenario.get_dfa_file_path()))
+        resource_note_and_file_tuples.append(('Binary map used in run='+str(x), eval_scenario.get_transition_to_binary_map_file_path()))
+        resource_note_and_file_tuples.append(('Transition chain used in run='+str(x), eval_scenario.get_transition_chain_file_path()))
 
         eval_output_file_paths.append(eval_scenario.get_eval_output_file_path())
         swsim_output_file_paths.append(eval_scenario.get_swsim_output_file_path())

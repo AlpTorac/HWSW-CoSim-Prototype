@@ -20,6 +20,8 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     private static final String DFAFilePathKeyName = "dfa_file_path";
     private static final String binaryMapFilePathKeyName = "transition_to_binary_map_file_path";
     private static final String transitionChainFilePathKeyName = "transition_chain_file_path";
+    private static final String resourceFolderPathKeyName = "resource_folder_path";
+
     private static final String softwareSimulatorOutputDescName = "software_simulator_output_desc";
     private static final String softwareSimulatorOutputDirName = "software_simulator_output_dir";
     private static final String softwareSimulatorOutputFileName = "software_simulator_output_file_name";
@@ -37,7 +39,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             + "    'type': 'time-based',"
             + "    'models': {"
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
-            + "            'params': ['"+DFAFilePathKeyName+"', '"+binaryMapFilePathKeyName
+            + "            'params': ['"+resourceFolderPathKeyName+"', '"+DFAFilePathKeyName+"', '"+binaryMapFilePathKeyName
             + "', '"+transitionChainFilePathKeyName+"'],"
             + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName
             + "', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName
@@ -98,14 +100,16 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
 
         String eid = "SW_Model";
 
-        if (modelParams.containsKey(DFAFilePathKeyName) 
+        if (modelParams.containsKey(resourceFolderPathKeyName) 
+        && modelParams.containsKey(DFAFilePathKeyName) 
         && modelParams.containsKey(binaryMapFilePathKeyName)
         && modelParams.containsKey(transitionChainFilePathKeyName)) {
+            String resourceFolderPath = (String) modelParams.get(resourceFolderPathKeyName);
             String DFAFilePath = (String) modelParams.get(DFAFilePathKeyName);
             String binaryMapFilePath = (String) modelParams.get(binaryMapFilePathKeyName);
             String transitionChainFilePath = (String) modelParams.get(transitionChainFilePathKeyName);
 
-            this.softwareSimulationController.initSoftwareSimulation(DFAFilePath, binaryMapFilePath, transitionChainFilePath);
+            this.softwareSimulationController.initSoftwareSimulation(resourceFolderPath, DFAFilePath, binaryMapFilePath, transitionChainFilePath);
 
             JSONObject entity = new JSONObject();
             entity.put("eid", eid);

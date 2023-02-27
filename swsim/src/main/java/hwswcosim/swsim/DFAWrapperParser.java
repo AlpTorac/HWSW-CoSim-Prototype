@@ -13,11 +13,11 @@ public class DFAWrapperParser {
         return this.binaryMapParser;
     }
 
-    public DFAWrapper parseDFAWrapper(String DFAFilePath, String binaryMapFilePath) {
-        DFA dfa = this.getBinaryMapParser().getDFAParser().parseDFA(DFAFilePath);
+    public DFAWrapper parseDFAWrapper(String resourceFolderPath, String DFAFilePath, String binaryMapFilePath) {
+        DFA dfa = this.getBinaryMapParser().getDFAParser().parseDFA(resourceFolderPath, DFAFilePath);
 
         return new DFAWrapper(
             dfa, 
-            this.getBinaryMapParser().parseBinaryMap(dfa.getStates(), dfa.getTransitions(), binaryMapFilePath));
+            this.getBinaryMapParser().parseBinaryMap(dfa.getStates(), dfa.getTransitions(), resourceFolderPath, binaryMapFilePath));
     }
 }

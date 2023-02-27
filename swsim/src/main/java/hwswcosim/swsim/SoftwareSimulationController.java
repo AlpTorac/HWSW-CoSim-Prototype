@@ -30,22 +30,22 @@ public class SoftwareSimulationController extends SimulationProcess {
         this.transitionChainParser = new TransitionChainParser();
     }
 
-    public void initSoftwareSimulation(String DFAFilePath, String binaryMapFilePath, String transitionChainFilePath) {
+    public void initSoftwareSimulation(String resourceFolderPath, String DFAFilePath, String binaryMapFilePath, String transitionChainFilePath) {
         this.initSoftwareSimulator();
-        this.initModel(DFAFilePath, binaryMapFilePath);
-        this.initTransitionChain(transitionChainFilePath);
+        this.initModel(resourceFolderPath, DFAFilePath, binaryMapFilePath);
+        this.initTransitionChain(resourceFolderPath, transitionChainFilePath);
     }
 
     protected void initSoftwareSimulator() {
         this.simulator = new SoftwareSimulator();
     }
 
-    protected void initModel(String DFAFilePath, String binaryMapFilePath) {
-        this.simulator.addDFAWrapper(DFAFilePath, binaryMapFilePath);
+    protected void initModel(String resourceFolderPath, String DFAFilePath, String binaryMapFilePath) {
+        this.simulator.addDFAWrapper(resourceFolderPath, DFAFilePath, binaryMapFilePath);
     }
 
-    protected void initTransitionChain(String transitionChainFilePath) {
-        this.transitionChain = this.transitionChainParser.parseTransitionChain(transitionChainFilePath);
+    protected void initTransitionChain(String resourceFolderPath, String transitionChainFilePath) {
+        this.transitionChain = this.transitionChainParser.parseTransitionChain(resourceFolderPath, transitionChainFilePath);
     }
 
     protected TransitionEvent scheduleNextTransitionEvent() {

@@ -15,11 +15,11 @@ public class TransitionChainParser {
 
     }
 
-    public Collection<ScriptedTransitionEntry> parseTransitionChain(String transitionChainFilePath) {
+    public Collection<ScriptedTransitionEntry> parseTransitionChain(String resourceFolderPath, String transitionChainFilePath) {
         JSONArray transitionChainArray = null;
 
         try {
-            transitionChainArray = (JSONArray) JSONValue.parse(new FileReader(transitionChainFilePath));
+            transitionChainArray = (JSONArray) JSONValue.parse(new FileReader(resourceFolderPath + "/" + transitionChainFilePath));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

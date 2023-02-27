@@ -50,9 +50,10 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
     }
 
     @Override
-    public void initSoftwareSimulation(String DFAFilePath, String binaryMapFilePath, String transitionChainFilePath) {
+    public void initSoftwareSimulation(String resourceFolderPath, 
+        String DFAFilePath, String binaryMapFilePath, String transitionChainFilePath) {
         this.addTimeMeasurement("initSoftwareSimulation", 
-        ()->super.initSoftwareSimulation(DFAFilePath, binaryMapFilePath, transitionChainFilePath));
+        ()->super.initSoftwareSimulation(resourceFolderPath, DFAFilePath, binaryMapFilePath, transitionChainFilePath));
     }
 
     @Override
@@ -61,13 +62,13 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
     }
 
     @Override
-    protected void initModel(String DFAFilePath, String binaryMapFilePath) {
-        this.addTimeMeasurement("initModel", ()->super.initModel(DFAFilePath, binaryMapFilePath));
+    protected void initModel(String resourceFolderPath, String DFAFilePath, String binaryMapFilePath) {
+        this.addTimeMeasurement("initModel", ()->super.initModel(resourceFolderPath, DFAFilePath, binaryMapFilePath));
     }
 
     @Override
-    protected void initTransitionChain(String transitionChainFilePath) {
-        this.addTimeMeasurement("initTransitionChain", ()->super.initTransitionChain(transitionChainFilePath));
+    protected void initTransitionChain(String resourceFolderPath, String transitionChainFilePath) {
+        this.addTimeMeasurement("initTransitionChain", ()->super.initTransitionChain(resourceFolderPath, transitionChainFilePath));
     }
 
     @Override

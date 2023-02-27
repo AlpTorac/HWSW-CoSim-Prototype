@@ -28,9 +28,11 @@ import org.junit.rules.Timeout;
 public class SoftwareSimulationControllerTest {
     
     private final String absPath = new File("").getAbsolutePath();
-    private final String dfaFilePath = absPath + "/src/test/resources/dfa.json";
-    private final String binaryMapFilePath = absPath + "/src/test/resources/binaryMap.json";
-    private final String transitionChainFilePath = absPath + "/src/test/resources/transitionChain.json";
+    private final String resourceFolderPath = absPath + "/src/test/resources";
+
+    private final String dfaFileName = "dfa.json";
+    private final String binaryMapFileName = "binaryMap.json";
+    private final String transitionChainFileName = "transitionChain.json";
 
     private SoftwareSimulationController controller;
 
@@ -48,7 +50,7 @@ public class SoftwareSimulationControllerTest {
         this.isControllerDone = false;
 
         this.controller = new SoftwareSimulationController();
-        this.controller.initSoftwareSimulation(dfaFilePath, binaryMapFilePath, transitionChainFilePath);
+        this.controller.initSoftwareSimulation(resourceFolderPath, dfaFileName, binaryMapFileName, transitionChainFileName);
     }
 
     @After
@@ -83,7 +85,7 @@ public class SoftwareSimulationControllerTest {
         assertEquals(5, this.controller.getRemainingTransitionChain().size());
         assertTrue(this.controller.hasBinaryFilePath());
 		assertFalse(this.controller.hasBinaryArguments());
-        assertEquals("BNP1", this.controller.getBinaryFilePath());
+        assertEquals(resourceFolderPath+"/"+"BNP1", this.controller.getBinaryFilePath());
         assertEquals(null, this.controller.getBinaryArguments());
         assertFalse(this.controller.hasBinaryFilePath());
 		assertFalse(this.controller.hasBinaryArguments());
@@ -96,7 +98,7 @@ public class SoftwareSimulationControllerTest {
         assertEquals(4, this.controller.getRemainingTransitionChain().size());
         assertTrue(this.controller.hasBinaryFilePath());
 		assertFalse(this.controller.hasBinaryArguments());
-        assertEquals("BNP2", this.controller.getBinaryFilePath());
+        assertEquals(resourceFolderPath+"/"+"BNP2", this.controller.getBinaryFilePath());
         assertEquals(null, this.controller.getBinaryArguments());
         assertFalse(this.controller.hasBinaryFilePath());
 		assertFalse(this.controller.hasBinaryArguments());
@@ -109,7 +111,7 @@ public class SoftwareSimulationControllerTest {
 		assertEquals(3, this.controller.getRemainingTransitionChain().size());
         assertTrue(this.controller.hasBinaryFilePath());
 		assertTrue(this.controller.hasBinaryArguments());
-        assertEquals("BNP5", this.controller.getBinaryFilePath());
+        assertEquals(resourceFolderPath+"/"+"BNP5", this.controller.getBinaryFilePath());
         assertEquals((JSONArray) JSONValue.parse("[\"abc\"]"), this.controller.getBinaryArguments());
         assertFalse(this.controller.hasBinaryFilePath());
 		assertFalse(this.controller.hasBinaryArguments());
@@ -122,7 +124,7 @@ public class SoftwareSimulationControllerTest {
 		assertEquals(2, this.controller.getRemainingTransitionChain().size());
         assertTrue(this.controller.hasBinaryFilePath());
 		assertFalse(this.controller.hasBinaryArguments());
-        assertEquals("BNP2", this.controller.getBinaryFilePath());
+        assertEquals(resourceFolderPath+"/"+"BNP2", this.controller.getBinaryFilePath());
         assertEquals(null, this.controller.getBinaryArguments());
         assertFalse(this.controller.hasBinaryFilePath());
 		assertFalse(this.controller.hasBinaryArguments());
@@ -135,7 +137,7 @@ public class SoftwareSimulationControllerTest {
 		assertEquals(1, this.controller.getRemainingTransitionChain().size());
         assertTrue(this.controller.hasBinaryFilePath());
 		assertTrue(this.controller.hasBinaryArguments());
-        assertEquals("BNP4", this.controller.getBinaryFilePath());
+        assertEquals(resourceFolderPath+"/"+"BNP4", this.controller.getBinaryFilePath());
         assertEquals(JSONValue.parse("[]"), this.controller.getBinaryArguments());
         assertFalse(this.controller.hasBinaryFilePath());
 		assertFalse(this.controller.hasBinaryArguments());
@@ -148,7 +150,7 @@ public class SoftwareSimulationControllerTest {
 		assertEquals(0, this.controller.getRemainingTransitionChain().size());
         assertTrue(this.controller.hasBinaryFilePath());
 		assertFalse(this.controller.hasBinaryArguments());
-        assertEquals("BNP6", this.controller.getBinaryFilePath());
+        assertEquals(resourceFolderPath+"/"+"BNP6", this.controller.getBinaryFilePath());
         assertEquals(null, this.controller.getBinaryArguments());
         assertFalse(this.controller.hasBinaryFilePath());
 		assertFalse(this.controller.hasBinaryArguments());
@@ -207,7 +209,7 @@ public class SoftwareSimulationControllerTest {
                         FileReader r;
                         Stream<String> lines = null;
                         try {
-                            r = new FileReader(binaryMapFilePath);
+                            r = new FileReader(resourceFolderPath + "/" + binaryMapFileName);
                             BufferedReader br = new BufferedReader(r);
                             lines = br.lines();
                             br.close();

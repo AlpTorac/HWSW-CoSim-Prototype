@@ -42,9 +42,9 @@ class EvaluationScenario():
 
         self.resources_folder_path = None
 
-        self.dfa_file_path = None
-        self.transition_to_binary_map_file_path = None
-        self.transition_chain_file_path = None
+        self.dfa_file_name = None
+        self.transition_to_binary_map_file_name = None
+        self.transition_chain_file_name = None
 
         self.hardware_script_file_path = None
 
@@ -170,20 +170,30 @@ class EvaluationScenario():
     def set_resources_dir_path(self, relative_path):
         self.resources_folder_path = self.root_dir_path+'/'+relative_path
     
-    def set_dfa_file_path(self, file_name='dfa.json'):
-        self.dfa_file_path = self.resources_folder_path+'/'+file_name
+    def set_dfa_file_name(self, file_name='dfa.json'):
+        self.dfa_file_name = file_name
 
-    def set_transition_to_binary_map_file_path(self, file_name='binaryMap.json'):
-        self.transition_to_binary_map_file_path = self.resources_folder_path+'/'+file_name
+    def set_transition_to_binary_map_file_name(self, file_name='binaryMap.json'):
+        self.transition_to_binary_map_file_name = file_name
     
-    def set_transition_chain_file_path(self, file_name='transitionChain.json'):
-        self.transition_chain_file_path = self.resources_folder_path+'/'+file_name
+    def set_transition_chain_file_name(self, file_name='transitionChain.json'):
+        self.transition_chain_file_name = file_name
+    
+    def get_dfa_file_path(self):
+        return self.resources_folder_path + '/' + self.dfa_file_name
+
+    def get_transition_to_binary_map_file_path(self):
+        return self.resources_folder_path + '/' + self.transition_to_binary_map_file_name
+    
+    def get_transition_chain_file_path(self):
+        return self.resources_folder_path + '/' + self.transition_chain_file_name
 
     def init_software_model(self):
         self.sw_model = self.swsim.DFAWrapper(
-            dfa_file_path=self.dfa_file_path,
-            transition_to_binary_map_file_path=self.transition_to_binary_map_file_path,
-            transition_chain_file_path=self.transition_chain_file_path)
+            resource_folder_path=self.resources_folder_path,
+            dfa_file_path=self.dfa_file_name,
+            transition_to_binary_map_file_path=self.transition_to_binary_map_file_name,
+            transition_chain_file_path=self.transition_chain_file_name)
 
     def set_hardware_script_file_path(self, relative_path='hwsim/hardware_script.py'):
         self.hardware_script_file_path = self.root_dir_path+'/'+relative_path

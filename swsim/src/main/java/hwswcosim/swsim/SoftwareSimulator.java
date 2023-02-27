@@ -24,8 +24,8 @@ public class SoftwareSimulator {
         return this.dfaWrapperParser;
     }
 
-    public void addDFAWrapper(String DFAFilePath, String binaryMapFilePath) {
-        this.model = this.parseDFAWrapper(DFAFilePath, binaryMapFilePath);
+    public void addDFAWrapper(String resourceFolderPath, String DFAFilePath, String binaryMapFilePath) {
+        this.model = this.parseDFAWrapper(resourceFolderPath, DFAFilePath, binaryMapFilePath);
     }
 
     public DFAWrapper getDFAWrapper() {
@@ -75,7 +75,7 @@ public class SoftwareSimulator {
         return this.model.getCurrentBinaryArguments();
     }
 
-    protected DFAWrapper parseDFAWrapper(String DFAFilePath, String binaryMapFilePath) {
-        return this.getDFAWrapperParser().parseDFAWrapper(DFAFilePath, binaryMapFilePath);
+    protected DFAWrapper parseDFAWrapper(String resourceFolderPath, String DFAFilePath, String binaryMapFilePath) {
+        return this.getDFAWrapperParser().parseDFAWrapper(resourceFolderPath, DFAFilePath, binaryMapFilePath);
     }
 }

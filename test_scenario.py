@@ -52,9 +52,10 @@ RESOURCES_FOLDER = ROOT_DIR+'/swsim/src/test/resources'
 
 # Instantiate models
 sw_model = software_simulator.DFAWrapper(
-    dfa_file_path=RESOURCES_FOLDER+'/dfa.json',
-    transition_to_binary_map_file_path=RESOURCES_FOLDER+'/binaryMap.json',
-    transition_chain_file_path=RESOURCES_FOLDER+'/transitionChain.json')
+    resource_folder_path=RESOURCES_FOLDER,
+    dfa_file_path='dfa.json',
+    transition_to_binary_map_file_path='binaryMap.json',
+    transition_chain_file_path='transitionChain.json')
 
 hw_model = hardware_simulator.DummyHWModel()
 

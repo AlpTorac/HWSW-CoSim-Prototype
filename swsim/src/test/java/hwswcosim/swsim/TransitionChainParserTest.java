@@ -10,12 +10,14 @@ import org.junit.Test;
 
 public class TransitionChainParserTest {
     private final String absPath = new File("").getAbsolutePath();
-    private final String transitionChainFilePath = absPath + "/src/test/resources/transitionChain.json";
+    private final String resourceFolderPath = absPath + "/src/test/resources";
+
+    private final String transitionChainFilePath = "transitionChain.json";
 
     @Test
     public void parseTransitionChainTest() {
         TransitionChainParser parser = new TransitionChainParser();
-        Collection<ScriptedTransitionEntry> chain = parser.parseTransitionChain(transitionChainFilePath);
+        Collection<ScriptedTransitionEntry> chain = parser.parseTransitionChain(resourceFolderPath, transitionChainFilePath);
 
         assertEquals(chain.size(), 6);
 

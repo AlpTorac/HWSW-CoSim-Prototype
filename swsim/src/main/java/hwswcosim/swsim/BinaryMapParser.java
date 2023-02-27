@@ -25,11 +25,11 @@ public class BinaryMapParser {
         return this.dfaParser;
     }
 
-    public Collection<BinaryMapEntry> parseBinaryMap(Set<State> states, Set<PlannedTransition> transitions, String binaryMapFilePath) {
+    public Collection<BinaryMapEntry> parseBinaryMap(Set<State> states, Set<PlannedTransition> transitions, String resourceFolderPath, String binaryMapFilePath) {
         JSONArray binaryMapArray = null;
 
         try {
-            binaryMapArray = (JSONArray) JSONValue.parse(new FileReader(binaryMapFilePath));
+            binaryMapArray = (JSONArray) JSONValue.parse(new FileReader(resourceFolderPath + "/" + binaryMapFilePath));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -40,7 +40,7 @@ public class BinaryMapParser {
             JSONObject castedO = (JSONObject) o;
 
             CharacterTransition t = this.getDFAParser().parseTransition(states, (String) castedO.get("transition"));
-            String binaryPath = (String) castedO.get("binary");
+            String binaryPath = resourceFolderPath + "/" + (String) castedO.get("binary");
 
             Object binaryArguments = castedO.get("arguments");
 

@@ -112,11 +112,11 @@ public class DFAParser {
         return endStates;
     }
 
-    protected DFA parseDFA(String DFAFilePath) {
+    protected DFA parseDFA(String resourceFolderPath, String DFAFilePath) {
         JSONObject dfaInfo = null;
 
         try {
-            dfaInfo = (JSONObject) JSONValue.parse(new FileReader(DFAFilePath));
+            dfaInfo = (JSONObject) JSONValue.parse(new FileReader(resourceFolderPath + "/" + DFAFilePath));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
