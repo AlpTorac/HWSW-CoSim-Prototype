@@ -1,0 +1,6 @@
+[
+	{"transition": "(q0,q1,a)", "binary": "/root/HWSW-CoSim-Prototype/scenario-resources/evaluation-scenario-resources/ackermann", "arguments": ["2", "2000"]},
+	{"transition": "(q1,q2,a)", "binary": "/root/HWSW-CoSim-Prototype/scenario-resources/evaluation-scenario-resources/ackermann", "arguments": ["2", "2000"]},
+	{"transition": "(q1,q1,c)", "binary": "/root/HWSW-CoSim-Prototype/scenario-resources/evaluation-scenario-resources/ackermann", "arguments": ["2", "2000"]},
+	{"transition": "(q1,q1,b)", "binary": "/root/HWSW-CoSim-Prototype/scenario-resources/evaluation-scenario-resources/ackermann", "arguments": ["2", "2000"]}
+]

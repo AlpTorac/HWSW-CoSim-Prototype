@@ -18,7 +18,7 @@ binary_with_args = 'ackermann 2 2000'
 # Run the binary
 for x in range(number_of_binary_runs):
     start_time = evaluation_object.get_current_system_time()
-    os.system('./evaluation-scenario-resources/'+binary_with_args)
+    os.system('./scenario-resources/evaluation-scenario-resources/'+binary_with_args)
     end_time = evaluation_object.get_current_system_time()
     avg_binary_time += end_time - start_time
 
@@ -49,7 +49,7 @@ for x in range(number_of_eval_runs):
     eval_scenario.init_gem5_path()
 
     eval_scenario.init_output_dir_path(eval_folder_name+'/out'+str(x))
-    eval_scenario.init_resources_dir_path('evaluation-scenario-resources')
+    eval_scenario.init_resources_dir_path('scenario-resources/evaluation-scenario-resources')
 
     eval_scenario.init_eval_output_file_path()
 
