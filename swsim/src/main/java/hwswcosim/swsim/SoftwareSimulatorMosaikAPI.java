@@ -22,6 +22,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     private static final String transitionChainFilePathKeyName = "transition_chain_file_path";
     private static final String softwareSimulatorOutputDescName = "software_simulator_output_desc";
     private static final String softwareSimulatorOutputDirName = "software_simulator_output_dir";
+    private static final String softwareSimulatorOutputFileName = "software_simulator_output_file_name";
 
     private static final String binaryPathInputName = "binary_file_path_in";
     private static final String binaryPathOutputName = "binary_file_path_out";
@@ -53,11 +54,8 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     private String simulatorID;
     protected SoftwareSimulatorOutputManager softwareSimulatorOutputManager;
 
-    private String outputFileName;
-
     public SoftwareSimulatorMosaikAPI(String simulatorName) {
         super(simulatorName);
-        this.outputFileName = "swsimOutput.txt";
         this.softwareSimulationController = this.initSoftwareSimulationController();
     }
 
@@ -167,6 +165,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     protected SoftwareSimulatorOutputManager initSoftwareSimulatorOutputManager(Map<String, Object> simParams) {
         JSONObject softwareSimulatorOutput = null;
         String softwareSimulatorOutputDir = null;
+        String softwareSimulatorOutputFile = null;
 
         if (simParams.containsKey(softwareSimulatorOutputDescName)) {
             softwareSimulatorOutput = (JSONObject) simParams.get(softwareSimulatorOutputDescName);
@@ -176,12 +175,20 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             softwareSimulatorOutputDir = (String) simParams.get(softwareSimulatorOutputDirName);
         } else {
             if (softwareSimulatorOutput != null) {
-                throw new IllegalArgumentException("Software simulator has output but no output directory");
+                throw new IllegalArgumentException("Software simulator has output description but no output directory");
+            }
+        }
+
+        if (simParams.containsKey(softwareSimulatorOutputFileName)) {
+            softwareSimulatorOutputFile = (String) simParams.get(softwareSimulatorOutputFileName);
+        } else {
+            if (softwareSimulatorOutputDir != null) {
+                throw new IllegalArgumentException("Software simulator has output file name but no output directory");
             }
         }
 
         if (softwareSimulatorOutput != null && softwareSimulatorOutputDir != null) {
-            return new SoftwareSimulatorOutputManager(softwareSimulatorOutputDir, softwareSimulatorOutput);
+            return new SoftwareSimulatorOutputManager(softwareSimulatorOutputDir, softwareSimulatorOutputFile, softwareSimulatorOutput);
         } else {
             return null;
         }
@@ -250,7 +257,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     public void cleanup() {
         if (this.softwareSimulatorOutputManager != null) {
             this.softwareSimulatorOutputManager.writeAccumulatedOutputToFileInOutputDir(
-                this.softwareSimulationController.getExecutionStats(), this.outputFileName);
+                this.softwareSimulationController.getExecutionStats());
         }
     }
 }

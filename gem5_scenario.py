@@ -46,7 +46,9 @@ world = mosaik.World(SIM_CONFIG)
 OUTPUT_DIR = ROOT_DIR+'/out'
 
 # Start simulators
-software_simulator = world.start('SoftwareSimulator',software_simulator_output_dir=OUTPUT_DIR+'/swsimOut', software_simulator_output_desc={
+software_simulator = world.start('SoftwareSimulator',software_simulator_output_dir=OUTPUT_DIR+'/swsimOut'
+    , software_simulator_output_file_name='swsimOutput.txt'
+    , software_simulator_output_desc={
     'simSeconds': 'add',
     'simFreq': 'none'
 })
@@ -70,5 +72,4 @@ world.connect(sw_model, hw_model, 'binary_file_arguments_out', 'binary_file_argu
 world.connect(hw_model, sw_model, 'binary_execution_stats_out', 'binary_execution_stats_in', weak=True)
 
 # Run simulation
-world.set_initial_event(software_simulator._sim.sid, time=0)
 world.run(until=END)

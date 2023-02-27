@@ -23,10 +23,12 @@ public class SoftwareSimulatorOutputManager {
     private DecimalFormat decimalFormat;
 
     private String softwareSimulatorOutputDir;
+    private String softwareSimulatorOutputFile;
     private JSONObject softwareSimulatorOutputDesc;
 
-    public SoftwareSimulatorOutputManager(String softwareSimulatorOutputDir, JSONObject softwareSimulatorOutput) {
+    public SoftwareSimulatorOutputManager(String softwareSimulatorOutputDir, String softwareSimulatorOutputFile, JSONObject softwareSimulatorOutput) {
         this.softwareSimulatorOutputDir = softwareSimulatorOutputDir;
+        this.softwareSimulatorOutputFile = softwareSimulatorOutputFile;
         this.softwareSimulatorOutputDesc = softwareSimulatorOutput;
         this.decimalFormat = new DecimalFormat("0.#########");
     }
@@ -150,6 +152,10 @@ public class SoftwareSimulatorOutputManager {
      */
     public void writeAccumulatedOutputToFileInOutputDir(Map<Number, JSONObject> accumulatedOutput, String fileName) {
         this.writeOutputMapToFileInOutputDir(this.prepareOutput(accumulatedOutput), fileName);
+    }
+
+    public void writeAccumulatedOutputToFileInOutputDir(Map<Number, JSONObject> accumulatedOutput) {
+        this.writeOutputMapToFileInOutputDir(this.prepareOutput(accumulatedOutput), this.softwareSimulatorOutputFile);
     }
 
     public <T> void writeOutputMapToFileInOutputDir(Map<String, T> outputMap, String fileName) {

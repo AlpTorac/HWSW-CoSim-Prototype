@@ -11,10 +11,10 @@ class BinaryRunSettings():
         return '--outdir=' + current_output_dir
 
     def convert_binary_arguments_to_options(self, binary_arguments):
-        args = ''
+        result = []
 
         if binary_arguments is not None:
             for arg in binary_arguments:
-                args += '--binary_arg=' +'\"'+ arg + '\"' + ' '
+                result.append('--binary_arg=' +'\"'+ arg + '\"')
         
-        return args
+        return result
