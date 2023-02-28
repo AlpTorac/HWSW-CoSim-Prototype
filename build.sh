@@ -28,9 +28,9 @@ Help()
     echo ""
     echo "      modules:    Build the git submodules"
     echo ""
-    echo "      gem5:       Build gem5 with the target ISA"
-    echo "                  X86, the \"opt\" build option using"
-    echo "                  the recommended amount of threads."
+    echo "      gem5:       Build gem5 with the input target ISA"
+    echo "                  and the build option using the given"
+    echo "                  amount of threads."
     echo "                  Note that building gem5 can take a"
     echo "                  very long time and is not mandatory"
 }
