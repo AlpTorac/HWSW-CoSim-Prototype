@@ -60,6 +60,15 @@ INSTALL_GIT_MODULES=false
 # leaving this variable with the value "false" is recommended
 INSTALL_GEM5=false
 
+# The instruction set that gem5 will model
+GEM5_TARGET_ISA="X86"
+
+# The gem5 binary type, either "opt", "debug" or "fast"
+GEM5_BUILD_OPTION="opt"
+
+# The recommended core count for building gem5
+NUM_CORES=$(( $( nproc --all ) + 1 ))
+
 OPTIONS=""
 
 # Iterate all given arguments and set the corresponding variables to true
@@ -97,6 +106,33 @@ do
 done
 
 echo "Building with the options:${OPTIONS}"
+
+# Ask input for gem5 options, if the script is run
+# with the "gem5" argument
+#
+# Hit enter for the default values (values above)
+#
+if ${INSTALL_GEM5} ; then
+    echo "gem5 target ISA (blank for default (${GEM5_TARGET_ISA})): "
+    read -r input_ISA
+    if [ -n "$input_ISA" ] ; then
+        GEM5_TARGET_ISA=${input_ISA}
+    fi
+    
+    echo "gem5 build option (blank for default (${GEM5_BUILD_OPTION})): "
+    read -r input_build_option
+    if [ -n "$input_build_option" ] ; then
+        GEM5_BUILD_OPTION=${input_build_option}
+    fi
+
+    echo "build using x cores (number or blank for recommended amount (${NUM_CORES})): "
+    read -r input_cores
+    if [ -n "$input_cores" ] ; then
+        NUM_CORES=${input_cores}
+    fi
+
+    echo "gem5 options: ISA=${GEM5_TARGET_ISA}, build option=${GEM5_BUILD_OPTION}, cores=${NUM_CORES}"
+fi
 
 if ${INSTALL_REQUIRED_PACKAGES} ; then
     # Make sure that everything is up to date
@@ -160,6 +196,8 @@ GIT_MODULE_PATH=${BASE_DIR}"/git-modules"
 # Build gem5 for the desired target ISA with the chosen
 # build option using the recommended amount of cores.
 #
+# Change GEM5_TARGET_ISA and GEM5_BUILD_OPTION
+#
 # See https://www.gem5.org/documentation/learning_gem5/part1/building/
 # For further details
 # -----------------------------------------------------------------------------
@@ -173,19 +211,10 @@ if ${INSTALL_GEM5} ; then
     libboost-all-dev libhdf5-serial-dev python3-pydot libpng-dev \
     libelf-dev pkg-config black valgrind
 
-    # The instruction set that gem5 will model
-    GEM5_TARGET_ISA="X86"
-
-    # The gem5 binary type, either "opt", "debug" or "fast"
-    GEM5_BUILD_OPTION="opt"
-
-    # Get the recommended core count for building gem5
-    NUM_CORES=$(( $( nproc --all ) + 1 ))
-
     # Start building gem5
     cd "${GIT_MODULE_PATH}/gem5" || return
     pip install mypy pre-commit
-    scons build/${GEM5_TARGET_ISA}/gem5.${GEM5_BUILD_OPTION} -j ${NUM_CORES}
+    scons "build/${GEM5_TARGET_ISA}/gem5.${GEM5_BUILD_OPTION}" -j "${NUM_CORES}"
 
     # Go back to the base directory
     cd "${BASE_DIR}" || return
