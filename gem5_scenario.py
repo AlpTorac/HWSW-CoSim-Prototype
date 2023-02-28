@@ -46,6 +46,16 @@ world = mosaik.World(SIM_CONFIG)
 OUTPUT_DIR = ROOT_DIR+'/out'
 
 # Start simulators
+# software_simulator_output_desc specifies how the software simulator should
+# summarise the statistics received from the hardware simulator.
+#
+# Format: 'output_name': 'action'
+# Actions:
+#         add:  Sums up the values of the same desired global statistics
+#               (output names that do not begin with "system.")
+#         avg:  Computes the average value of the desired global statistics
+#         none: Uses the first value it finds for output_name
+#
 software_simulator = world.start('SoftwareSimulator',software_simulator_output_dir=OUTPUT_DIR+'/swsimOut'
     , software_simulator_output_file_name='swsimOutput.txt'
     , software_simulator_output_desc={
