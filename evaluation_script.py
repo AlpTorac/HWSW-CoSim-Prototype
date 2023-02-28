@@ -7,7 +7,21 @@ import json
 
 import subprocess
 
+# Can be run with "python3 evaluation_script.py <number_of_eval_runs> <binary_run_multiplier>"
+#
+# number_of_eval_runs: How many times the co-simulation evaluation will run
+#
+# binary_run_multiplier (optional, default value=1): How many times the binaries simulated in
+# co-simulation will run on the actual machine per co-simulation evaluation run
+number_of_eval_runs = int(sys.argv[1])
+binary_run_multiplier = 1
+if len(sys.argv) > 2 :
+    binary_run_multiplier = int(sys.argv[2])
+
 eval_folder_name = 'eval'
+# Check if an evaluation folder already exists
+if os.path.exists(os.path.dirname(os.path.abspath(__file__))+'/'+eval_folder_name):
+    raise Exception('The evaluation cannot run, if an evaluation output folder already exists')
 
 def format_number(number, prec=9):
     result = '%.{}f'.format(prec) % (float(number))
@@ -87,7 +101,7 @@ scenario_resources_tuples[1] = dfa file name
 scenario_resources_tuples[2] = binary map file name
 scenario_resources_tuples[3] = transition chain file name
 
-returns the average run time per binary run (in nanoseconds)
+returns the average run time per binary run
 """
 def run_transition_chain(scenario_resources_tuples, run_multiplier=1):
     transition_pattern = re.compile('\((\w+),(\w+),(\w)\)')
@@ -155,33 +169,8 @@ def run_transition_chain(scenario_resources_tuples, run_multiplier=1):
     # Compute the average run time of the binary
     return (total_binary_run_time/(len(scenario_resources_tuples)*run_multiplier))
 
-if os.path.exists(os.path.dirname(os.path.abspath(__file__))+'/'+eval_folder_name):
-    raise Exception('The evaluation cannot run, if an evaluation output folder already exists')
 
-# Argument 1 = How many times the co-simulation evaluation will run
-number_of_eval_runs = int(sys.argv[1])
-
-# Argument 2 = How many times the binaries simulated in co-simulation
-# will run on the actual machine per co-simulation evaluation run
-binary_run_multiplier = 1
-if len(sys.argv) > 2 :
-    binary_run_multiplier = int(sys.argv[2])
-
-# ackermann(2, 2000) ~ 0.02s
-# ackermann(2, 4000) ~ 0.076s
-# ackermann(2, 4500) ~ 0.093s
-# ackermann(2, 5000) ~ 0.114s
-# ackermann(2, 10000) ~ 0.45s
-# ackermann(2, 11000) ~ 0.54s
-# ackermann(2, 12000) ~ 0.64s
-# ackermann(2, 14000) ~ 0.88s
-# ackermann(2, 15000) ~ 1s
-# ackermann(2, 20000) ~ 1.8s
-# ackermann(2, 21000) ~ 2s
-# ackermann(2, 25000) ~ 2.8s
-
-# co-simulation time ~ 1000 x binary runs on WSL
-
+# Run the evaluation
 if number_of_eval_runs > 0:
     eval_output_file_paths = []
     swsim_output_file_paths = []
@@ -247,13 +236,14 @@ if number_of_eval_runs > 0:
         eval_output_file_paths.append(eval_scenario.get_eval_output_file_path())
         swsim_output_file_paths.append(eval_scenario.get_swsim_output_file_path())
 
+    # Summarise all swsimOutput.txt files by computing average values for each field
     swsim_eval_outputs = eval_folder_name+'/'+'allSwsimOutputs.txt'
     swsim_output_dict = accumulate_outputs(swsim_eval_outputs, swsim_output_file_paths)
 
-    # Take the average of every evalOutput.txt and swsimOutput.txt files
-    # and write them into new files
+    # Write down all resources used throughout the evaluation
     summarise_resources_used(eval_folder_name+'/'+'usedResources.txt', resource_note_and_file_tuples)
 
+    # Take the average of every evalOutput.txt file and write them into new a new file
     accumulate_outputs(eval_folder_name+'/'+'allEvalOutputs.txt', eval_output_file_paths,
                     binary_run_on_host_count=str(number_of_eval_runs*binary_run_multiplier),
                     average_binary_run_time_on_host=format_number(run_transition_chain(resource_file_tuples, binary_run_multiplier)/1000000000),
