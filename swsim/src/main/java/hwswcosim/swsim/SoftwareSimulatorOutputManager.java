@@ -17,24 +17,24 @@ import org.json.simple.JSONObject;
 
 /**
  * This class encapsulates what and how the software simulator
- * outputs.
+ * outputs when {@link SoftwareSimulatorMosaikAPI#cleanup()} is called.
  */
 public class SoftwareSimulatorOutputManager {
     private DecimalFormat decimalFormat;
 
     private String softwareSimulatorOutputDir;
-    private String softwareSimulatorOutputFile;
+    private String softwareSimulatorOutputFileName;
     private JSONObject softwareSimulatorOutputDesc;
 
-    public SoftwareSimulatorOutputManager(String softwareSimulatorOutputDir, String softwareSimulatorOutputFile, JSONObject softwareSimulatorOutput) {
+    public SoftwareSimulatorOutputManager(String softwareSimulatorOutputDir, String softwareSimulatorOutputFileName, JSONObject softwareSimulatorOutput) {
         this.softwareSimulatorOutputDir = softwareSimulatorOutputDir;
-        this.softwareSimulatorOutputFile = softwareSimulatorOutputFile;
+        this.softwareSimulatorOutputFileName = softwareSimulatorOutputFileName;
         this.softwareSimulatorOutputDesc = softwareSimulatorOutput;
         this.decimalFormat = new DecimalFormat("0.#########");
     }
 
     /**
-     * Computes the value of a single output entry
+     * Computes the value of a single output entry.
      * 
      * @param stats A given collection of output values that have been gathered
      * throughout the simulation that belong to a specific output.
@@ -59,6 +59,13 @@ public class SoftwareSimulatorOutputManager {
         }
     }
 
+    /**
+     * Encapsulates how the given "stats" are to be added.
+     * 
+     * @param stats A collection of objects that contain elements, whose
+     * toString() method returns a string that can be parsed to double
+     * @return Sum of all elements in "stats"
+     */
     protected Number addAction(Collection<Object> stats) {
         return (Double) stats.stream().reduce((val1, val2) -> {
             return Double.valueOf(Double.valueOf(val1.toString()).doubleValue() 
@@ -66,10 +73,22 @@ public class SoftwareSimulatorOutputManager {
         }).get();
     }
 
+    /**
+     * Encapsulates how to calculate the average value of the given "stats".
+     * 
+     * @param stats A collection of objects that contain elements, whose
+     * toString() method returns a string that can be parsed to double
+     * @return Average value of all elements in "stats"
+     */
     protected Number averageAction(Collection<Object> stats) {
         return Double.valueOf(this.addAction(stats).doubleValue() / Double.valueOf(stats.size()).doubleValue());
     }
 
+    /**
+     * @param value A given {@link Number} instance to format
+     * @return Formatted String version of "value" with the format
+     * defined with {@link #decimalFormat}.
+     */
     protected String formatEntryValue(Number value) {
         return this.decimalFormat.format(value.doubleValue());
     }
@@ -95,14 +114,26 @@ public class SoftwareSimulatorOutputManager {
         return result;
     }
 
+    /**
+     * @return Path to "fileName" in {@link #softwareSimulatorOutputDir}
+     */
     protected String getFullOutputFilePath(String fileName) {
         return this.softwareSimulatorOutputDir+"/"+fileName;
     }
 
+    /**
+     * @return Creates the file "fileName" in {@link #softwareSimulatorOutputDir}
+     */
     protected File createOutputFileInOutputDir(String fileName) {
         return this.createOutputFile(this.getFullOutputFilePath(fileName));
     }
 
+    /**
+     * @param filePath The path to the file (including the name and the
+     * extension of the file), which will be created.
+     * @return Create a file with the given "filePath" and all currently
+     * non-existent parent directories
+     */
     protected File createOutputFile(String filePath) {
         File file = new File(filePath);
         if (!file.exists()) {
@@ -122,6 +153,10 @@ public class SoftwareSimulatorOutputManager {
         return file;
     }
 
+    /**
+     * @return A {@link Writer} instance that will be used to write to
+     * "outputFile".
+     */
     protected Writer getOutputWriter(File outputFile) {
         FileOutputStream fos = null;
         try {
@@ -135,10 +170,17 @@ public class SoftwareSimulatorOutputManager {
         return bw;
     }
 
+    /**
+     * Writes the given "outputName" with the given "outputValue" using the
+     * given {@link Writer} instance "w".
+     */
     protected void writeOutputEntryToFile(Writer w, String outputName, String outputValue) {
         this.writeToFile(w, outputName + ": " + outputValue + "\n");
     }
 
+    /**
+     * Writes the given text "textToWrite" using a given {@link Writer} instance.
+     */
     protected void writeToFile(Writer w, String textToWrite) {
         try {
             w.write(textToWrite);
@@ -154,18 +196,32 @@ public class SoftwareSimulatorOutputManager {
         this.writeOutputMapToFileInOutputDir(this.prepareOutput(accumulatedOutput), fileName);
     }
 
+    /**
+     * Writes the accumulated output to the file with the given name {@link #softwareSimulatorOutputFileName} after reducing it.
+     */
     public void writeAccumulatedOutputToFileInOutputDir(Map<Number, JSONObject> accumulatedOutput) {
-        this.writeOutputMapToFileInOutputDir(this.prepareOutput(accumulatedOutput), this.softwareSimulatorOutputFile);
+        this.writeOutputMapToFileInOutputDir(this.prepareOutput(accumulatedOutput), this.softwareSimulatorOutputFileName);
     }
 
+    /**
+     * Writes the given map "outputMap" to a file after reducing it.
+     */
     public <T> void writeOutputMapToFileInOutputDir(Map<String, T> outputMap, String fileName) {
         this.writeOutputMapToFileInOutputDir(outputMap, fileName, null, null);
     }
 
+    /**
+     * Writes the given map "outputMap" to a file after reducing it. Also writes "textToWriteAtStart" at the beginning of the file
+     * and "textToWriteAtEnd" to the end of the file.
+     */
     public <T> void writeOutputMapToFileInOutputDir(Map<String, T> outputMap, String fileName, String textToWriteAtStart, String textToWriteAtEnd) {
         this.writeOutputMapToFile(outputMap, this.getFullOutputFilePath(fileName), textToWriteAtStart, textToWriteAtEnd);
     }
 
+    /**
+     * Writes the given map "outputMap" to the file at the path "filePath" after reducing it. Also writes "textToWriteAtStart"
+     * at the beginning of the file and "textToWriteAtEnd" to the end of the file.
+     */
     public <T> void writeOutputMapToFile(Map<String, T> outputMap, String filePath, String textToWriteAtStart, String textToWriteAtEnd) {
         File outputFile = this.createOutputFile(filePath);
         Writer w = this.getOutputWriter(outputFile);

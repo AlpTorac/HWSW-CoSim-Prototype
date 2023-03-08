@@ -2,6 +2,7 @@ package hwswcosim.swsim;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.json.simple.JSONArray;
@@ -11,10 +12,19 @@ import tel.schich.automata.State;
 import tel.schich.automata.transition.CharacterTransition;
 import tel.schich.automata.transition.PlannedTransition;
 
+/**
+ * This class encapsulates a {@link DFA}, a binary map in form of
+ * <code>Collection<BinaryMapEntry></code> and represents the control
+ * flow of software, which will be used in the simulation.
+ */
 public class DFAWrapper {
     private DFA dfa;
     private Collection<BinaryMapEntry> binaryMap;
-    private ArrayList<PlannedTransition> takenTransitions;
+    /**
+     * A {@link List} of {@link PlannedTransition}, which were taken so far
+     * into the simulation.
+     */
+    private List<PlannedTransition> takenTransitions;
 
     private State currentState;
     private String currentBinaryPath;
@@ -27,6 +37,11 @@ public class DFAWrapper {
         this.takenTransitions = new ArrayList<PlannedTransition>();
     }
 
+    /**
+     * Performs the transition with the given input from the state {@link #currentState}
+     * 
+     * @param input A given char as input for {@link #dfa}
+     */
     public void transition(char input) {
         PlannedTransition transition = this.dfa.getTransitionFor(currentState, input);
 
@@ -41,6 +56,9 @@ public class DFAWrapper {
         }
     }
 
+    /**
+     * @return A deep copy of {@link #takenTransitions}
+     */
     public Collection<PlannedTransition> getTakenTransitions() {
         ArrayList<PlannedTransition> result = new ArrayList<PlannedTransition>();
         
@@ -51,30 +69,41 @@ public class DFAWrapper {
         return result;
     }
 
+    /**
+     * @return {@link #currentBinaryPath} and set it to null.
+     */
     public String getCurrentBinaryPath() {
         String binaryPath = this.currentBinaryPath;
         this.currentBinaryPath = null;
         return binaryPath;
     }
 
+    /**
+     * @return {@link #currentBinaryArguments} and set it to null.
+     */
     public JSONArray getCurrentBinaryArguments() {
         JSONArray binaryArguments = this.currentBinaryArguments;
         this.currentBinaryArguments = null;
         return binaryArguments;
     }
 
+    /**
+     * @return True, if {@link #currentBinaryArguments} != null
+     */
     public boolean hasBinaryArguments() {
         return this.currentBinaryArguments != null;
     }
 
+    /**
+     * @return True, if {@link #currentBinaryPath} != null
+     */
     public boolean hasBinaryFilePath() {
         return this.currentBinaryPath != null;
     }
 
-    protected Number translateTime(long time) {
-        return Double.valueOf(time);
-    }
-
+    /**
+     * A helper method that returns the {@link BinaryMapEntry} that contains the given "transition".
+     */
     private BinaryMapEntry getBinaryMapEntry(PlannedTransition transition) {
         Optional<BinaryMapEntry> entry = this.binaryMap.stream().filter(e -> e.getTransition().equals(transition)).findFirst();
 
