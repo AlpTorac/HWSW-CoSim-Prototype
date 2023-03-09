@@ -65,6 +65,9 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
         SimProcess.startSimulation(args, sim);
     }
 
+    /**
+     * The object that manages the underlying software simulation.
+     */
     private SoftwareSimulationController softwareSimulationController;
     private String simulatorID;
 
@@ -258,7 +261,8 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
      * parameters <em>(simParams)</em> sent by mosaik.
      *
      * @param sid is the ID mosaik has given to this simulator.
-     * @param timeResolution
+     * @param timeResolution a given value to scale the long "time" parameters given throughout
+     * this class to make time steps more flexible (normally they would only be equal to 1 second each)
      * @param simParams a map with additional simulation parameters received from mosaik scenario.
      * @return the meta data dictionary (see {@link
      *         <a href="https://mosaik.readthedocs.org/en/latest/mosaik-api/low-level.html#init">https://mosaik.readthedocs.org/en/latest/mosaik-api/low-level.html#init</a>}).

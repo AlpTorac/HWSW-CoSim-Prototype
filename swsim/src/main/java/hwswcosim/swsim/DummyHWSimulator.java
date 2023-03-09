@@ -14,7 +14,8 @@ import de.offis.mosaik.api.SimProcess;
 import de.offis.mosaik.api.Simulator;
 
 /**
- * This class was made to test the software simulator without
+ * This class is a concrete implementation of {@link de.offis.mosaik.api.Simulator}
+ * and it was made to test the software simulator without
  * using real hardware simulators to spare execution time.
  */
 public class DummyHWSimulator extends Simulator {
@@ -29,6 +30,9 @@ public class DummyHWSimulator extends Simulator {
     private static final String binaryExecutionStatsOutputName = "binary_execution_stats_out";
     private static final String binaryExecutionStatsInputName = "binary_execution_stats_in";
 
+    /**
+     * The metadata that will be returned to mosaik upon {@link #init(String, Float, Map)}
+     */
     private static final JSONObject meta = (JSONObject) JSONValue.parse(("{"
             + "    'api_version': '" + Simulator.API_VERSION + "',"
             + "    'type': 'event-based',"
@@ -38,7 +42,6 @@ public class DummyHWSimulator extends Simulator {
             + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName
             +"', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName
             +"', '"+binaryArgumentsInputName+"', '"+binaryArgumentsOutputName+"']"
-//            + "            'trigger': ['"+binaryPathOutputName+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
 
@@ -47,21 +50,39 @@ public class DummyHWSimulator extends Simulator {
         SimProcess.startSimulation(args, sim);
     }
 
-    private int idCounter = 0;
-//    private int stepSize = 1;
     private String simulatorID;
 
-    private final HashMap<String, DummyHWModel> instances;
+    /**
+     * The {@link DummyHWModel} instance to be used by this class.
+     */
+    private DummyHWModel instance;
 
+    /**
+     * Initialise this class.
+     * 
+     * @see {@link de.offis.mosaik.api.Simulator#Simulator(String)}
+     */
     public DummyHWSimulator() {
         super("DummyHWSimulator");
-        this.instances = new HashMap<String, DummyHWModel>();
     }
 
     public String getSimulatorID() {
         return this.simulatorID;
     }
 
+    /**
+     * Create <em>num</em> instances of <em>model</em> using the provided
+     * <em>model_params</em>.
+     *
+     * @param num is the number of instances to create.
+     * @param model is the name of the model to instantiate. It needs to be
+     *              listed in the simulator's meta data and be public.
+     * @param modelParams is a map containing additional model parameters.
+     * @return a (nested) list of maps describing the created entities (model
+     *         instances) (see {@link
+     *         https://mosaik.readthedocs.org/en/latest/mosaik-api/low-level.html#create}).
+     * @throws Exception
+     */
     @SuppressWarnings("unchecked")
     @Override
     public List<Map<String, Object>> create(int num, String model, Map<String, Object> modelParams) throws Exception {
@@ -69,9 +90,9 @@ public class DummyHWSimulator extends Simulator {
 
         for (int i = 0; i < num; i++) {
 
-            String eid = "HW_Model_" + (this.idCounter + i);
+            String eid = "HW_Model";
 
-            this.instances.put(eid, new DummyHWModel());
+            this.instance = new DummyHWModel();
 
             System.out.println("Added DummyHWModel");
 
@@ -81,10 +102,19 @@ public class DummyHWSimulator extends Simulator {
             entity.put("rel", new JSONArray());
             entities.add(entity);
         }
-        this.idCounter += num;
+
         return entities;
     }
 
+    /**
+     * Return the data for the requested attributes in "outputs" parameter
+     *
+     * @param outputs is a mapping of entity IDs to lists of attribute names.
+     * @return a mapping of the same entity IDs to maps with attributes and
+     *         their values (see {@link
+     *         https://mosaik.readthedocs.org/en/latest/mosaik-api/low-level.html#get-data}).
+     * @throws Exception
+     */
     @Override
     public Map<String, Object> getData(Map<String, List<String>> outputs) throws Exception {
         Map<String, Object> data = new HashMap<String, Object>();
@@ -93,7 +123,7 @@ public class DummyHWSimulator extends Simulator {
             String eid = entity.getKey();
             List<String> attrs = entity.getValue();
             HashMap<String, Object> values = new HashMap<String, Object>();
-            DummyHWModel instance = this.instances.get(eid);
+            DummyHWModel instance = this.instance;
 
             if (instance.hasOutput()) {
                 for (String attr : attrs) {
@@ -111,18 +141,28 @@ public class DummyHWSimulator extends Simulator {
         return data;
     }
 
+    /**
+     * Initialize the simulator with the ID <em>sid</em> and apply additional
+     * parameters <em>(simParams)</em> sent by mosaik.
+     *
+     * @param sid is the ID mosaik has given to this simulator.
+     * @param timeResolution a given value to scale the long "time" parameters given throughout
+     * this class to make time steps more flexible (normally they would only be equal to 1 second each)
+     * @param simParams a map with additional simulation parameters received from mosaik scenario.
+     * @return the meta data dictionary (see {@link
+     *         <a href="https://mosaik.readthedocs.org/en/latest/mosaik-api/low-level.html#init">https://mosaik.readthedocs.org/en/latest/mosaik-api/low-level.html#init</a>}).
+     * @throws Exception
+     */
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> init(String sid, Float timeResolution, Map<String, Object> simParams) throws Exception {
         this.simulatorID = sid;
-        /*
-        if (simParams.containsKey(stepSizeKeyName)) {
-            this.stepSize = ((Number) simParams.get(stepSizeKeyName)).intValue();
-        }
-        */
         return DummyHWSimulator.meta;
     }
 
+    /**
+     * Processes the given inputs.
+     */
     @SuppressWarnings("unchecked")
     @Override
     public Long step(long time, Map<String, Object> inputs, long maxAdvance) throws Exception {
@@ -139,7 +179,7 @@ public class DummyHWSimulator extends Simulator {
                     if (!binaryPaths.isEmpty()) {
                         String input = (String) (binaryPaths.stream().findFirst().get());
                         System.out.println("HWSimulator receiving binaryPath: " + input);
-                        this.instances.values().forEach(model -> model.setCurrentBinaryPath(input));
+                        this.instance.setCurrentBinaryPath(input);
                     }
                 }
                 else if (attrName.equals(binaryArgumentsOutputName)) {
@@ -149,7 +189,7 @@ public class DummyHWSimulator extends Simulator {
                         if (bargs.isPresent()) {
                             JSONArray input = (JSONArray) (bargs.get());
                             System.out.println("HWSimulator receiving binaryArguments: " + input);
-                            this.instances.values().forEach(model -> model.setCurrentBinaryArguments(input));
+                            this.instance.setCurrentBinaryArguments(input);
                         }
                     }
                 }
@@ -159,9 +199,7 @@ public class DummyHWSimulator extends Simulator {
             }
         }
 
-        System.out.println("HWSimulator stepped at time: " + time 
-        //+ ", next step at time: " + (time + this.stepSize)
-        );
+        System.out.println("HWSimulator stepped at time: " + time);
 
         return null;
     }

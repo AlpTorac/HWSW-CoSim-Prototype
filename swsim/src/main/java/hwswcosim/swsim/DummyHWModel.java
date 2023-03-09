@@ -4,6 +4,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
+/**
+ * This class represents a dummy hardware model to test the software simulation
+ * in conjunction with {@link DummyHWSimulator}.
+ */
 public class DummyHWModel {
     private String currentBinaryPath;
     
@@ -19,6 +23,11 @@ public class DummyHWModel {
         System.out.println("DummyHWModel binaryPath set to: " + this.currentBinaryPath);
     }
 
+    /**
+     * Adds arguments provided to {@link #currentBinaryArguments}.
+     * 
+     * @param binaryArguments A given array of arguments
+     */
     public void setCurrentBinaryArguments(JSONArray binaryArguments) {
         this.currentBinaryArguments = binaryArguments;
         System.out.println("DummyHWModel binaryArguments set to: ");
@@ -27,6 +36,9 @@ public class DummyHWModel {
         }
     }
 
+    /**
+     * @return Mocked execution statistics in form of {@link JSONObject}
+     */
     public JSONObject mockExecutionStats() {
         JSONObject result = (JSONObject) JSONValue.parse("{\""+this.currentBinaryPath+"\": \"stats\""+"}");
         this.currentBinaryPath = "";
@@ -34,6 +46,9 @@ public class DummyHWModel {
         return result;
     }
 
+    /**
+     * @return True if this method has data to output.
+     */
     public boolean hasOutput() {
         return this.currentBinaryPath != null && !this.currentBinaryPath.isEmpty();
     }
