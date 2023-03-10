@@ -1,6 +1,19 @@
 import argparse
 
 def get_options(**defaults):
+    """_summary_
+
+    A helper method that makes use of the argparse package and
+    can be used to read binary options from the terminal.
+    
+    Args:
+        defaults (_type_): A dict with key = option name,
+        value = option value
+
+    Returns:
+        _type_: The parsed options
+    """
+    
     parser = argparse.ArgumentParser()
     parser.add_argument('--binary_path',
                     help='Path to the binary to execute.')

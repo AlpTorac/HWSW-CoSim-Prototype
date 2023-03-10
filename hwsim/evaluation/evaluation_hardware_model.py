@@ -4,9 +4,13 @@ import evaluation_binary_runner
 import hardware_model
 
 class EvaluationHardwareModel(hardware_model.HardwareModel, evaluation_object.EvaluationObject):
-    def __init__(self, hardware_simulator_run_command, output_path, hardware_script_run_command, binary_run_settings):
-        hardware_model.HardwareModel.__init__(self, hardware_simulator_run_command, output_path,
-            hardware_script_run_command, binary_run_settings)
+    """_summary_
+    This class is to be used to measure run times of the methods of
+    hardware_model.HardwareModel.
+    """
+    
+    def __init__(self, binary_run_settings, **model_params):
+        hardware_model.HardwareModel.__init__(self, binary_run_settings, **model_params)
         
     def init_binary_runner(self, hardware_simulator_run_command, hardware_script_run_command):
         return evaluation_binary_runner.EvaluationBinaryRunner(hardware_simulator_run_command, hardware_script_run_command,

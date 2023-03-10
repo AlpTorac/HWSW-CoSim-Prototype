@@ -200,8 +200,8 @@ class EvaluationScenario():
 
     def init_hardware_model(self):
         self.hw_model = self.hwsim.HWModel(
-            gem5_run_command=self.gem5_path,
-            gem5_output_path=self.hwsim_output_dir_path,
+            hardware_simulator_run_command=self.gem5_path,
+            output_path=self.hwsim_output_dir_path,
             hardware_script_run_command=self.hardware_script_file_path)
 
     def connect_models(self):

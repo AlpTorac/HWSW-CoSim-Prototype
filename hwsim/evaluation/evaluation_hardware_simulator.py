@@ -4,13 +4,17 @@ import evaluation_hardware_model
 import hardware_simulator
 
 class EvaluationHardwareSimulator(hardware_simulator.HardwareSimulator, evaluation_object.EvaluationObject):
+    """_summary_
+    This class is to be used to measure run times of the methods of
+    hardware_simulator.HardwareSimulator.
+    """
+    
     def __init__(self):
         hardware_simulator.HardwareSimulator.__init__(self)
         self.model = None
 
-    def create_hardware_model(self, hardware_simulator_run_command, output_path, hardware_script_run_command) -> evaluation_hardware_model.EvaluationHardwareModel:
-        return evaluation_hardware_model.EvaluationHardwareModel(hardware_simulator_run_command, output_path,
-    hardware_script_run_command, self.init_binary_run_settings())
+    def create_hardware_model(self, **model_params) -> evaluation_hardware_model.EvaluationHardwareModel:
+        return evaluation_hardware_model.EvaluationHardwareModel(self.init_binary_run_settings(), **model_params)
 
     def get_full_method_name(self, method_name):
         return 'EvaluationHardwareSimulator.'+method_name

@@ -7,6 +7,11 @@ import mosaik_api
 hardware_simulator_eval_output_file_name = 'hardware_simulator_eval_output_file'
 
 class EvaluationHardwareSimulatorMosaikAPI(hardware_simulator_mosaik_API.HardwareSimulatorMosaikAPI, evaluation_object.EvaluationObject):
+    """_summary_
+    This class is to be used to measure run times of the methods of
+    hardware_simulator_mosaik_API.HardwareSimulatorMosaikAPI.
+    """
+    
     def __init__(self):
         hardware_simulator_mosaik_API.HardwareSimulatorMosaikAPI.__init__(self)
         self.hardware_simulator_eval_output_file = None
@@ -29,15 +34,13 @@ class EvaluationHardwareSimulatorMosaikAPI(hardware_simulator_mosaik_API.Hardwar
     def init_simulator(self):
         return evaluation_hardware_simulator.EvaluationHardwareSimulator()
 
-    def create(self, num, model, gem5_run_command, gem5_output_path,
-    hardware_script_run_command):
+    def create(self, num, model, **model_params):
         
-        self.hardware_simulator_output_dir = gem5_output_path
+        self.hardware_simulator_output_dir = model_params[hardware_simulator_mosaik_API.output_path_field]
 
         return self.add_time_measurement(self, 'create',
             hardware_simulator_mosaik_API.HardwareSimulatorMosaikAPI.create,
-            num=num, model=model, gem5_run_command=gem5_run_command, gem5_output_path=gem5_output_path,
-                    hardware_script_run_command=hardware_script_run_command)
+            num=num, model=model, **model_params)
 
     def get_data(self, outputs):
         return self.add_time_measurement(self, 'get_data',

@@ -11,27 +11,37 @@ binary_execution_stats_input_field = 'binary_execution_stats_in'
 binary_arguments_input_field = "binary_file_arguments_in"
 binary_arguments_output_field = "binary_file_arguments_out"
 
-gem5_run_command_field = 'gem5_run_command'
-gem5_output_path_field = 'gem5_output_path'
+hardware_simulator_run_command_field = 'hardware_simulator_run_command'
+output_path_field = 'output_path'
 hardware_script_run_command_field = 'hardware_script_run_command'
 
-META = {
-    'api_version': mosaik_api.__api_version__,
-    'type': 'event-based',
-    'models': {
-        modelName: {
-            'public': True,
-            'params': [gem5_run_command_field, gem5_output_path_field, hardware_script_run_command_field],
-            'attrs': [binary_path_input_field, binary_path_output_field,
-            binary_execution_stats_output_field, binary_execution_stats_input_field,
-            binary_arguments_input_field, binary_arguments_output_field]
-        },
-    },
-}
-
 class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
+    """_summary_
+    This is the concrete implementation of mosaik_api.Simulator for the
+    hardware simulator.
+    """
+
+    meta = {
+        'api_version': mosaik_api.__api_version__,
+        'type': 'event-based',
+        'models': {
+            modelName: {
+                'public': True,
+                'params': [hardware_simulator_run_command_field, output_path_field, hardware_script_run_command_field],
+                'attrs': [binary_path_input_field, binary_path_output_field,
+                binary_execution_stats_output_field, binary_execution_stats_input_field,
+                binary_arguments_input_field, binary_arguments_output_field]
+            },
+        },
+    }
+    """_summary_
+    See :meth:`mosaik_api.Simulator.meta` for more information and the used
+    format.
+    """
+    
     def __init__(self):
-        super().__init__(META)
+        __doc__ = mosaik_api.Simulator.__doc__
+        super().__init__(HardwareSimulatorMosaikAPI.meta)
         self.eid_prefix = ''
         self.simulator = None
 
@@ -42,14 +52,17 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
         return self.meta
 
     def init_simulator(self):
+        """_summary_
+
+        Returns:
+            _type_: The created hardware simulator
+        """
         return hardware_simulator.HardwareSimulator()
 
-    def create(self, num, model, gem5_run_command, gem5_output_path,
-    hardware_script_run_command):
+    def create(self, num, model, **model_params):
         entities = []
 
-        self.simulator.init_hardware_model(gem5_run_command, gem5_output_path,
-        hardware_script_run_command)
+        self.simulator.init_hardware_model(**model_params)
         eid = '%s%d' % (self.eid_prefix, 0)
         entities.append({'eid': eid, 'type': model})
 
