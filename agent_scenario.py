@@ -30,9 +30,6 @@ SIM_CONFIG = {
     'Agent': {
         'cmd': '%(python)s ./agent/agent_mosaik_API.py %(addr)s',
     },
-    'CosimController': {
-        'cmd': '%(python)s ./cosimctrl/cosim_controller_API.py %(addr)s',
-    },
     'HWSimulator': {
         'cmd': '%(python)s ./hwsim/hardware_simulator_mosaik_API.py %(addr)s',
     },
@@ -70,38 +67,30 @@ software_simulator = world.start('SoftwareSimulator',software_simulator_output_d
     'simFreq': 'none'
 })
 hardware_simulator = world.start('HWSimulator')
-controller = world.start('CosimController', transition_chain_file_path=RESOURCES_FOLDER+'/'+'transitionChain.json')
 agent = world.start('Agent')
 
 
 # Instantiate models
-controller_instance = controller.CosimController()
-
 agent_instance = agent.Agent(variable_info=None)
 
 sw_model = software_simulator.DFAWrapper(
     resource_folder_path=RESOURCES_FOLDER,
     dfa_file_name='dfa.json',
-    transition_to_binary_map_file_name='binaryMap.json')
+    transition_to_binary_map_file_name='binaryMap.json',
+    transition_chain_file_name='transitionChain.json')
 
 hw_model = hardware_simulator.HWModel(
     hardware_simulator_run_command=GEM5_PATH,
     output_path=OUTPUT_DIR+'/hwsimOut',
     hardware_script_run_command=ROOT_DIR+'/hwsim/hardware_script.py')
 
-world.connect(controller_instance, sw_model, 'transition_char')
-world.connect(controller_instance, sw_model, 'transition_time')
-
-world.connect(agent_instance, sw_model, 'transition_char')
-
-world.connect(sw_model, agent_instance, 'binary_file_path_in', weak=True)
-world.connect(sw_model, agent_instance, 'binary_file_arguments_in', weak=True)
+world.connect(sw_model, agent_instance, 'binary_file_path_in', time_shifted=True, initial_data={'binary_file_path_in': ''})
+world.connect(sw_model, agent_instance, 'binary_file_arguments_in', time_shifted=True, initial_data={'binary_file_arguments_in': ''})
 world.connect(agent_instance, sw_model, 'binary_execution_stats_out')
 
-world.connect(hw_model, agent_instance, 'binary_execution_stats_in')
-world.connect(agent_instance, hw_model, 'binary_file_path_out', weak=True)
-world.connect(agent_instance, hw_model, 'binary_file_arguments_out', weak=True)
+world.connect(agent_instance, hw_model, 'binary_file_path_out')
+world.connect(agent_instance, hw_model, 'binary_file_arguments_out')
+world.connect(hw_model, agent_instance, 'binary_execution_stats_in', time_shifted=True, initial_data={'binary_execution_stats_in': ''})
 
 # Run simulation
-world.set_initial_event(controller._sim.sid, time=0)
 world.run(until=END)

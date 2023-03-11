@@ -23,6 +23,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
 
     private static final String DFAFileNameField = "dfa_file_name";
     private static final String binaryMapFileNameField = "transition_to_binary_map_file_name";
+    private static final String transitionChainFileNameField = "transition_chain_file_name";
     private static final String resourceFolderPathField = "resource_folder_path";
 
     private static final String softwareSimulatorOutputDescField = "software_simulator_output_desc";
@@ -37,9 +38,6 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     private static final String binaryExecutionStatsOutputField = "binary_execution_stats_out";
     private static final String binaryExecutionStatsInputField = "binary_execution_stats_in";
 
-    private static final String transitionCharField = "transition_char";
-    private static final String transitionTimeField = "transition_time";
-
     /**
      * The metadata that will be returned to mosaik upon {@link #init(String, Float, Map)}
      */
@@ -48,12 +46,11 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             + "    'type': 'time-based',"
             + "    'models': {"
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
-            + "            'params': ['"+resourceFolderPathField+"', '"+DFAFileNameField
-            +"', '"+binaryMapFileNameField+"'],"
+            + "            'params': ['"+resourceFolderPathField+"', '"+DFAFileNameField+"', '"+binaryMapFileNameField
+            + "', '"+transitionChainFileNameField+"'],"
             + "            'attrs': ['"+binaryPathOutputField+"', '"+binaryExecutionStatsInputField
             + "', '"+binaryPathInputField+"', '"+binaryExecutionStatsOutputField
-            + "', '"+binaryArgumentsInputField+"', '"+binaryArgumentsOutputField
-            + "', '"+transitionCharField+"', '"+transitionTimeField+"']"
+            + "', '"+binaryArgumentsInputField+"', '"+binaryArgumentsOutputField+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
 
@@ -142,12 +139,14 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
 
         if (modelParams.containsKey(resourceFolderPathField) 
         && modelParams.containsKey(DFAFileNameField) 
-        && modelParams.containsKey(binaryMapFileNameField)) {
+        && modelParams.containsKey(binaryMapFileNameField)
+        && modelParams.containsKey(transitionChainFileNameField)) {
             String resourceFolderPath = (String) modelParams.get(resourceFolderPathField);
             String DFAFilePath = (String) modelParams.get(DFAFileNameField);
             String binaryMapFilePath = (String) modelParams.get(binaryMapFileNameField);
+            String transitionChainFilePath = (String) modelParams.get(transitionChainFileNameField);
 
-            this.softwareSimulationController.initSoftwareSimulation(resourceFolderPath, DFAFilePath, binaryMapFilePath);
+            this.softwareSimulationController.initSoftwareSimulation(resourceFolderPath, DFAFilePath, binaryMapFilePath, transitionChainFilePath);
 
             JSONObject entity = new JSONObject();
             entity.put("eid", eid);
@@ -158,7 +157,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             System.out.println("sw_model created");
         } else {
             throw new IllegalArgumentException("Creating a model requires all of the folowing parameters: "
-            + DFAFileNameField + ", " + binaryMapFileNameField);
+            + DFAFileNameField + ", " + binaryMapFileNameField + " and " + transitionChainFileNameField);
         }
 
         return entities;
@@ -279,6 +278,53 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     }
 
     /**
+     * Processes the given inputs. This method is intended to be used from
+     * {@link #step(long, Map, long)}.
+     * 
+     * @see {@link #step(long, Map, long)} for more information.
+     */
+    @SuppressWarnings("unchecked")
+    protected void processInputs(long time, Map<String, Object> inputs) {
+        for (Map.Entry<String, Object> entity : inputs.entrySet()) {
+            Map<String, Object> attrs = (Map<String, Object>) entity.getValue();
+
+            for (Map.Entry<String, Object> attr : attrs.entrySet()) {
+                System.out.println("SWSimulator input attribute: " + attr);
+                String attrName = attr.getKey();
+                // Output from other simulator is the input
+                if (attrName.equals(binaryExecutionStatsOutputField)) {
+                    Collection<Object> binaryExecutionStats = ((JSONObject) attr.getValue()).values();
+                    if (!binaryExecutionStats.isEmpty()) {
+                        JSONObject input = (JSONObject) (binaryExecutionStats.stream().findFirst().get());
+                        System.out.println("SWSimulator receiving binaryExecutionStats: " + input);
+                        this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), input);
+                    }
+                }
+                else {
+                	continue;
+                }
+            }
+        }
+    }
+
+    /**
+     * @return The next time step, when {@link #step(long, Map, long)} needs to be
+     * called again.
+     */
+    protected Long getNextTimeStep(long time, long maxAdvance) {
+        System.out.println("SWSimulator stepped at time: " + time);
+
+        Number nextStepTime = this.softwareSimulationController.getNextEventTime();
+
+        if (nextStepTime == null) {
+            nextStepTime = Long.valueOf(time+1);
+        }
+        
+        System.out.println("SWSimulator next step at: " + nextStepTime.longValue());
+        return nextStepTime.longValue();
+    }
+
+    /**
      * Perform the next simulation step from time <em>time</em> using input
      * values from <em>inputs</em> and return the new simulation time (the time
      * at which this method should be called again).
@@ -301,57 +347,14 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
      *         simulators like the Collector.py example from the mosaik documentation).
      * @throws Exception
      */
-    @SuppressWarnings("unchecked")
     @Override
     public Long step(long time, Map<String, Object> inputs, long maxAdvance) throws Exception {
-        Character transitionInput = null;
-        Long transitionTime = null;
 
-        for (Map.Entry<String, Object> entity : inputs.entrySet()) {
-            Map<String, Object> attrs = (Map<String, Object>) entity.getValue();
+        this.processInputs(time, inputs);
 
-            for (Map.Entry<String, Object> attr : attrs.entrySet()) {
-                System.out.println("SWSimulator input attribute: " + attr);
-                String attrName = attr.getKey();
-                // Output from other simulator is the input
-                if (attrName.equals(binaryExecutionStatsInputField)) {
-                    Collection<Object> binaryExecutionStats = ((JSONObject) attr.getValue()).values();
-                    if (!binaryExecutionStats.isEmpty()) {
-                        JSONObject input = (JSONObject) (binaryExecutionStats.stream().findFirst().get());
-                        System.out.println("SWSimulator receiving binaryExecutionStats: " + input);
-                        this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), input);
-                    }
-                }
-                if (attrName.equals(transitionCharField)) {
-                    Collection<Object> transitionCharInput = ((JSONObject) attr.getValue()).values();
-                    if (!transitionCharInput.isEmpty()) {
-                        String inputString = (String) transitionCharInput.stream().findFirst().get();
-                        transitionInput = Character.valueOf(inputString.charAt(0));
-                        System.out.println("SWSimulator receiving transition char: " + transitionInput);
-                    }
-                }
-                if (attrName.equals(transitionTimeField)) {
-                    Collection<Object> transitionTimeInput = ((JSONObject) attr.getValue()).values();
-                    if (!transitionTimeInput.isEmpty()) {
-                        String inputString = (String) transitionTimeInput.stream().findFirst().get();
-                        transitionTime = Long.valueOf(inputString);
-                        System.out.println("SWSimulator receiving transition time: " + transitionTime);
-                    }
-                }
-                else {
-                	continue;
-                }
+        this.softwareSimulationController.step();
 
-                if (transitionInput != null && transitionTime != null) {
-                    this.softwareSimulationController.step(transitionInput, transitionTime);
-                }
-            }
-        }
-
-        if (transitionTime != null && transitionTime.longValue() == time) {
-            return null;
-        }
-        return transitionTime;
+        return this.getNextTimeStep(time, maxAdvance);
     }
 
     /**

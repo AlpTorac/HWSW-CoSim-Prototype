@@ -12,7 +12,6 @@ binary_execution_stats_input_field = 'binary_execution_stats_in'
 binary_arguments_input_field = "binary_file_arguments_in"
 binary_arguments_output_field = "binary_file_arguments_out"
 
-transition_char_field = "transition_char"
 variable_info_field = "variable_info"
 
 binary_path_field = 'binary_path'
@@ -34,8 +33,7 @@ class AgentMosaikAPI(mosaik_api.Simulator):
                 'params': [variable_info_field],
                 'attrs': [binary_path_input_field, binary_path_output_field,
                 binary_execution_stats_output_field, binary_execution_stats_input_field,
-                binary_arguments_input_field, binary_arguments_output_field,
-                transition_char_field]
+                binary_arguments_input_field, binary_arguments_output_field]
             },
         },
     }
@@ -80,6 +78,7 @@ class AgentMosaikAPI(mosaik_api.Simulator):
         for eid, attrs in outputs.items():
             data[eid] = {}
             processed_inputs = self.agent_manager.get_processed_input()
+            print(processed_inputs)
             
             def set_data(field, processed_inputs_key):
                 if attr == field and processed_inputs_key in processed_inputs:
@@ -90,14 +89,11 @@ class AgentMosaikAPI(mosaik_api.Simulator):
                     set_data(binary_path_output_field, binary_path_field)
                     set_data(binary_arguments_output_field, binary_args_field)
                     set_data(binary_execution_stats_output_field, binary_stats_field)
-                    if binary_stats_field in processed_inputs:
-                        if attr == transition_char_field:
-                            print('agent setting transition char')
-                            data[eid][attr] = self.agent_manager.get_transition_char(processed_inputs)
 
         return data
 
     def step(self, time, inputs, max_advance):
+        print('Agent stepping at time: ' + str(time))
         for eid, attrs in inputs.items():
             inputs_to_process = {}
             new_binary_path = None
@@ -114,9 +110,7 @@ class AgentMosaikAPI(mosaik_api.Simulator):
                     inputs_to_process[binary_stats_field] = binary_execution_stats
             
             if inputs_to_process is not None:
-                self.agent_manager.process_input(input=inputs_to_process)
-        
-        return None
+                self.agent_manager.process_input(**inputs_to_process)
 
 if __name__ == '__main__':
     mosaik_api.start_simulation(AgentMosaikAPI())

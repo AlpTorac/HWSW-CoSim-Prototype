@@ -96,7 +96,7 @@ public class SoftwareSimulator {
      * @param binaryExecutionStats A map of statistics given to this instance
      */
     public void addBinaryExecutionStats(Number time, JSONObject binaryExecutionStats) {
-        if (this.binaryExecutionStats.get(time) != null) {
+        if (!this.binaryExecutionStats.containsKey(time)) {
             this.binaryExecutionStats.put(time, new ArrayList<JSONObject>());
         }
 

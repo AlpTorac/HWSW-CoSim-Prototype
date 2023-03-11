@@ -16,7 +16,7 @@ class AgentManager():
         result = input
         
         for agent in self.agents:
-            result = agent.process_input(input=result)
+            result = agent.process_input(**result)
             
         self.processed_input = result
     
