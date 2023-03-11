@@ -1,6 +1,5 @@
 package hwswcosim.swsim;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
@@ -15,10 +14,7 @@ import org.json.simple.JSONObject;
  * This class manages the software simulation by acting as its controller.
  */
 public class SoftwareSimulationController extends SimulationProcess {
-    private Collection<ScriptedTransitionEntry> transitionChain;
     private SoftwareSimulator simulator;
-
-    private TransitionChainParser transitionChainParser;
 
     private volatile boolean isSimulationTerminated;
     private volatile boolean isSimulationRunning;
@@ -30,7 +26,6 @@ public class SoftwareSimulationController extends SimulationProcess {
         this.isSimulationTerminated = false;
         this.isSimulationRunning = false;
         this.isTransitionEventRunning = false;
-        this.transitionChainParser = new TransitionChainParser();
     }
 
     /**
@@ -39,12 +34,10 @@ public class SoftwareSimulationController extends SimulationProcess {
      * @param resourceFolderPath The absolute path to the folder, in which resource files reside
      * @param DFAFileName The name of the file that describes the DFA
      * @param binaryMapFileName The name of the file that contains all {@link BinaryMapEntry} information
-     * @param transitionChainFileName The name of the file that contains all {@link ScriptedTransitionEntry} information
      */
-    public void initSoftwareSimulation(String resourceFolderPath, String DFAFileName, String binaryMapFileName, String transitionChainFileName) {
+    public void initSoftwareSimulation(String resourceFolderPath, String DFAFileName, String binaryMapFileName) {
         this.initSoftwareSimulator();
         this.initModel(resourceFolderPath, DFAFileName, binaryMapFileName);
-        this.initTransitionChain(resourceFolderPath, transitionChainFileName);
     }
 
     protected void initSoftwareSimulator() {
@@ -63,31 +56,21 @@ public class SoftwareSimulationController extends SimulationProcess {
     }
 
     /**
-     * See {@link TransitionChainParser#parseTransitionChain(String, String)}
+     * Creates and schedules the next transition.
      * 
-     * @param resourceFolderPath The absolute path to the folder, in which resource files reside
-     * @param transitionChainFileName The name of the file that contains all {@link ScriptedTransitionEntry} information
-     */
-    protected void initTransitionChain(String resourceFolderPath, String transitionChainFileName) {
-        this.transitionChain = this.transitionChainParser.parseTransitionChain(resourceFolderPath, transitionChainFileName);
-    }
-
-    /**
-     * Creates and schedules the next transition from {@link #transitionChain}.
+     * @param input The input of the next transition
+     * @param time The time of the next transition
      * 
      * @return The created {@link TransitionEvent} instance
      */
-    protected TransitionEvent scheduleNextTransitionEvent() {
-        ScriptedTransitionEntry ste = this.transitionChain.stream().findFirst().get();
-        Number activationTime = ste.getTime();
-        TransitionEvent event = new TransitionEvent(ste.getInput().charValue());
+    protected TransitionEvent scheduleNextTransitionEvent(Character input, Number time) {
+        TransitionEvent event = new TransitionEvent(input.charValue());
         try {
-            event.activateAt(activationTime.doubleValue());
+            event.activateAt(time.doubleValue());
         } catch (SimulationException | RestartException e) {
             e.printStackTrace();
         }
-        this.transitionChain.remove(ste);
-        System.out.println("Next event scheduled at time: " + activationTime.doubleValue());
+        System.out.println("Next event scheduled at time: " + time.doubleValue());
         return event;
     }
 
@@ -173,22 +156,18 @@ public class SoftwareSimulationController extends SimulationProcess {
     /**
      * @see {@link SoftwareSimulator#getExecutionStats()}
      */
-    public Map<Number, JSONObject> getExecutionStats() {
+    public Map<Number, Collection<JSONObject>> getExecutionStats() {
         return this.simulator.getExecutionStats();
-    }
-
-    /**
-     * @return Whether {@link #transitionChain} has any elements.
-     */
-    public boolean hasUnscheduledTransitionEvents() {
-        return !this.transitionChain.isEmpty();
     }
 
     /**
      * Schedules the head element of {@link #transitionChain} with
      * {@link #scheduleNextTransitionEvent()} and runs it.
+     * 
+     * @param input The input of the next transition
+     * @param time The time of the next transition
      */
-    public void step() {
+    public void step(Character input, Number time) {
         // ToDo: Try using synchronized keyword and removing the empty while-loops
         while (this.isTransitionEventRunning) {
 
@@ -201,25 +180,21 @@ public class SoftwareSimulationController extends SimulationProcess {
 
             }
 
-            if (this.hasUnscheduledTransitionEvents()) {
-                System.out.println("SWSimulator simulation time = " + this.time());
-                TransitionEvent scheduledEvent = this.scheduleNextTransitionEvent();
+            System.out.println("SWSimulator simulation time = " + this.time());
+            TransitionEvent scheduledEvent = this.scheduleNextTransitionEvent(input, time);
 
-                try {
-                    System.out.println("Switching to event");
-                    this.isTransitionEventRunning = true;
-                    this.reactivateAfter(scheduledEvent);
+            try {
+                System.out.println("Switching to event");
+                this.isTransitionEventRunning = true;
+                this.reactivateAfter(scheduledEvent);
 
-                    // Wait for the transition event to terminate
-                    while (this.isTransitionEventRunning) {
+                // Wait for the transition event to terminate
+                while (this.isTransitionEventRunning) {
 
-                    }
-                    System.out.println("Switching to controller");
-                } catch (SimulationException | RestartException e) {
-                    e.printStackTrace();
                 }
-            } else {
-                this.isSimulationRunning = false;
+                System.out.println("Switching to controller");
+            } catch (SimulationException | RestartException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -230,32 +205,6 @@ public class SoftwareSimulationController extends SimulationProcess {
 
     public boolean isSimulationTerminated() {
         return this.isSimulationTerminated;
-    }
-
-    /**
-     * @return The time, at which the current head element of {@link #transitionChain}
-     * is to be scheduled, or null if there is no such element.
-     */
-    public Number getNextEventTime() {
-        if (this.hasUnscheduledTransitionEvents()) {
-            return this.transitionChain.stream().findFirst().get().getTime();
-        }
-        return null;
-    }
-
-    /**
-     * @return A deep copy of {@link #transitionChain}.
-     */
-    public Collection<ScriptedTransitionEntry> getRemainingTransitionChain() {
-        ArrayList<ScriptedTransitionEntry> remainingChain = new ArrayList<ScriptedTransitionEntry>();
-
-        if (this.transitionChain != null) {
-            for (ScriptedTransitionEntry ste : this.transitionChain) {
-                remainingChain.add(ste.clone());
-            }
-        }
-
-        return remainingChain;
     }
 
     /**

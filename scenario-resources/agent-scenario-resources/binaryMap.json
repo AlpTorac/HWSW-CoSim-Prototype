@@ -1,0 +1,9 @@
+[
+	{"transition": "(q0,q1,a)", "binary": "test", "arguments": ["start"]},
+	{"transition": "(q1,q1,b)", "binary": "test", "arguments": ["1finetune"]},
+	{"transition": "(q1,q2,a)", "binary": "test", "arguments": ["1switch2"]},
+	{"transition": "(q2,q2,b)", "binary": "test", "arguments": ["2finetune"]},
+	{"transition": "(q2,q3,a)", "binary": "test", "arguments": ["2switch3"]},
+	{"transition": "(q3,q3,b)", "binary": "test", "arguments": ["3finetune"]},
+	{"transition": "(q3,q4,a)", "binary": "test", "arguments": ["end"]}
+]

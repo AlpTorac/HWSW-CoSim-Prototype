@@ -8,6 +8,7 @@ binary_path_output_field = 'binary_file_path_out'
 
 binary_execution_stats_output_field = 'binary_execution_stats_out'
 binary_execution_stats_input_field = 'binary_execution_stats_in'
+
 binary_arguments_input_field = "binary_file_arguments_in"
 binary_arguments_output_field = "binary_file_arguments_out"
 
@@ -74,7 +75,7 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
             model = self.simulator.model
             data[eid] = {}
             for attr in attrs:
-                if attr == binary_execution_stats_output_field:
+                if attr == binary_execution_stats_input_field:
                     data[eid][attr] = model.get_execution_stats()
 
         return data

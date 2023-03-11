@@ -65,7 +65,7 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
      * {@inheritDoc}
      */
     @Override
-    public Map<Number, JSONObject> getExecutionStats() {
+    public Map<Number, Collection<JSONObject>> getExecutionStats() {
         return this.addTimeMeasurement("getExecutionStats",
         (r)->super.getExecutionStats());
     }
@@ -75,9 +75,9 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
      */
     @Override
     public void initSoftwareSimulation(String resourceFolderPath, 
-        String DFAFilePath, String binaryMapFilePath, String transitionChainFilePath) {
+        String DFAFilePath, String binaryMapFilePath) {
         this.addTimeMeasurement("initSoftwareSimulation", 
-        ()->super.initSoftwareSimulation(resourceFolderPath, DFAFilePath, binaryMapFilePath, transitionChainFilePath));
+        ()->super.initSoftwareSimulation(resourceFolderPath, DFAFilePath, binaryMapFilePath));
     }
 
     /**
@@ -100,23 +100,6 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
      * {@inheritDoc}
      */
     @Override
-    protected void initTransitionChain(String resourceFolderPath, String transitionChainFilePath) {
-        this.addTimeMeasurement("initTransitionChain", ()->super.initTransitionChain(resourceFolderPath, transitionChainFilePath));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected TransitionEvent scheduleNextTransitionEvent() {
-        return this.addTimeMeasurement("scheduleNextTransitionEvent",
-        (r)->super.scheduleNextTransitionEvent());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void await() {
         this.addTimeMeasurement("await", ()->super.await());
     }
@@ -127,33 +110,6 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
     @Override
     public void exit() {
         this.addTimeMeasurement("exit", ()->super.exit());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasUnscheduledTransitionEvents() {
-        return this.addTimeMeasurement("hasUnscheduledTransitionEvents",
-        (r)->super.hasUnscheduledTransitionEvents());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Number getNextEventTime() {
-        return this.addTimeMeasurement("getNextEventTime",
-        (r)->super.getNextEventTime());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<ScriptedTransitionEntry> getRemainingTransitionChain() {
-        return this.addTimeMeasurement("getRemainingTransitionChain",
-        (r)->super.getRemainingTransitionChain());
     }
 
     /**
@@ -176,8 +132,8 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
      * {@inheritDoc}
      */
     @Override
-    public void step() {
-        this.addTimeMeasurement("step", ()->super.step());
+    public void step(Character input, Number time) {
+        this.addTimeMeasurement("step", ()->super.step(input, time));
     }
 
     /**

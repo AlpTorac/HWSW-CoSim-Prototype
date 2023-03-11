@@ -22,12 +22,12 @@ public class SoftwareSimulator {
      * are stored in form of a JSONObject, whose keys are the names of each statistic
      * and values are the values of the statistic with the matching name.
      */
-    private Map<Number, JSONObject> binaryExecutionStats;
+    private Map<Number, Collection<JSONObject>> binaryExecutionStats;
 
     private DFAWrapperParser dfaWrapperParser;
 
     public SoftwareSimulator() {
-        this.binaryExecutionStats = new HashMap<Number, JSONObject>();
+        this.binaryExecutionStats = new HashMap<Number, Collection<JSONObject>>();
         this.dfaWrapperParser = new DFAWrapperParser(new BinaryMapParser(new DFAParser()));
     }
 
@@ -61,7 +61,7 @@ public class SoftwareSimulator {
         }
     }
 
-    public Map<Number, JSONObject> getExecutionStats() {
+    public Map<Number, Collection<JSONObject>> getExecutionStats() {
         return this.binaryExecutionStats;
     }
 
@@ -77,9 +77,11 @@ public class SoftwareSimulator {
     public Collection<Object> getExecutionStatValues(String statName) {
         ArrayList<Object> result = new ArrayList<Object>();
 
-        for (JSONObject binaryExecutionStatsEntry : this.binaryExecutionStats.values()) {
-            if (binaryExecutionStatsEntry.containsKey(statName)) {
-                result.add(binaryExecutionStatsEntry.get(statName));
+        for (Collection<JSONObject> binaryExecutionStatsEntry : this.binaryExecutionStats.values()) {
+            for (JSONObject executionStatsObject : binaryExecutionStatsEntry) {
+                if (executionStatsObject.containsKey(statName)) {
+                    result.add(executionStatsObject.get(statName));
+                }
             }
         }
 
@@ -94,7 +96,13 @@ public class SoftwareSimulator {
      * @param binaryExecutionStats A map of statistics given to this instance
      */
     public void addBinaryExecutionStats(Number time, JSONObject binaryExecutionStats) {
-        this.binaryExecutionStats.put(time, binaryExecutionStats);
+        if (this.binaryExecutionStats.get(time) != null) {
+            this.binaryExecutionStats.put(time, new ArrayList<JSONObject>());
+        }
+
+        Collection<JSONObject> statsCollection = this.binaryExecutionStats.get(time);
+        statsCollection.add(binaryExecutionStats);
+        
         System.out.println("SWSimulator received binaryExecutionStats:\n" + binaryExecutionStats);
     }
 
