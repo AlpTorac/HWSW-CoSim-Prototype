@@ -1,5 +1,5 @@
 import mosaik_api
-import agent_manager
+import agent
 
 modelName = 'Agent'
 
@@ -46,71 +46,99 @@ class AgentMosaikAPI(mosaik_api.Simulator):
         __doc__ = mosaik_api.Simulator.__doc__
         super().__init__(AgentMosaikAPI.meta)
         self.eid_prefix = ''
-        self.agent_manager = None
+        self.agent = None
+        
+        self.binary_path = None
+        self.binary_arguments = None
+        self.binary_stats = None
+        self.binary_run_count = 0
+        
+        self.binary_execution_stats = []
 
     def init(self, sid, time_resolution, **sim_params):
         if 'eid_prefix' in sim_params:
             self.eid_prefix = sim_params['eid_prefix']
-        self.agent_manager = self.init_agent_manager()
         return self.meta
 
-    def init_agent_manager(self):
+    def init_agent(self, params):
         """_summary_
 
         Returns:
             _type_: The created agent
         """
-        return agent_manager.AgentManager()
+        print('Agent params: ')
+        for param in params:
+            print(param)
+        
+        return agent.Agent(params)
 
     def create(self, num, model, **model_params):
         entities = []
-
-        self.agent_manager.add_agent(**model_params)
+        
+        if variable_info_field in model_params:
+            self.agent = self.init_agent(model_params[variable_info_field])
+            
         eid = '%s%d' % (self.eid_prefix, 0)
         entities.append({'eid': eid, 'type': model})
 
         return entities
 
 
-
     def get_data(self, outputs):
         data = {}
         for eid, attrs in outputs.items():
             data[eid] = {}
-            processed_inputs = self.agent_manager.get_processed_input()
-            print(processed_inputs)
-            
-            def set_data(field, processed_inputs_key):
-                if attr == field and processed_inputs_key in processed_inputs:
-                    data[eid][attr] = processed_inputs[processed_inputs_key]
-            
-            for attr in attrs:
-                if processed_inputs is not None:
-                    set_data(binary_path_output_field, binary_path_field)
-                    set_data(binary_arguments_output_field, binary_args_field)
-                    set_data(binary_execution_stats_output_field, binary_stats_field)
+            if self.binary_arguments is not None and self.binary_run_count_reached():
+                print('binary arguments = ' + ' '.join([str(arg) for arg in self.binary_arguments]))
+                for attr in attrs:
+                    if attr == binary_path_output_field:
+                        data[eid][attr] = self.binary_path
+                    if attr == binary_arguments_output_field:
+                        data[eid][attr] = self.binary_arguments
+                    self.binary_run_count += 1
+            else:
+                for attr in attrs:
+                    if attr == binary_execution_stats_output_field:
+                        data[eid][attr] = self.binary_execution_stats
+                        self.binary_execution_stats = []
+                        self.binary_stats = None
+                        self.binary_run_count = 0
 
         return data
 
     def step(self, time, inputs, max_advance):
         print('Agent stepping at time: ' + str(time))
         for eid, attrs in inputs.items():
-            inputs_to_process = {}
-            new_binary_path = None
-            binary_arguments = None
             for attr, values in attrs.items():
-                if attr == binary_path_input_field:
-                    new_binary_path = list(values.values())[0]
-                    inputs_to_process[binary_path_field] = new_binary_path
-                if attr == binary_arguments_input_field:
-                    binary_arguments = list(values.values())[0]
-                    inputs_to_process[binary_args_field] = binary_arguments
-                if attr == binary_execution_stats_input_field:
-                    binary_execution_stats = list(values.values())[0]
-                    inputs_to_process[binary_stats_field] = binary_execution_stats
+                if self.binary_run_count_reached():
+                    if attr == binary_path_input_field:
+                        self.binary_path = list(values.values())[0]
+                    if attr == binary_arguments_input_field:
+                        self.binary_arguments = list(values.values())[0]
+                else:
+                    if attr == binary_execution_stats_input_field:
+                        self.binary_stats = list(values.values())[0]
+                        self.binary_execution_stats.append(self.binary_stats)
             
-            if inputs_to_process is not None:
-                self.agent_manager.process_input(**inputs_to_process)
+            print('path = %s' % self.binary_path)
+            print('arguments = %s' % self.binary_arguments)
+            print('stats = %s' % self.binary_stats)
+            
+            if self.binary_path is not None \
+                and self.binary_arguments is not None \
+                and self.binary_stats is not None:
+                    
+                self.binary_arguments = self.agent.process_stats(self.binary_path, self.binary_arguments, self.binary_stats)
+                if self.binary_arguments is None:
+                    self.binary_path = None
+                    self.binary_arguments = None
+                    self.binary_stats = None
+        
+        return None
 
+    def binary_run_count_reached(self):
+        return self.binary_path is None \
+            or self.binary_run_count < self.agent.get_step_count(self.binary_path)
+    
 if __name__ == '__main__':
     mosaik_api.start_simulation(AgentMosaikAPI())
