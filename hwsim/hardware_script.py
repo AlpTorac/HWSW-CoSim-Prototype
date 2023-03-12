@@ -44,7 +44,6 @@ sys.path.append('./git-modules/gem5/configs/learning_gem5/part1')
 from caches import *
 
 (options, binary_args, binary_path) = hardware_script_util.get_options(l1i_size='32kB', l1d_size='32kB', l2_size='256kB')
-print(binary_args)
 # create the system we are going to simulate
 system = System()
 

@@ -29,7 +29,8 @@ def get_options(**defaults):
     binary_args = dict_options['binary_arg']
     binary_path = dict_options['binary_path']
     
-    # Flatten binary_args and remove the leading and trailing quotation marks
-    stripped_binary_args = [arg.lstrip('\"\'').rstrip('\"\'') for sublist in binary_args for arg in sublist]
+    if binary_args is not None:
+        # Flatten binary_args and remove the leading and trailing quotation marks
+        binary_args = [arg.lstrip('\"\'').rstrip('\"\'') for sublist in binary_args for arg in sublist]
 
-    return (options, stripped_binary_args, binary_path)
+    return (options, binary_args, binary_path)

@@ -106,7 +106,10 @@ public class SoftwareSimulatorOutputManager {
 
             accumulatedOutput.values().forEach(col -> {
                 col.stream().forEach(json -> {
-                    stats.add(json.get((String) outputName));
+                    Object output = json.get((String) outputName);
+                    if (output != null) {
+                        stats.add(json.get((String) outputName));
+                    }
                 });
             });
 
