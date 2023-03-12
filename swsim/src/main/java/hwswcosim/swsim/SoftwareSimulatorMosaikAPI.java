@@ -295,9 +295,11 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
                 if (attrName.equals(binaryExecutionStatsOutputField)) {
                     Collection<Object> binaryExecutionStats = ((JSONObject) attr.getValue()).values();
                     if (!binaryExecutionStats.isEmpty()) {
-                        JSONObject input = (JSONObject) (binaryExecutionStats.stream().findFirst().get());
-                        System.out.println("SWSimulator receiving binaryExecutionStats: " + input);
-                        this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), input);
+                        JSONArray inputStatsArray = (JSONArray) (binaryExecutionStats.stream().findFirst().get());
+                        System.out.println("SWSimulator receiving binaryExecutionStats: " + inputStatsArray);
+                        inputStatsArray.forEach(inputStats -> {
+                            this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), (JSONObject) inputStats);
+                        });
                     }
                 }
                 else {

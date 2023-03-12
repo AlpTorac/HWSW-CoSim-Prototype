@@ -66,13 +66,29 @@ software_simulator = world.start('SoftwareSimulator',software_simulator_output_d
     'simSeconds': 'add',
     'simFreq': 'none'
 })
-hardware_simulator = world.start('HWSimulator')
-agent = world.start('Agent')
 
+hardware_simulator = world.start('HWSimulator', variable_info=[{
+                                                                'binary_name': 'ackermann2',
+                                                                'binary_arg_pos': 0,
+                                                                'binary_arg_min': 0,
+                                                                'binary_arg_max': 300,
+                                                                'binary_arg_shift_magnitude': 10,
+                                                                'target_exec_time': 2,
+                                                                'tolerance': 0.2,
+                                                                'steps': 10,
+                                                                },
+                                                               {
+                                                                'binary_name': 'ackermann3',
+                                                                'binary_arg_pos': 0,
+                                                                'binary_arg_min': 0,
+                                                                'binary_arg_max': 10,
+                                                                'binary_arg_shift_magnitude': 1,
+                                                                'target_exec_time': 2,
+                                                                'tolerance': 0.1,
+                                                                'steps': 3,
+                                                                }])
 
 # Instantiate models
-agent_instance = agent.Agent(variable_info=None)
-
 sw_model = software_simulator.DFAWrapper(
     resource_folder_path=RESOURCES_FOLDER,
     dfa_file_name='dfa.json',
@@ -84,13 +100,9 @@ hw_model = hardware_simulator.HWModel(
     output_path=OUTPUT_DIR+'/hwsimOut',
     hardware_script_run_command=ROOT_DIR+'/hwsim/hardware_script.py')
 
-world.connect(sw_model, agent_instance, 'binary_file_path_in', time_shifted=True, initial_data={'binary_file_path_in': ''})
-world.connect(sw_model, agent_instance, 'binary_file_arguments_in', time_shifted=True, initial_data={'binary_file_arguments_in': ''})
-world.connect(agent_instance, sw_model, 'binary_execution_stats_out')
-
-world.connect(agent_instance, hw_model, 'binary_file_path_out')
-world.connect(agent_instance, hw_model, 'binary_file_arguments_out')
-world.connect(hw_model, agent_instance, 'binary_execution_stats_in', time_shifted=True, initial_data={'binary_execution_stats_in': ''})
+world.connect(sw_model, hw_model, 'binary_file_path_out', 'binary_file_path_in')
+world.connect(sw_model, hw_model, 'binary_file_arguments_out', 'binary_file_arguments_in')
+world.connect(hw_model, sw_model, 'binary_execution_stats_out', 'binary_execution_stats_in', weak=True)
 
 # Run simulation
 world.run(until=END)
