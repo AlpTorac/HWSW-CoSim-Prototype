@@ -104,9 +104,11 @@ agent = agent_API.Agent(variable_info=[{
                                                                 'max_repeats': 3,
                                                                 }])
 
+# Connect the agent with sw_model bi-directionally
 world.connect(sw_model, agent, ('binary_file_path', 'binary_file_path_in'), ('binary_file_arguments', 'binary_file_arguments_in'))
 world.connect(agent, sw_model, ('binary_execution_stats_out', 'binary_execution_stats'), weak=True)
 
+# Connect the agent with hw_model bi-directionally
 world.connect(agent, hw_model, ('binary_file_path_out', 'binary_file_path'), ('binary_file_arguments_out', 'binary_file_arguments'))
 world.connect(hw_model, agent, ('binary_execution_stats', 'binary_execution_stats_in'), weak=True)
 

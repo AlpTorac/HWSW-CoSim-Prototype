@@ -88,7 +88,7 @@ public class DummyHWSimulator extends Simulator {
 
             this.instance = new DummyHWModel();
 
-            System.out.println("Added DummyHWModel");
+            //System.out.println("Added DummyHWModel");
 
             JSONObject entity = new JSONObject();
             entity.put("eid", eid);
@@ -121,12 +121,12 @@ public class DummyHWSimulator extends Simulator {
 
             if (instance.hasOutput()) {
                 for (String attr : attrs) {
-                    System.out.println("HWSimulator output attribute: " + attr);
+                    //System.out.println("HWSimulator output attribute: " + attr);
                     if (attr.equals(binaryExecutionStatsField)) {
                         Object output = instance.mockExecutionStats();
-                        System.out.println("HWSimulator outputting binaryExecutionStats: " + output);
+                        //System.out.println("HWSimulator outputting binaryExecutionStats: " + output);
                         values.put(attr, output);
-                        System.out.println("HWSimulator output binaryExecutionStats: " + values.get(attr));
+                        //System.out.println("HWSimulator output binaryExecutionStats: " + values.get(attr));
                     }
                 }
                 data.put(eid, values);
@@ -165,14 +165,14 @@ public class DummyHWSimulator extends Simulator {
             Map<String, Object> attrs = (Map<String, Object>) entity.getValue();
 
             for (Map.Entry<String, Object> attr : attrs.entrySet()) {
-                System.out.println("HWSimulator input attribute: " + attr);
+                //System.out.println("HWSimulator input attribute: " + attr);
                 String attrName = attr.getKey();
                 // Output attribute from the other simulator is the input
                 if (attrName.equals(binaryPathField)) {
                     Collection<Object> binaryPaths = ((JSONObject) attr.getValue()).values();
                     if (!binaryPaths.isEmpty()) {
                         String input = (String) (binaryPaths.stream().findFirst().get());
-                        System.out.println("HWSimulator receiving binaryPath: " + input);
+                        //System.out.println("HWSimulator receiving binaryPath: " + input);
                         this.instance.setCurrentBinaryPath(input);
                     }
                 }
@@ -182,7 +182,7 @@ public class DummyHWSimulator extends Simulator {
                         Optional<Object> bargs = binaryArguments.stream().filter(e -> e != null).findFirst();
                         if (bargs.isPresent()) {
                             JSONArray input = (JSONArray) (bargs.get());
-                            System.out.println("HWSimulator receiving binaryArguments: " + input);
+                            //System.out.println("HWSimulator receiving binaryArguments: " + input);
                             this.instance.setCurrentBinaryArguments(input);
                         }
                     }
@@ -193,7 +193,7 @@ public class DummyHWSimulator extends Simulator {
             }
         }
 
-        System.out.println("HWSimulator stepped at time: " + time);
+        //System.out.println("HWSimulator stepped at time: " + time);
 
         return null;
     }

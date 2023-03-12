@@ -77,7 +77,7 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
         return data
 
     def step(self, time, inputs, max_advance):
-        print('hwsim stepping at time: ' + str(time))
+        #print('hwsim stepping at time: ' + str(time))
         for eid, attrs in inputs.items():
             new_binary_path = None
             binary_arguments = None

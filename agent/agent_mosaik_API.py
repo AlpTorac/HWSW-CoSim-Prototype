@@ -66,9 +66,9 @@ class AgentMosaikAPI(mosaik_api.Simulator):
         Returns:
             _type_: The created agent
         """
-        print('Agent params: ')
-        for param in params:
-            print(param)
+        #print('Agent params: ')
+        #for param in params:
+            #print(param)
         
         return agent.Agent(params)
 
@@ -92,8 +92,8 @@ class AgentMosaikAPI(mosaik_api.Simulator):
                 and self.binary_path is not None \
                 and not self.binary_run_count_reached():
                 
-                print('binary arguments = ' + ' '.join([str(arg) for arg in self.binary_arguments]))
-                print('run count = %d, count reached = %s' % (self.binary_run_count, self.binary_run_count_reached()))
+                #print('binary arguments = ' + ' '.join([str(arg) for arg in self.binary_arguments]))
+                #print('run count = %d, count reached = %s' % (self.binary_run_count, self.binary_run_count_reached()))
                 
                 for attr in attrs:
                     if attr == binary_path_output_field:
@@ -115,7 +115,7 @@ class AgentMosaikAPI(mosaik_api.Simulator):
         return data
 
     def step(self, time, inputs, max_advance):
-        print('Agent stepping at time: ' + str(time))
+        #print('Agent stepping at time: ' + str(time))
         for eid, attrs in inputs.items():
             if self.binary_path is None or self.binary_arguments is None:
                 for attr, values in attrs.items():
@@ -129,9 +129,9 @@ class AgentMosaikAPI(mosaik_api.Simulator):
                         self.binary_stats = list(values.values())[0]
                         self.binary_execution_stats.append(self.binary_stats)
             
-            print('path = %s' % self.binary_path)
-            print('arguments = %s' % self.binary_arguments)
-            print('stats = %s' % self.binary_stats)
+            #print('path = %s' % self.binary_path)
+            #print('arguments = %s' % self.binary_arguments)
+            #print('stats = %s' % self.binary_stats)
             
             if self.binary_path is not None \
                 and self.binary_arguments is not None \

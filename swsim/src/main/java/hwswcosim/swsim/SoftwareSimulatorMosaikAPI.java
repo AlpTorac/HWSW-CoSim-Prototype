@@ -148,7 +148,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             entity.put("rel", new JSONArray());
             entities.add(entity);
 
-            System.out.println("sw_model created");
+            //System.out.println("sw_model created");
         } else {
             throw new IllegalArgumentException("Creating a model requires all of the folowing parameters: "
             + DFAFileNameField + ", " + binaryMapFileNameField + " and " + transitionChainFileNameField);
@@ -170,18 +170,18 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
         Map<String, Object> values = new HashMap<String, Object>();
 
         for (String attr : attrs) {
-            System.out.println("SWSimulator output attribute: " + attr);
+            //System.out.println("SWSimulator output attribute: " + attr);
             if (attr.equals(binaryPathField)) {
                 String output = this.getBinaryFilePath();
-                System.out.println("SWSimulator outputting binaryPath: " + output);
+                //System.out.println("SWSimulator outputting binaryPath: " + output);
                 values.put(attr, output);
-                System.out.println("SWSimulator output binaryPath: " + values.get(attr));
+                //System.out.println("SWSimulator output binaryPath: " + values.get(attr));
             }
             else if (attr.equals(binaryArgumentsField)) {
                 JSONArray output = this.getBinaryArguments();
-                System.out.println("SWSimulator outputting binaryArguments: " + output);
+                //System.out.println("SWSimulator outputting binaryArguments: " + output);
                 values.put(attr, output);
-                System.out.println("SWSimulator output binaryArguments: " + values.get(attr));
+                //System.out.println("SWSimulator output binaryArguments: " + values.get(attr));
             }
         }
 
@@ -283,7 +283,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             Map<String, Object> attrs = (Map<String, Object>) entity.getValue();
 
             for (Map.Entry<String, Object> attr : attrs.entrySet()) {
-                System.out.println("SWSimulator input attribute: " + attr);
+                //System.out.println("SWSimulator input attribute: " + attr);
                 String attrName = attr.getKey();
                 // Output from other simulator is the input
                 if (attrName.equals(binaryExecutionStatsField)) {
@@ -291,7 +291,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
                     if (!binaryExecutionStats.isEmpty()) {
                         Object receivedInputStats = binaryExecutionStats.stream().findFirst().get();
 
-                        System.out.println("SWSimulator receiving binaryExecutionStats: " + receivedInputStats);
+                        //System.out.println("SWSimulator receiving binaryExecutionStats: " + receivedInputStats);
 
                         if (receivedInputStats instanceof JSONArray) {
                             JSONArray inputStatsArray = (JSONArray) receivedInputStats;
@@ -316,7 +316,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
      * called again.
      */
     protected Long getNextTimeStep(long time, long maxAdvance) {
-        System.out.println("SWSimulator stepped at time: " + time);
+        //System.out.println("SWSimulator stepped at time: " + time);
 
         Number nextStepTime = this.softwareSimulationController.getNextEventTime();
 
@@ -324,7 +324,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             nextStepTime = Long.valueOf(time+1);
         }
         
-        System.out.println("SWSimulator next step at: " + nextStepTime.longValue());
+        //System.out.println("SWSimulator next step at: " + nextStepTime.longValue());
         return nextStepTime.longValue();
     }
 

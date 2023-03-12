@@ -19,7 +19,7 @@ public class SoftwareSimulator {
      * A map that contains all collected statistics given to this instance at
      * each time point, where a transition found place, via
      * {@link #addBinaryExecutionStats(Number, JSONObject)}. The said statistics
-     * are stored in form of a JSONObject, whose keys are the names of each statistic
+     * are all stored in form of a JSONObject, whose keys are the names of each statistic
      * and values are the values of the statistic with the matching name.
      */
     private Map<Number, Collection<JSONObject>> binaryExecutionStats;
@@ -93,7 +93,7 @@ public class SoftwareSimulator {
      * into {@link #binaryExecutionStats}.
      * 
      * @param time The time point, when binaryExecutionStats is generated
-     * @param binaryExecutionStats A map of statistics given to this instance
+     * @param binaryExecutionStats Statistics given to this instance
      */
     public void addBinaryExecutionStats(Number time, JSONObject binaryExecutionStats) {
         if (!this.binaryExecutionStats.containsKey(time)) {
@@ -103,7 +103,7 @@ public class SoftwareSimulator {
         Collection<JSONObject> statsCollection = this.binaryExecutionStats.get(time);
         statsCollection.add(binaryExecutionStats);
         
-        System.out.println("SWSimulator received binaryExecutionStats:\n" + binaryExecutionStats);
+        //System.out.println("SWSimulator received binaryExecutionStats:\n" + binaryExecutionStats);
     }
 
     /**
