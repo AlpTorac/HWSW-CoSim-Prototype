@@ -90,8 +90,8 @@ agent = agent_API.Agent(variable_info=[{
                                                                 'binary_arg_max': 300,
                                                                 'binary_arg_shift_magnitude': 10,
                                                                 'target_exec_time': 2,
-                                                                'tolerance': 0.2,
-                                                                'steps': 2,
+                                                                'tolerance': 0.1,
+                                                                'max_repeats': 5,
                                                                 },
                                                                {
                                                                 'binary_name': 'ackermann3',
@@ -101,16 +101,14 @@ agent = agent_API.Agent(variable_info=[{
                                                                 'binary_arg_shift_magnitude': 1,
                                                                 'target_exec_time': 2,
                                                                 'tolerance': 0.1,
-                                                                'steps': 2,
+                                                                'max_repeats': 3,
                                                                 }])
 
-world.connect(sw_model, agent, 'binary_file_path_out', 'binary_file_path_in')
-world.connect(sw_model, agent, 'binary_file_arguments_out', 'binary_file_arguments_in')
-world.connect(agent, sw_model, 'binary_execution_stats_out', 'binary_execution_stats_in', weak=True)
+world.connect(sw_model, agent, ('binary_file_path', 'binary_file_path_in'), ('binary_file_arguments', 'binary_file_arguments_in'))
+world.connect(agent, sw_model, ('binary_execution_stats_out', 'binary_execution_stats'), weak=True)
 
-world.connect(agent, hw_model, 'binary_file_path_out', 'binary_file_path_in')
-world.connect(agent, hw_model, 'binary_file_arguments_out', 'binary_file_arguments_in')
-world.connect(hw_model, agent, 'binary_execution_stats_out', 'binary_execution_stats_in', weak=True)
+world.connect(agent, hw_model, ('binary_file_path_out', 'binary_file_path'), ('binary_file_arguments_out', 'binary_file_arguments'))
+world.connect(hw_model, agent, ('binary_execution_stats', 'binary_execution_stats_in'), weak=True)
 
 # Run simulation
 world.run(until=END)

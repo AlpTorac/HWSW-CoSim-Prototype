@@ -56,10 +56,10 @@ class Agent():
             
         return None
     
-    def get_step_count(self, binary_path):
+    def get_max_repeat_count(self, binary_path):
         param = self.get_param_for(binary_path)
         
         if param is not None:
-            return int(param['steps'])
+            return int(param['max_repeats'])
         
         return None

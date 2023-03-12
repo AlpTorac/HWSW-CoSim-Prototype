@@ -30,13 +30,9 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
     private static final String softwareSimulatorOutputDirField = "software_simulator_output_dir";
     private static final String softwareSimulatorOutputFileNameField = "software_simulator_output_file_name";
 
-    private static final String binaryPathInputField = "binary_file_path_in";
-    private static final String binaryPathOutputField = "binary_file_path_out";
-    private static final String binaryArgumentsInputField = "binary_file_arguments_in";
-    private static final String binaryArgumentsOutputField = "binary_file_arguments_out";
-
-    private static final String binaryExecutionStatsOutputField = "binary_execution_stats_out";
-    private static final String binaryExecutionStatsInputField = "binary_execution_stats_in";
+    private static final String binaryPathField = "binary_file_path";
+    private static final String binaryArgumentsField = "binary_file_arguments";
+    private static final String binaryExecutionStatsField = "binary_execution_stats";
 
     /**
      * The metadata that will be returned to mosaik upon {@link #init(String, Float, Map)}
@@ -48,9 +44,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
             + "            'params': ['"+resourceFolderPathField+"', '"+DFAFileNameField+"', '"+binaryMapFileNameField
             + "', '"+transitionChainFileNameField+"'],"
-            + "            'attrs': ['"+binaryPathOutputField+"', '"+binaryExecutionStatsInputField
-            + "', '"+binaryPathInputField+"', '"+binaryExecutionStatsOutputField
-            + "', '"+binaryArgumentsInputField+"', '"+binaryArgumentsOutputField+"']"
+            + "            'attrs': ['"+binaryPathField+"', '"+binaryArgumentsField+"', '"+binaryExecutionStatsField+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
 
@@ -177,13 +171,13 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
 
         for (String attr : attrs) {
             System.out.println("SWSimulator output attribute: " + attr);
-            if (attr.equals(binaryPathInputField)) {
+            if (attr.equals(binaryPathField)) {
                 String output = this.getBinaryFilePath();
                 System.out.println("SWSimulator outputting binaryPath: " + output);
                 values.put(attr, output);
                 System.out.println("SWSimulator output binaryPath: " + values.get(attr));
             }
-            else if (attr.equals(binaryArgumentsInputField)) {
+            else if (attr.equals(binaryArgumentsField)) {
                 JSONArray output = this.getBinaryArguments();
                 System.out.println("SWSimulator outputting binaryArguments: " + output);
                 values.put(attr, output);
@@ -292,14 +286,22 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
                 System.out.println("SWSimulator input attribute: " + attr);
                 String attrName = attr.getKey();
                 // Output from other simulator is the input
-                if (attrName.equals(binaryExecutionStatsOutputField)) {
+                if (attrName.equals(binaryExecutionStatsField)) {
                     Collection<Object> binaryExecutionStats = ((JSONObject) attr.getValue()).values();
                     if (!binaryExecutionStats.isEmpty()) {
-                        JSONArray inputStatsArray = (JSONArray) (binaryExecutionStats.stream().findFirst().get());
-                        System.out.println("SWSimulator receiving binaryExecutionStats: " + inputStatsArray);
-                        inputStatsArray.forEach(inputStats -> {
-                            this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), (JSONObject) inputStats);
-                        });
+                        Object receivedInputStats = binaryExecutionStats.stream().findFirst().get();
+
+                        System.out.println("SWSimulator receiving binaryExecutionStats: " + receivedInputStats);
+
+                        if (receivedInputStats instanceof JSONArray) {
+                            JSONArray inputStatsArray = (JSONArray) receivedInputStats;
+                            inputStatsArray.forEach(inputStats -> {
+                                this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), (JSONObject) inputStats);
+                            });
+                        }
+                        else if (receivedInputStats instanceof JSONObject) {
+                            this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), (JSONObject) receivedInputStats);
+                        }
                     }
                 }
                 else {

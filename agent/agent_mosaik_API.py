@@ -88,19 +88,27 @@ class AgentMosaikAPI(mosaik_api.Simulator):
         data = {}
         for eid, attrs in outputs.items():
             data[eid] = {}
-            if self.binary_arguments is not None and self.binary_run_count_reached():
+            if self.binary_arguments is not None \
+                and self.binary_path is not None \
+                and not self.binary_run_count_reached():
+                
                 print('binary arguments = ' + ' '.join([str(arg) for arg in self.binary_arguments]))
+                print('run count = %d, count reached = %s' % (self.binary_run_count, self.binary_run_count_reached()))
+                
                 for attr in attrs:
                     if attr == binary_path_output_field:
                         data[eid][attr] = self.binary_path
                     if attr == binary_arguments_output_field:
                         data[eid][attr] = self.binary_arguments
-                    self.binary_run_count += 1
+                
+                self.binary_run_count += 1
             else:
                 for attr in attrs:
                     if attr == binary_execution_stats_output_field:
                         data[eid][attr] = self.binary_execution_stats
                         self.binary_execution_stats = []
+                        self.binary_path = None
+                        self.binary_arguments = None
                         self.binary_stats = None
                         self.binary_run_count = 0
 
@@ -109,13 +117,14 @@ class AgentMosaikAPI(mosaik_api.Simulator):
     def step(self, time, inputs, max_advance):
         print('Agent stepping at time: ' + str(time))
         for eid, attrs in inputs.items():
-            for attr, values in attrs.items():
-                if self.binary_run_count_reached():
+            if self.binary_path is None or self.binary_arguments is None:
+                for attr, values in attrs.items():
                     if attr == binary_path_input_field:
                         self.binary_path = list(values.values())[0]
                     if attr == binary_arguments_input_field:
                         self.binary_arguments = list(values.values())[0]
-                else:
+            else:
+                for attr, values in attrs.items():
                     if attr == binary_execution_stats_input_field:
                         self.binary_stats = list(values.values())[0]
                         self.binary_execution_stats.append(self.binary_stats)
@@ -129,16 +138,11 @@ class AgentMosaikAPI(mosaik_api.Simulator):
                 and self.binary_stats is not None:
                     
                 self.binary_arguments = self.agent.process_stats(self.binary_path, self.binary_arguments, self.binary_stats)
-                if self.binary_arguments is None:
-                    self.binary_path = None
-                    self.binary_arguments = None
-                    self.binary_stats = None
         
         return None
 
     def binary_run_count_reached(self):
-        return self.binary_path is None \
-            or self.binary_run_count < self.agent.get_step_count(self.binary_path)
+        return self.binary_run_count >= self.agent.get_max_repeat_count(self.binary_path)
     
 if __name__ == '__main__':
     mosaik_api.start_simulation(AgentMosaikAPI())

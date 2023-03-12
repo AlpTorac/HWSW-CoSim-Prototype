@@ -3,14 +3,9 @@ import hardware_simulator
 
 modelName = 'HWModel'
 
-binary_path_input_field = 'binary_file_path_in'
-binary_path_output_field = 'binary_file_path_out'
-
-binary_execution_stats_output_field = 'binary_execution_stats_out'
-binary_execution_stats_input_field = 'binary_execution_stats_in'
-
-binary_arguments_input_field = "binary_file_arguments_in"
-binary_arguments_output_field = "binary_file_arguments_out"
+binary_path_field = 'binary_file_path'
+binary_execution_stats_field = 'binary_execution_stats'
+binary_arguments_field = "binary_file_arguments"
 
 hardware_simulator_run_command_field = 'hardware_simulator_run_command'
 output_path_field = 'output_path'
@@ -29,9 +24,7 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
             modelName: {
                 'public': True,
                 'params': [hardware_simulator_run_command_field, output_path_field, hardware_script_run_command_field],
-                'attrs': [binary_path_input_field, binary_path_output_field,
-                binary_execution_stats_output_field, binary_execution_stats_input_field,
-                binary_arguments_input_field, binary_arguments_output_field]
+                'attrs': [binary_path_field, binary_execution_stats_field, binary_arguments_field]
             },
         },
     }
@@ -45,6 +38,10 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
         super().__init__(HardwareSimulatorMosaikAPI.meta)
         self.eid_prefix = ''
         self.simulator = None
+        
+        self.past_binary_path = None
+        self.past_binary_time = None
+        self.binary_repeat_count = 0
 
     def init(self, sid, time_resolution, **sim_params):
         if 'eid_prefix' in sim_params:
@@ -74,7 +71,7 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
         for eid, attrs in outputs.items():
             data[eid] = {}
             for attr in attrs:
-                if attr == binary_execution_stats_input_field:
+                if attr == binary_execution_stats_field:
                     data[eid][attr] = self.simulator.get_execution_stats()
 
         return data
@@ -85,16 +82,24 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
             new_binary_path = None
             binary_arguments = None
             for attr, values in attrs.items():
-                if attr == binary_path_output_field:
+                if attr == binary_path_field:
                     new_binary_path = list(values.values())[0]
-                if attr == binary_arguments_output_field:
+                if attr == binary_arguments_field:
                     binary_arguments = list(values.values())[0]
             
             if new_binary_path is not None:
-                self.run_binary(new_binary_path, binary_arguments, time=time)
+                
+                if self.past_binary_path == new_binary_path and self.past_binary_time == time:
+                    self.binary_repeat_count += 1
+                else:
+                    self.past_binary_path = new_binary_path
+                    self.past_binary_time = time
+                    self.binary_repeat_count = 0
+                    
+                self.run_binary(new_binary_path, binary_arguments, time=time, repeat=self.binary_repeat_count)
     
     def run_binary(self, binary_path, initial_binary_arguments, **relevant_attributes):
-        self.simulator.run_binary(binary_path, initial_binary_arguments, **relevant_attributes, step=0)
+        self.simulator.run_binary(binary_path, initial_binary_arguments, **relevant_attributes)
         
         while not self.simulator.has_output():
             continue

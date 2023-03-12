@@ -22,13 +22,9 @@ public class DummyHWSimulator extends Simulator {
 
     private static final String modelName = "DummyHWModel";
 
-    private static final String binaryPathInputName = "binary_file_path_in";
-    private static final String binaryPathOutputName = "binary_file_path_out";
-    private static final String binaryArgumentsInputName = "binary_file_arguments_in";
-    private static final String binaryArgumentsOutputName = "binary_file_arguments_out";
-
-    private static final String binaryExecutionStatsOutputName = "binary_execution_stats_out";
-    private static final String binaryExecutionStatsInputName = "binary_execution_stats_in";
+    private static final String binaryPathField = "binary_file_path";
+    private static final String binaryArgumentsField = "binary_file_arguments";
+    private static final String binaryExecutionStatsField = "binary_execution_stats";
 
     /**
      * The metadata that will be returned to mosaik upon {@link #init(String, Float, Map)}
@@ -39,9 +35,7 @@ public class DummyHWSimulator extends Simulator {
             + "    'models': {"
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
             + "            'params': '',"
-            + "            'attrs': ['"+binaryPathOutputName+"', '"+binaryExecutionStatsInputName
-            +"', '"+binaryPathInputName+"', '"+binaryExecutionStatsOutputName
-            +"', '"+binaryArgumentsInputName+"', '"+binaryArgumentsOutputName+"']"
+            + "            'attrs': ['"+binaryPathField+"', '"+binaryArgumentsField+"', '"+binaryExecutionStatsField+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
 
@@ -128,8 +122,8 @@ public class DummyHWSimulator extends Simulator {
             if (instance.hasOutput()) {
                 for (String attr : attrs) {
                     System.out.println("HWSimulator output attribute: " + attr);
-                    if (attr.equals(binaryExecutionStatsOutputName)) {
-                        JSONObject output = instance.mockExecutionStats();
+                    if (attr.equals(binaryExecutionStatsField)) {
+                        Object output = instance.mockExecutionStats();
                         System.out.println("HWSimulator outputting binaryExecutionStats: " + output);
                         values.put(attr, output);
                         System.out.println("HWSimulator output binaryExecutionStats: " + values.get(attr));
@@ -174,7 +168,7 @@ public class DummyHWSimulator extends Simulator {
                 System.out.println("HWSimulator input attribute: " + attr);
                 String attrName = attr.getKey();
                 // Output attribute from the other simulator is the input
-                if (attrName.equals(binaryPathOutputName)) {
+                if (attrName.equals(binaryPathField)) {
                     Collection<Object> binaryPaths = ((JSONObject) attr.getValue()).values();
                     if (!binaryPaths.isEmpty()) {
                         String input = (String) (binaryPaths.stream().findFirst().get());
@@ -182,7 +176,7 @@ public class DummyHWSimulator extends Simulator {
                         this.instance.setCurrentBinaryPath(input);
                     }
                 }
-                else if (attrName.equals(binaryArgumentsOutputName)) {
+                else if (attrName.equals(binaryArgumentsField)) {
                     Collection<Object> binaryArguments = ((JSONObject) attr.getValue()).values();
                     if (!binaryArguments.isEmpty()) {
                         Optional<Object> bargs = binaryArguments.stream().filter(e -> e != null).findFirst();

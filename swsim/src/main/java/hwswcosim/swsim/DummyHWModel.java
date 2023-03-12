@@ -40,7 +40,7 @@ public class DummyHWModel {
      * @return Mocked execution statistics in form of {@link JSONObject}
      */
     public JSONObject mockExecutionStats() {
-        JSONObject result = (JSONObject) JSONValue.parse("{\""+this.currentBinaryPath+"\": \"stats\""+"}");
+        JSONObject result = (JSONObject) JSONValue.parse("{\"stats\": \""+this.currentBinaryPath+"\""+"}");
         this.currentBinaryPath = "";
         this.currentBinaryArguments = null;
         return result;
