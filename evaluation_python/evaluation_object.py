@@ -1,8 +1,5 @@
 import time
 
-import sys
-sys.path.append('./hwsim')
-
 def get_current_system_time():
     """_summary_
     Returns:
@@ -10,14 +7,6 @@ def get_current_system_time():
         specified way.
     """
     return time.time_ns()
-
-def get_collector():
-    """_summary_
-    Returns:
-        _type_: evaluation_measurement_collector.collector
-    """
-    import evaluation_measurement_collector
-    return evaluation_measurement_collector.collector
 
 class EvaluationObject():
     """_summary_
@@ -50,9 +39,35 @@ class EvaluationObject():
     def get_collector(self):
         """_summary_
         Returns:
-            _type_: evaluation_measurement_collector.collector
+            _type_: The EvaluationMeasurementCollector, which will receive the
+            measurements from this instance.
         """
-        return get_collector()
+        pass
+    
+    def write_output(self, output_file_path, file_start_string, file_end_string):
+        """_summary_
+
+        Write the measurements collected by self.get_collector() to the file
+        specified by the parameters.
+
+        Args:
+            output_file_path (_type_): The absolute path to the file as String
+            file_start_string (_type_): The text to write at the start of the file as String
+            file_end_string (_type_): The text to write at the end of the file as String
+        """
+        #print('Generating output at: ' + output_file_path)
+        file = open(output_file_path, 'x')
+
+        file.write(file_start_string)
+
+        output_data = self.get_collector().reduce_time_measurements()
+        for output_name, output_value in output_data.items():
+            if output_name is not None and output_value is not None:
+                file.write(output_name+': '+str(output_value)+'\n')
+
+        file.write(file_end_string)
+
+        file.close()
 
     def add_time_measurement(self, method_caller, method_name, method, *args, **kwargs):
         """_summary_

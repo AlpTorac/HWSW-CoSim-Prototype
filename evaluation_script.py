@@ -1,7 +1,11 @@
 import re
+
 import sys
-import evaluation_scenario
+sys.path.append('./evaluation_python')
+sys.path.append('./hwsim')
 import evaluation_object
+
+import evaluation_scenario
 import os
 import json
 
@@ -181,8 +185,11 @@ if number_of_eval_runs > 0:
     # Run the co-simulation evaluation
     for x in range(number_of_eval_runs):
         eval_scenario = evaluation_scenario.EvaluationScenario()
-        eval_scenario.run_scenario_script(x, eval_output_file_paths,
-            swsim_output_file_paths, resource_note_and_file_tuples, resource_file_tuples)
+        eval_scenario.run_scenario_script(x, '/scenario-resources/agent-scenario-resources',
+            eval_output_file_paths=eval_output_file_paths,
+            swsim_output_file_paths=swsim_output_file_paths,
+            resource_note_and_file_tuples=resource_note_and_file_tuples,
+            resource_file_tuples=resource_file_tuples)
 
     # Summarise all swsimOutput.txt files by computing average values for each field
     swsim_eval_outputs = eval_folder_name+'/'+'allSwsimOutputs.txt'

@@ -69,7 +69,8 @@ software_simulator = world.start('SoftwareSimulator',software_simulator_output_d
 
 hardware_simulator = world.start('HWSimulator')
 
-agent_API = world.start('Agent')
+agent_API = world.start('Agent', agent_output_dir=OUTPUT_DIR+'/agentOut'
+    , agent_output_file_name='agentOutput.txt')
 
 # Instantiate models
 sw_model = software_simulator.DFAWrapper(

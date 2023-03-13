@@ -12,7 +12,7 @@ import json
 
 sys.path.append('./hwsim')
 sys.path.append('./hwsim/evaluation')
-
+sys.path.append('./evaluation_python')
 import evaluation_object
 
 class EvaluationScenario():
@@ -20,11 +20,10 @@ class EvaluationScenario():
         self.start_time = None
         self.end_time = None
 
-    def run_scenario_script(self, run_number, eval_output_file_paths,
-            swsim_output_file_paths, resource_note_and_file_tuples, resource_file_tuples):
+    def run_scenario_script(self, run_number, relative_scenario_resources_path, **file_paths):
         # Get the root directory of the project
         ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-        RESOURCES_FOLDER = ROOT_DIR+'/scenario-resources/gem5-scenario-resources'
+        RESOURCES_FOLDER = ROOT_DIR+relative_scenario_resources_path
         GEM5_PATH = ROOT_DIR+'/git-modules/gem5/build/X86/gem5.opt'
         OUTPUT_DIR = ROOT_DIR+'/eval/out'+str(run_number)
         EVAL_OUTPUT_FILE_PATH = OUTPUT_DIR+'/evalOutput.txt'
@@ -35,6 +34,11 @@ class EvaluationScenario():
         SWSIM_EVAL_OUTPUT_FILE_PATH = OUTPUT_DIR+'/swsimEvalOutput.txt'
         
         HWSIM_EVAL_OUTPUT_FILE_PATH = OUTPUT_DIR+'/hwsimEvalOutput.txt'
+        
+        AGENT_OUTPUT_DIR = OUTPUT_DIR+'/agentOut'
+        AGENT_OUTPUT_FILE_NAME = 'agentOutput.txt'
+        AGENT_OUTPUT_FILE_PATH = AGENT_OUTPUT_DIR+'/'+AGENT_OUTPUT_FILE_NAME
+        AGENT_EVAL_OUTPUT_FILE_PATH = OUTPUT_DIR+'/agentEvalOutput.txt'
 
         # Gather all .jar files inside the project
         dependencies = ''
@@ -53,6 +57,9 @@ class EvaluationScenario():
             'EvaluationSoftwareSimulator': {
                 'cmd': 'java -cp '+swsim_jar_path+dependencies+' hwswcosim.swsim.evaluation.EvaluationSoftwareSimulatorMosaikAPI %(addr)s',
             },
+            'EvaluationAgent': {
+                'cmd': '%(python)s ./agent/evaluation/evaluation_agent_mosaik_API.py %(addr)s',
+            },
             'EvaluationHWSimulator': {
                 'cmd': '%(python)s ./hwsim/evaluation/evaluation_hardware_simulator_mosaik_API.py %(addr)s',
             },
@@ -69,6 +76,8 @@ class EvaluationScenario():
         transition_chain_file = open(RESOURCES_FOLDER+'/transitionChain.json')
         END = int(((json.loads(transition_chain_file.read()))[-1])['time']) + 2
         transition_chain_file.close()
+
+        start_time = evaluation_object.get_current_system_time()
 
         # Create World
         world = mosaik.World(SIM_CONFIG)
@@ -102,6 +111,11 @@ class EvaluationScenario():
                 'hostInstRate': 'avg',
                 'hostOpRate': 'avg'
             })
+        
+        agent_API = world.start('EvaluationAgent', agent_output_dir=AGENT_OUTPUT_DIR
+            , agent_output_file_name=AGENT_OUTPUT_FILE_NAME
+            , agent_eval_output_file=AGENT_EVAL_OUTPUT_FILE_PATH)
+        
         hardware_simulator = world.start('EvaluationHWSimulator'
             , hardware_simulator_eval_output_file=HWSIM_EVAL_OUTPUT_FILE_PATH)
 
@@ -116,23 +130,49 @@ class EvaluationScenario():
             transition_to_binary_map_file_name=transition_to_binary_map_file_name,
             transition_chain_file_name=transition_chain_file_name)
 
+        agent = agent_API.Agent(agent_parameters=[{
+                                                                        'binary_name': 'ackermann2',
+                                                                        'binary_arg_pos': 0,
+                                                                        'binary_arg_min': 0,
+                                                                        'binary_arg_max': 300,
+                                                                        'binary_arg_shift_magnitude': 10,
+                                                                        'target_exec_time': 2,
+                                                                        'tolerance': 0.1,
+                                                                        'max_runs': 5,
+                                                                        },
+                                                                    {
+                                                                        'binary_name': 'ackermann3',
+                                                                        'binary_arg_pos': 0,
+                                                                        'binary_arg_min': 0,
+                                                                        'binary_arg_max': 10,
+                                                                        'binary_arg_shift_magnitude': 1,
+                                                                        'target_exec_time': 2,
+                                                                        'tolerance': 0.1,
+                                                                        'max_runs': 3,
+                                                                        }])
+
         hw_model = hardware_simulator.HWModel(
             hardware_simulator_run_command=GEM5_PATH,
             output_path=OUTPUT_DIR+'/hwsimOut',
             hardware_script_run_command=ROOT_DIR+'/hwsim/hardware_script.py')
 
-        world.connect(sw_model, hw_model, 'binary_file_path')
-        world.connect(sw_model, hw_model, 'binary_file_arguments')
-        world.connect(hw_model, sw_model, 'binary_execution_stats', weak=True)
+        # Connect the agent with sw_model bi-directionally
+        world.connect(sw_model, agent, ('binary_file_path', 'binary_file_path_in'), ('binary_file_arguments', 'binary_file_arguments_in'))
+        world.connect(agent, sw_model, ('binary_execution_stats_out', 'binary_execution_stats'), weak=True)
+
+        # Connect the agent with hw_model bi-directionally
+        world.connect(agent, hw_model, ('binary_file_path_out', 'binary_file_path'), ('binary_file_arguments_out', 'binary_file_arguments'))
+        world.connect(hw_model, agent, ('binary_execution_stats', 'binary_execution_stats_in'), weak=True)
 
         # Run simulation
-        start_time = evaluation_object.get_current_system_time()
         world.run(until=END)
+        
         end_time = evaluation_object.get_current_system_time()
         
         eval_output = open(EVAL_OUTPUT_FILE_PATH, 'x')
         swsim_eval_output = open(SWSIM_EVAL_OUTPUT_FILE_PATH)
         hwsim_eval_output = open(HWSIM_EVAL_OUTPUT_FILE_PATH)
+        agent_eval_output = open(AGENT_EVAL_OUTPUT_FILE_PATH)
 
         eval_output.write('swsim evaluation outputs:\n')
         eval_output.writelines(swsim_eval_output.readlines())
@@ -140,20 +180,24 @@ class EvaluationScenario():
         eval_output.write('hwsim evaluation outputs:\n')
         eval_output.writelines(hwsim_eval_output.readlines())
         eval_output.write('\n')
+        eval_output.write('agent evaluation outputs:\n')
+        eval_output.writelines(agent_eval_output.readlines())
+        eval_output.write('\n')
         eval_output.write('Entire simulation took: %.0f' % (end_time - start_time))
 
         eval_output.close()
         swsim_eval_output.close()
         hwsim_eval_output.close()
+        agent_eval_output.close()
 
-        resource_file_tuples.append((RESOURCES_FOLDER,
+        file_paths['resource_file_tuples'].append((RESOURCES_FOLDER,
                                      dfa_file_name,
                                      transition_to_binary_map_file_name,
                                      transition_chain_file_name))
 
-        resource_note_and_file_tuples.append(('DFA used in run='+str(run_number), RESOURCES_FOLDER+'/'+dfa_file_name))
-        resource_note_and_file_tuples.append(('Binary map used in run='+str(run_number), RESOURCES_FOLDER+'/'+transition_to_binary_map_file_name))
-        resource_note_and_file_tuples.append(('Transition chain used in run='+str(run_number), RESOURCES_FOLDER+'/'+transition_chain_file_name))
+        file_paths['resource_note_and_file_tuples'].append(('DFA used in run='+str(run_number), RESOURCES_FOLDER+'/'+dfa_file_name))
+        file_paths['resource_note_and_file_tuples'].append(('Binary map used in run='+str(run_number), RESOURCES_FOLDER+'/'+transition_to_binary_map_file_name))
+        file_paths['resource_note_and_file_tuples'].append(('Transition chain used in run='+str(run_number), RESOURCES_FOLDER+'/'+transition_chain_file_name))
 
-        eval_output_file_paths.append(EVAL_OUTPUT_FILE_PATH)
-        swsim_output_file_paths.append(SWSIM_OUTPUT_FILE_PATH)
+        file_paths['eval_output_file_paths'].append(EVAL_OUTPUT_FILE_PATH)
+        file_paths['swsim_output_file_paths'].append(SWSIM_OUTPUT_FILE_PATH)

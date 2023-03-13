@@ -1,9 +1,11 @@
-import evaluation_object
+import sys
+import hwsim_evaluation_object
+
 import evaluation_binary_runner
 
 import hardware_model
 
-class EvaluationHardwareModel(hardware_model.HardwareModel, evaluation_object.EvaluationObject):
+class EvaluationHardwareModel(hardware_model.HardwareModel, hwsim_evaluation_object.HWSIMEvaluationObject):
     """_summary_
     This class is to be used to measure run times of the methods of
     hardware_model.HardwareModel.

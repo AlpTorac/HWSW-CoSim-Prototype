@@ -1,8 +1,7 @@
-import evaluation_object
-
+import hwsim_evaluation_object
 import binary_runner
 
-class EvaluationBinaryRunner(binary_runner.BinaryRunner, evaluation_object.EvaluationObject):
+class EvaluationBinaryRunner(binary_runner.BinaryRunner, hwsim_evaluation_object.HWSIMEvaluationObject):
     """_summary_
     This class is to be used to measure run times of the methods of
     binary_runner.BinaryRunner.

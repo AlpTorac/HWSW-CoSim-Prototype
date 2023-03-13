@@ -4,9 +4,6 @@ class EvaluationMeasurementCollector(evaluation_object.EvaluationObject):
     """
     This class is used to collect measurement data from child classes of
     EvaluationObject.
-
-    It should be treated as a singleton, whose only instance is
-    evaluation_measurement_collector.collector (see the end of the file)
     """
     
     def __init__(self):
@@ -70,5 +67,3 @@ class EvaluationMeasurementCollector(evaluation_object.EvaluationObject):
             reduced_measurements[method_name] = '%.0f' % sum
         
         return reduced_measurements
-    
-collector = EvaluationMeasurementCollector()

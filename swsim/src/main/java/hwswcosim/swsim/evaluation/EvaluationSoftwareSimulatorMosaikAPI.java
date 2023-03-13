@@ -84,11 +84,12 @@ public class EvaluationSoftwareSimulatorMosaikAPI extends SoftwareSimulatorMosai
      */
     @Override
     public Map<String, Object> init(String sid, Float timeResolution, Map<String, Object> simParams) throws Exception {
+        this.startTime = this.getCurrentSystemTime();
+
         if (simParams.containsKey(softwareSimulatorEvalOutputFilePathName)) {
             this.evalOutputFilePath = (String) simParams.get(softwareSimulatorEvalOutputFilePathName);
         }
-
-        this.startTime = this.getCurrentSystemTime();
+        
         return this.addTimeMeasurement("init", ()->super.init(sid, timeResolution, simParams));
     }
 

@@ -1,5 +1,6 @@
 import mosaik_api
 import agent
+import pathlib
 
 modelName = 'Agent'
 
@@ -73,6 +74,16 @@ tolerance: The largest allowed number equal to abs(target_exec_time - actual exe
 max_runs: The maximum amount of times the said binary will be run with its argument
 at position binary_arg_pos being adjusted
 """
+
+agent_output_dir_field = "agent_output_dir"
+"""_summary_
+The absolute path to the output directory as String, where the agent will generate its output.
+"""
+
+agent_output_file_name_field = "agent_output_file_name"
+"""_summary_
+The name and the extension of the output file of the agent.
+"""
 class AgentMosaikAPI(mosaik_api.Simulator):
     """_summary_
     This is an agent that implements mosaik_api.Simulator and manipulates a
@@ -105,6 +116,11 @@ class AgentMosaikAPI(mosaik_api.Simulator):
         self.eid_prefix = ''
         self.agent = None
         
+        self.agent_output_dir = None
+        self.agent_output_file_name = None
+        self.agent_binaries_run = []
+        self.current_binary_arguments = []
+        
         self.binary_path = None
         """_summary_
         The absolute path of the binary that is currently being run.
@@ -131,6 +147,10 @@ class AgentMosaikAPI(mosaik_api.Simulator):
         """
 
     def init(self, sid, time_resolution, **sim_params):
+        if agent_output_dir_field in sim_params:
+            self.agent_output_dir = sim_params[agent_output_dir_field]
+        if agent_output_file_name_field in sim_params:
+            self.agent_output_file_name = sim_params[agent_output_file_name_field]
         if 'eid_prefix' in sim_params:
             self.eid_prefix = sim_params['eid_prefix']
         return self.meta
@@ -158,17 +178,48 @@ class AgentMosaikAPI(mosaik_api.Simulator):
 
         return entities
 
+    def binary_run_count_reached(self):
+        return self.binary_run_count >= self.agent.get_max_repeat_count(self.binary_path)
+
+    def add_agent_output(self):
+        all_execution_stats = {}
+        
+        if len(self.binary_execution_stats) > 0:
+            for stat in self.binary_execution_stats:
+                for key, value in stat.items():
+                    if key in all_execution_stats:
+                        all_execution_stats[key].append(value)
+                    else:
+                        all_execution_stats[key] = [value]
+                    
+        agent_binary_output = {
+            'binary_path': self.binary_path,
+            'binary_arguments': [binary_arguments_list for binary_arguments_list in self.current_binary_arguments],
+        }
+        
+        if all_execution_stats is not None:
+            agent_binary_output = {**agent_binary_output, **all_execution_stats}
+        
+        self.agent_binaries_run.append(agent_binary_output)
 
     def reset_binary_attributes(self):
         """_summary_
         Reset every member of this instance that is
         relevant to binaries.
         """
+        
+        self.add_agent_output()
+        
+        self.current_binary_arguments = []
         self.binary_execution_stats = []
         self.binary_path = None
         self.binary_arguments = None
         self.binary_stats = None
         self.binary_run_count = 0
+
+    def binary_run_parameters_sent(self):
+        self.binary_run_count += 1
+        self.current_binary_arguments.append([arg for arg in self.binary_arguments])
 
     def get_data(self, outputs):
         data = {}
@@ -187,7 +238,7 @@ class AgentMosaikAPI(mosaik_api.Simulator):
                     if attr == binary_arguments_output_field:
                         data[eid][attr] = self.binary_arguments
                 
-                self.binary_run_count += 1
+                self.binary_run_parameters_sent()
             else:
                 for attr in attrs:
                     if attr == binary_execution_stats_output_field:
@@ -224,9 +275,22 @@ class AgentMosaikAPI(mosaik_api.Simulator):
                 self.binary_arguments = self.agent.process_stats(self.binary_path, self.binary_arguments, self.binary_stats)
         
         return None
+    
+    def finalize(self):
+        path = pathlib.Path(self.agent_output_dir)
+        path.mkdir(parents=True, exist_ok=True)
+        
+        file = open(self.agent_output_dir+'/'+self.agent_output_file_name, 'w')
 
-    def binary_run_count_reached(self):
-        return self.binary_run_count >= self.agent.get_max_repeat_count(self.binary_path)
+        run_binaries = self.agent_binaries_run
+        
+        for binary_dict in run_binaries:
+            file.write('\n')
+            for binary_attribute, value in binary_dict.items():
+                file.write(binary_attribute+': '+str(value)+'\n')
+        
+        file.close()
+
     
 if __name__ == '__main__':
     mosaik_api.start_simulation(AgentMosaikAPI())

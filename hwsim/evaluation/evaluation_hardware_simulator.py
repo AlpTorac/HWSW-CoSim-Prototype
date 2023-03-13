@@ -1,9 +1,10 @@
-import evaluation_object
+import hwsim_evaluation_object
+
 import evaluation_hardware_model
 
 import hardware_simulator
 
-class EvaluationHardwareSimulator(hardware_simulator.HardwareSimulator, evaluation_object.EvaluationObject):
+class EvaluationHardwareSimulator(hardware_simulator.HardwareSimulator, hwsim_evaluation_object.HWSIMEvaluationObject):
     """_summary_
     This class is to be used to measure run times of the methods of
     hardware_simulator.HardwareSimulator.
@@ -11,7 +12,6 @@ class EvaluationHardwareSimulator(hardware_simulator.HardwareSimulator, evaluati
     
     def __init__(self):
         hardware_simulator.HardwareSimulator.__init__(self)
-        self.model = None
 
     def create_hardware_model(self, **model_params) -> evaluation_hardware_model.EvaluationHardwareModel:
         return evaluation_hardware_model.EvaluationHardwareModel(self.init_binary_run_settings(), **model_params)
