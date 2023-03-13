@@ -6,7 +6,10 @@ import hardware_simulator_mosaik_API
 import mosaik_api
 
 hardware_simulator_eval_output_file_name = 'hardware_simulator_eval_output_file'
-
+"""_summary_
+The path, where the file will be created, in which this evaluation class
+will generate its output.
+"""
 class EvaluationHardwareSimulatorMosaikAPI(hardware_simulator_mosaik_API.HardwareSimulatorMosaikAPI, hwsim_evaluation_object.HWSIMEvaluationObject):
     """_summary_
     This class is to be used to measure run times of the methods of

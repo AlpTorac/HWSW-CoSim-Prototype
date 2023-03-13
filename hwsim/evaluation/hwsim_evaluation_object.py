@@ -4,7 +4,7 @@ sys.path.append('./hwsim')
 import evaluation_object
 
 class HWSIMEvaluationObject(evaluation_object.EvaluationObject):
-    def __init__(self) -> None:
+    def __init__(self):
         evaluation_object.EvaluationObject.__init__(self)
         
     def get_collector(self):

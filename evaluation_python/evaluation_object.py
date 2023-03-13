@@ -3,8 +3,7 @@ import time
 def get_current_system_time():
     """_summary_
     Returns:
-        _type_: The current system time in the
-        specified way.
+        _type_: The current system time in nanoseconds.
     """
     return time.time_ns()
 
