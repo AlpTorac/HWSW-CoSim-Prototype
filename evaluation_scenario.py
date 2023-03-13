@@ -136,8 +136,9 @@ class EvaluationScenario():
                                                                         'binary_arg_min': 0,
                                                                         'binary_arg_max': 300,
                                                                         'binary_arg_shift_magnitude': 10,
-                                                                        'target_exec_time': 2,
-                                                                        'tolerance': 0.1,
+                                                                        'binary_stat_criterium': 'hostSeconds',
+                                                                        'criterium_target': 0.5,
+                                                                        'tolerance': 0.05,
                                                                         'max_runs': 5,
                                                                         },
                                                                     {
@@ -146,8 +147,9 @@ class EvaluationScenario():
                                                                         'binary_arg_min': 0,
                                                                         'binary_arg_max': 10,
                                                                         'binary_arg_shift_magnitude': 1,
-                                                                        'target_exec_time': 2,
-                                                                        'tolerance': 0.1,
+                                                                        'binary_stat_criterium': 'hostSeconds',
+                                                                        'criterium_target': 0.5,
+                                                                        'tolerance': 0.01,
                                                                         'max_runs': 3,
                                                                         }])
 

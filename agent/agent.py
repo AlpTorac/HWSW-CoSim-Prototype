@@ -39,10 +39,10 @@ class Agent():
 
         Returns:
             _type_:
-                    None, if either the execution time from stats was acceptable
+                    None, if either the criterium from stats was acceptable
                     or the value of the said argument lies out of bounds.
                     
-                    New binary arguments as a list of numbers, if the execution time
+                    New binary arguments as a list of numbers, if the criterium
                     from stats was unacceptable and the value of the said argument
                     is within the boundaries.
         """
@@ -51,22 +51,22 @@ class Agent():
         if param is not None and stats is not None:
             new_binary_args = binary_args
             
-            run_time = float(stats['hostSeconds'])
+            criterium = float(stats[param['binary_stat_criterium']])
             arg_pos = int(param['binary_arg_pos'])
             arg = float(new_binary_args[arg_pos])
-            target_exec_time = float(param['target_exec_time'])
+            criterium_target = float(param['criterium_target'])
             tolerance = float(param['tolerance'])
             binary_max_arg = float(param['binary_arg_max'])
             binary_min_arg = float(param['binary_arg_min'])
             binary_arg_shift = float(param['binary_arg_shift_magnitude'])
             
-            # Run time was tolerable
-            if abs(target_exec_time - run_time) <= tolerance:
+            # Criterium was tolerable
+            if abs(criterium_target - criterium) <= tolerance:
                 return None
-            # Run time was too long
-            elif run_time > target_exec_time:
+            # Criterium was too large
+            elif criterium > criterium_target:
                 arg = arg - binary_arg_shift
-            # Run time was too short
+            # Criterium was too small
             else:
                 arg = arg + binary_arg_shift
                 
