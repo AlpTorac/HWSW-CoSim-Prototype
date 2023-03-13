@@ -59,8 +59,8 @@ sw_model = software_simulator.DFAWrapper(
 
 hw_model = hardware_simulator.DummyHWModel()
 
-world.connect(sw_model, hw_model, 'binary_file_path')
-world.connect(sw_model, hw_model, 'binary_file_arguments')
+# Connect the sw_model and the hw_model bi-directionally
+world.connect(sw_model, hw_model, 'binary_file_path', 'binary_file_arguments')
 world.connect(hw_model, sw_model, 'binary_execution_stats', weak=True)
 
 # Run simulation
