@@ -65,7 +65,7 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
      * {@inheritDoc}
      */
     @Override
-    public Map<Number, JSONObject> getExecutionStats() {
+    public Map<Number, Collection<JSONObject>> getExecutionStats() {
         return this.addTimeMeasurement("getExecutionStats",
         (r)->super.getExecutionStats());
     }

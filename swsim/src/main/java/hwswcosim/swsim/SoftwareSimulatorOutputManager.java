@@ -98,17 +98,24 @@ public class SoftwareSimulatorOutputManager {
      * and their value as value.
      */
     @SuppressWarnings("unchecked")
-    protected Map<String, Object> prepareOutput(Map<Number, JSONObject> accumulatedOutput) {
+    protected Map<String, Object> prepareOutput(Map<Number, Collection<JSONObject>> accumulatedOutput) {
         Map<String, Object> result = new HashMap<String, Object>();
 
         this.softwareSimulatorOutputDesc.forEach((outputName, action) -> {
             Collection<Object> stats = new ArrayList<Object>();
 
-            accumulatedOutput.values().forEach(json -> {
-                stats.add(json.get((String) outputName));
+            accumulatedOutput.values().forEach(col -> {
+                col.stream().forEach(json -> {
+                    Object output = json.get((String) outputName);
+                    if (output != null) {
+                        stats.add(json.get((String) outputName));
+                    }
+                });
             });
 
-            result.put((String) outputName, this.computeOutputEntryValue(stats, (String) action));
+            if (!stats.isEmpty()) {
+                result.put((String) outputName, this.computeOutputEntryValue(stats, (String) action));
+            }
         });
         
         return result;
@@ -192,14 +199,14 @@ public class SoftwareSimulatorOutputManager {
     /**
      * Writes the accumulated output to a file after reducing it.
      */
-    public void writeAccumulatedOutputToFileInOutputDir(Map<Number, JSONObject> accumulatedOutput, String fileName) {
+    public void writeAccumulatedOutputToFileInOutputDir(Map<Number, Collection<JSONObject>> accumulatedOutput, String fileName) {
         this.writeOutputMapToFileInOutputDir(this.prepareOutput(accumulatedOutput), fileName);
     }
 
     /**
      * Writes the accumulated output to the file with the given name {@link #softwareSimulatorOutputFileName} after reducing it.
      */
-    public void writeAccumulatedOutputToFileInOutputDir(Map<Number, JSONObject> accumulatedOutput) {
+    public void writeAccumulatedOutputToFileInOutputDir(Map<Number, Collection<JSONObject>> accumulatedOutput) {
         this.writeOutputMapToFileInOutputDir(this.prepareOutput(accumulatedOutput), this.softwareSimulatorOutputFileName);
     }
 

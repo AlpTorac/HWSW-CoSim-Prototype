@@ -1,0 +1,6 @@
+[
+	{"transition": "(q0,q1,a)", "binary": "ackermann2", "arguments": ["1"]},
+	{"transition": "(q1,q2,a)", "binary": "ackermann2", "arguments": ["200"]},
+	{"transition": "(q2,q3,a)", "binary": "ackermann3", "arguments": ["1"]},
+	{"transition": "(q3,q4,a)", "binary": "ackermann3", "arguments": ["5"]}
+]

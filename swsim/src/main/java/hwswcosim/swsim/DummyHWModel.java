@@ -20,7 +20,7 @@ public class DummyHWModel {
 
     public void setCurrentBinaryPath(String binaryPath) {
         this.currentBinaryPath = binaryPath;
-        System.out.println("DummyHWModel binaryPath set to: " + this.currentBinaryPath);
+        //System.out.println("DummyHWModel binaryPath set to: " + this.currentBinaryPath);
     }
 
     /**
@@ -30,9 +30,9 @@ public class DummyHWModel {
      */
     public void setCurrentBinaryArguments(JSONArray binaryArguments) {
         this.currentBinaryArguments = binaryArguments;
-        System.out.println("DummyHWModel binaryArguments set to: ");
+        //System.out.println("DummyHWModel binaryArguments set to: ");
         for (int i = 0; i < binaryArguments.size(); i++) {
-            System.out.println("Argument " + i + " = " + binaryArguments.get(i));
+            //System.out.println("Argument " + i + " = " + binaryArguments.get(i));
         }
     }
 
@@ -40,7 +40,7 @@ public class DummyHWModel {
      * @return Mocked execution statistics in form of {@link JSONObject}
      */
     public JSONObject mockExecutionStats() {
-        JSONObject result = (JSONObject) JSONValue.parse("{\""+this.currentBinaryPath+"\": \"stats\""+"}");
+        JSONObject result = (JSONObject) JSONValue.parse("{\"stats\": \""+this.currentBinaryPath+"\""+"}");
         this.currentBinaryPath = "";
         this.currentBinaryArguments = null;
         return result;

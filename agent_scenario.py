@@ -27,6 +27,9 @@ SIM_CONFIG = {
     'SoftwareSimulator': {
         'cmd': 'java -cp '+swsim_jar_path+dependencies+' hwswcosim.swsim.SoftwareSimulatorMosaikAPI %(addr)s',
     },
+    'Agent': {
+        'cmd': '%(python)s ./agent/agent_mosaik_API.py %(addr)s',
+    },
     'HWSimulator': {
         'cmd': '%(python)s ./hwsim/hardware_simulator_mosaik_API.py %(addr)s',
     },
@@ -44,6 +47,7 @@ END = 9
 world = mosaik.World(SIM_CONFIG)
 
 OUTPUT_DIR = ROOT_DIR+'/out'
+RESOURCES_FOLDER = ROOT_DIR+'/'+'scenario-resources/agent-scenario-resources'
 
 # Start simulators
 # software_simulator_output_desc specifies how the software simulator should
@@ -62,9 +66,10 @@ software_simulator = world.start('SoftwareSimulator',software_simulator_output_d
     'simSeconds': 'add',
     'simFreq': 'none'
 })
+
 hardware_simulator = world.start('HWSimulator')
 
-RESOURCES_FOLDER = ROOT_DIR+'/'+'scenario-resources/gem5-scenario-resources'
+agent_API = world.start('Agent')
 
 # Instantiate models
 sw_model = software_simulator.DFAWrapper(
@@ -78,9 +83,34 @@ hw_model = hardware_simulator.HWModel(
     output_path=OUTPUT_DIR+'/hwsimOut',
     hardware_script_run_command=ROOT_DIR+'/hwsim/hardware_script.py')
 
-world.connect(sw_model, hw_model, 'binary_file_path')
-world.connect(sw_model, hw_model, 'binary_file_arguments')
-world.connect(hw_model, sw_model, 'binary_execution_stats', weak=True)
+agent = agent_API.Agent(agent_parameters=[{
+                                                                'binary_name': 'ackermann2',
+                                                                'binary_arg_pos': 0,
+                                                                'binary_arg_min': 0,
+                                                                'binary_arg_max': 300,
+                                                                'binary_arg_shift_magnitude': 10,
+                                                                'target_exec_time': 2,
+                                                                'tolerance': 0.1,
+                                                                'max_runs': 5,
+                                                                },
+                                                               {
+                                                                'binary_name': 'ackermann3',
+                                                                'binary_arg_pos': 0,
+                                                                'binary_arg_min': 0,
+                                                                'binary_arg_max': 10,
+                                                                'binary_arg_shift_magnitude': 1,
+                                                                'target_exec_time': 2,
+                                                                'tolerance': 0.1,
+                                                                'max_runs': 3,
+                                                                }])
+
+# Connect the agent with sw_model bi-directionally
+world.connect(sw_model, agent, ('binary_file_path', 'binary_file_path_in'), ('binary_file_arguments', 'binary_file_arguments_in'))
+world.connect(agent, sw_model, ('binary_execution_stats_out', 'binary_execution_stats'), weak=True)
+
+# Connect the agent with hw_model bi-directionally
+world.connect(agent, hw_model, ('binary_file_path_out', 'binary_file_path'), ('binary_file_arguments_out', 'binary_file_arguments'))
+world.connect(hw_model, agent, ('binary_execution_stats', 'binary_execution_stats_in'), weak=True)
 
 # Run simulation
 world.run(until=END)

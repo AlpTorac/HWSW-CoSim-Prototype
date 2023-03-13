@@ -28,8 +28,11 @@ import org.json.simple.JSONObject;
  */
 public class SoftwareSimulationController extends SimulationProcess {
     /**
+     * A list of transitions given by an input character and a time point.
+     * 
      * Contains the transitions that will be run upon
      * this.time() == e.getTime().doubleValue()
+     * @see {@link ScriptedTransitionEntry}
      */
     private Collection<ScriptedTransitionEntry> transitionChain;
     private SoftwareSimulator simulator;
@@ -93,6 +96,22 @@ public class SoftwareSimulationController extends SimulationProcess {
      * 
      * @return The created {@link TransitionEvent} instance
      */
+    protected TransitionEvent scheduleNextTransitionEvent(Character input, Number time) {
+        TransitionEvent event = new TransitionEvent(input.charValue());
+        try {
+            event.activateAt(time.doubleValue());
+        } catch (SimulationException | RestartException e) {
+            e.printStackTrace();
+        }
+        //System.out.println("Next event scheduled at time: " + time.doubleValue());
+        return event;
+    }
+
+        /**
+     * Creates and schedules the next transition from {@link #transitionChain}.
+     * 
+     * @return The created {@link TransitionEvent} instance
+     */
     protected TransitionEvent scheduleNextTransitionEvent() {
         ScriptedTransitionEntry ste = this.transitionChain.stream().findFirst().get();
         Number activationTime = ste.getTime();
@@ -103,7 +122,7 @@ public class SoftwareSimulationController extends SimulationProcess {
             e.printStackTrace();
         }
         this.transitionChain.remove(ste);
-        System.out.println("Next event scheduled at time: " + activationTime.doubleValue());
+        //System.out.println("Next event scheduled at time: " + activationTime.doubleValue());
         return event;
     }
 
@@ -116,9 +135,9 @@ public class SoftwareSimulationController extends SimulationProcess {
      */
     @Override
     public void run() {
-        System.out.println("SWSimulator started");
+        //System.out.println("SWSimulator started");
         Simulation.start();
-        System.out.println("SWSimulation running");
+        //System.out.println("SWSimulation running");
 
         this.hasSimulationBegun = true;
         this.isSimulationRunning = true;
@@ -127,7 +146,7 @@ public class SoftwareSimulationController extends SimulationProcess {
         }
 
         Simulation.stop();
-        System.out.println("SWSimulator stopped");
+        //System.out.println("SWSimulator stopped");
         this.exit();
     }
 
@@ -152,15 +171,27 @@ public class SoftwareSimulationController extends SimulationProcess {
         while (!this.hasSimulationBegun) {
 
         }
+
+        /* 
+         * Wait for JavaSim to run this SoftwareSimulationController instance
+         * by calling its run() method.
+         * 
+         * Removing this loop causes issues for the cases, where step()
+         * is called before simulation starts in run() method
+         * (with Simulation.start).
+         */
+        while (!this.hasSimulationBegun) {
+
+        }
     }
 
     /**
      * Call to end the software simulation.
      */
     public void exit() {
-        System.out.println("Exiting simulation");
+        //System.out.println("Exiting simulation");
         this.isSimulationTerminated = true;
-        System.out.println("Exited simulation");
+        //System.out.println("Exited simulation");
     }
 
     /**
@@ -201,7 +232,7 @@ public class SoftwareSimulationController extends SimulationProcess {
     /**
      * @see {@link SoftwareSimulator#getExecutionStats()}
      */
-    public Map<Number, JSONObject> getExecutionStats() {
+    public Map<Number, Collection<JSONObject>> getExecutionStats() {
         return this.simulator.getExecutionStats();
     }
 
@@ -221,7 +252,7 @@ public class SoftwareSimulationController extends SimulationProcess {
             this.await();
 
             if (this.hasUnscheduledTransitionEvents()) {
-                System.out.println("SWSimulator simulation time = " + this.time());
+                //System.out.println("SWSimulator simulation time = " + this.time());
                 this.executeScheduledEvent(this.scheduleNextTransitionEvent());
             } else {
                 this.isSimulationRunning = false;
@@ -242,7 +273,7 @@ public class SoftwareSimulationController extends SimulationProcess {
         }
 
         try {
-            System.out.println("Switching to event");
+            //System.out.println("Switching to event");
             this.isTransitionEventRunning = true;
             this.reactivateAfter(scheduledEvent);
         } catch (SimulationException | RestartException e) {
@@ -255,8 +286,6 @@ public class SoftwareSimulationController extends SimulationProcess {
         while (this.isTransitionEventRunning) {
 
         }
-
-        System.out.println("Switching to controller");
     }
 
     public boolean isSimulationRunning() {
@@ -302,7 +331,7 @@ public class SoftwareSimulationController extends SimulationProcess {
      */
     protected void triggerTransitionEvent(char input) {
         this.simulator.performTransition(input);
-        System.out.println("Transition event performed");
+        //System.out.println("Transition event performed");
     }
 
     /**
@@ -313,7 +342,7 @@ public class SoftwareSimulationController extends SimulationProcess {
         private char input;
 
         public TransitionEvent(char input) {
-            System.out.println("Creating transition event");
+            //System.out.println("Creating transition event");
             this.input = input;
         }
 
@@ -324,9 +353,9 @@ public class SoftwareSimulationController extends SimulationProcess {
          * {@link #input}
          */
         public void run() {
-            System.out.println("TransitionEvent running: time=" + this.time() + ", input=" + this.input);
+            //System.out.println("TransitionEvent running: time=" + this.time() + ", input=" + this.input);
             triggerTransitionEvent(this.input);
-            System.out.println("TransitionEvent terminating");
+            //System.out.println("TransitionEvent terminating");
             this.terminate();
             isTransitionEventRunning = false;
         }

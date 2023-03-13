@@ -181,65 +181,13 @@ if number_of_eval_runs > 0:
     # Run the co-simulation evaluation
     for x in range(number_of_eval_runs):
         eval_scenario = evaluation_scenario.EvaluationScenario()
-
-        eval_scenario.start_evaluation_time()
-
-        eval_scenario.set_root_dir_path()
-        eval_scenario.set_gem5_path()
-
-        eval_scenario.set_output_dir_path(eval_folder_name+'/out'+str(x))
-        eval_scenario.set_resources_dir_path('scenario-resources/gem5-scenario-resources')
-        eval_scenario.set_eval_output_file_path()
-
-        eval_scenario.set_swsim_output_dir_path()
-        eval_scenario.set_swsim_output_file_name()
-        eval_scenario.set_dfa_file_name()
-        eval_scenario.set_transition_to_binary_map_file_name()
-        eval_scenario.set_transition_chain_file_name()
-
-        eval_scenario.set_swsim_eval_output_file_path()
-        eval_scenario.set_swsim_output_description()
-
-        eval_scenario.set_hwsim_output_dir_path()
-        eval_scenario.set_hardware_script_file_path()
-
-        eval_scenario.set_hwsim_eval_output_file_path()
-
-        eval_scenario.set_sim_config()
-        # Get the time of the last transition
-        transition_chain_file = open(eval_scenario.get_transition_chain_file_path())
-        world_end_time = int(((json.loads(transition_chain_file.read()))[-1])['time'])
-        transition_chain_file.close()
-        eval_scenario.set_world_end(world_end_time)
-
-        eval_scenario.create_mosaik_world()
-        eval_scenario.start_software_simulator()
-        eval_scenario.start_hardware_simulator()
-        eval_scenario.init_software_model()
-        eval_scenario.init_hardware_model()
-        eval_scenario.connect_models()
-        eval_scenario.run_simulation()
-
-        eval_scenario.end_simulation_time()
-
-        eval_scenario.write_evaluation_output()
-
-        resource_file_tuples.append((eval_scenario.resources_folder_path,
-                                     eval_scenario.dfa_file_name,
-                                     eval_scenario.transition_to_binary_map_file_name,
-                                     eval_scenario.transition_chain_file_name))
-
-        resource_note_and_file_tuples.append(('DFA used in run='+str(x), eval_scenario.get_dfa_file_path()))
-        resource_note_and_file_tuples.append(('Binary map used in run='+str(x), eval_scenario.get_transition_to_binary_map_file_path()))
-        resource_note_and_file_tuples.append(('Transition chain used in run='+str(x), eval_scenario.get_transition_chain_file_path()))
-
-        eval_output_file_paths.append(eval_scenario.get_eval_output_file_path())
-        swsim_output_file_paths.append(eval_scenario.get_swsim_output_file_path())
+        eval_scenario.run_scenario_script(x, eval_output_file_paths,
+            swsim_output_file_paths, resource_note_and_file_tuples, resource_file_tuples)
 
     # Summarise all swsimOutput.txt files by computing average values for each field
     swsim_eval_outputs = eval_folder_name+'/'+'allSwsimOutputs.txt'
     swsim_output_dict = accumulate_outputs(swsim_eval_outputs, swsim_output_file_paths)
-
+    
     # Write down all resources used throughout the evaluation
     summarise_resources_used(eval_folder_name+'/'+'usedResources.txt', resource_note_and_file_tuples)
 

@@ -108,7 +108,6 @@ process = Process()
 # each element in the list after binary_path is an argument
 process.cmd = [binary_path]
 if binary_args is not None:
-    binary_args = list(itertools.chain.from_iterable(binary_args))
     process.cmd += binary_args
 
 # Set the cpu to use the process as its workload and create thread contexts

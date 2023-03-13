@@ -18,25 +18,81 @@ import de.offis.mosaik.api.Simulator;
  */
 public class SoftwareSimulatorMosaikAPI extends Simulator {
 
+    /*
+     * The static final String members given below store the names of various
+     * attributes and parameters that will be used by mosaik. What they should
+     * be used for and how they could look like is explained below.
+     */
+
     private static final String simulatorName = "SoftwareSimulator";
     private static final String modelName = "DFAWrapper";
 
+    /**
+     * The name and the extension of the file that contains DFA information as a String.
+     * 
+     * @see {@link DFAParser} and {@link DFAWrapper#dfa}
+     */
     private static final String DFAFileNameField = "dfa_file_name";
+    /**
+     * The name and the extension of the file that contains binary map information as a String.
+     * 
+     * @see {@link BinaryMapParser} and {@link DFAWrapper#binaryMap}
+     */
     private static final String binaryMapFileNameField = "transition_to_binary_map_file_name";
+    /**
+     * The name and the extension of the file that contains binary map information as a String.
+     * 
+     * @see {@link TransitionChainParser} and {@link SoftwareSimulationController#transitionChain}
+     */
     private static final String transitionChainFileNameField = "transition_chain_file_name";
+    /**
+     * The absolute path of the folder as a String, which contains the files from
+     * {@link #DFAFileNameField}, {@link #binaryMapFileNameField} and {@link #transitionChainFileNameField}.
+     */
     private static final String resourceFolderPathField = "resource_folder_path";
 
+    /**
+     * software_simulator_output_desc specifies how the software simulator should
+     * summarise the statistics received.
+     *
+     * Format: {"output_name_1": "action_1", ..., "output_name_n": "action_n"}
+     *          In JSONObject format ({@link JSONObject})
+     * Actions: {@link SoftwareSimulatorOutputManager#computeOutputEntryValue(Collection, String)}
+     */
     private static final String softwareSimulatorOutputDescField = "software_simulator_output_desc";
+    /**
+     * The absolute path of the folder as a String, to which {@link #cleanup()} will output.
+     */
     private static final String softwareSimulatorOutputDirField = "software_simulator_output_dir";
+    /**
+     * The name of the output file as a String, which {@link #cleanup()} will fill before this simulator finishes.
+     */
     private static final String softwareSimulatorOutputFileNameField = "software_simulator_output_file_name";
 
-    private static final String binaryPathInputField = "binary_file_path_in";
-    private static final String binaryPathOutputField = "binary_file_path_out";
-    private static final String binaryArgumentsInputField = "binary_file_arguments_in";
-    private static final String binaryArgumentsOutputField = "binary_file_arguments_out";
-
-    private static final String binaryExecutionStatsOutputField = "binary_execution_stats_out";
-    private static final String binaryExecutionStatsInputField = "binary_execution_stats_in";
+    /**
+     * The absolute path to the binary file as a String, which will be run by an outside component.
+     */
+    private static final String binaryPathField = "binary_file_path";
+    /**
+     * Binary arguments that belong with the binary from {@link #binaryPathField} as a JSONArray {@link JSONArray}.
+     * Note that all arguments given will be interpret as literal String instances. As of now, it is not possible
+     * to define variables as arguments.
+     * 
+     * Format: ["arg1", "arg2", ..., "arg3"]
+     */
+    private static final String binaryArgumentsField = "binary_file_arguments";
+    /**
+     * Binary execution statistics received in either JSONObject {@link JSONObject} format (if there is only a
+     * single statistics object) or JSONArray of JSONObjects (if there can be multiple statistics objects. One
+     * such JSONArray can also have a single JSONObject).
+     * 
+     * For each statistic, there is a name field (has to be String) and a value field (any Object).
+     * 
+     * Format:
+     *      JSONObject: {"stat_name_1": stat_value_1, ..., "stat_name_N": stat_value_N}
+     *      JSONArray: [JSONObject_1, ..., JSONObject_M]
+     */
+    private static final String binaryExecutionStatsField = "binary_execution_stats";
 
     /**
      * The metadata that will be returned to mosaik upon {@link #init(String, Float, Map)}
@@ -48,9 +104,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             + "        "+"'"+modelName+"'"+": {" + "            'public': true,"
             + "            'params': ['"+resourceFolderPathField+"', '"+DFAFileNameField+"', '"+binaryMapFileNameField
             + "', '"+transitionChainFileNameField+"'],"
-            + "            'attrs': ['"+binaryPathOutputField+"', '"+binaryExecutionStatsInputField
-            + "', '"+binaryPathInputField+"', '"+binaryExecutionStatsOutputField
-            + "', '"+binaryArgumentsInputField+"', '"+binaryArgumentsOutputField+"']"
+            + "            'attrs': ['"+binaryPathField+"', '"+binaryArgumentsField+"', '"+binaryExecutionStatsField+"']"
             + "        }"
             + "    }" + "}").replace("'", "\""));
 
@@ -154,7 +208,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             entity.put("rel", new JSONArray());
             entities.add(entity);
 
-            System.out.println("sw_model created");
+            //System.out.println("sw_model created");
         } else {
             throw new IllegalArgumentException("Creating a model requires all of the folowing parameters: "
             + DFAFileNameField + ", " + binaryMapFileNameField + " and " + transitionChainFileNameField);
@@ -176,18 +230,18 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
         Map<String, Object> values = new HashMap<String, Object>();
 
         for (String attr : attrs) {
-            System.out.println("SWSimulator output attribute: " + attr);
-            if (attr.equals(binaryPathOutputField)) {
+            //System.out.println("SWSimulator output attribute: " + attr);
+            if (attr.equals(binaryPathField)) {
                 String output = this.getBinaryFilePath();
-                System.out.println("SWSimulator outputting binaryPath: " + output);
+                //System.out.println("SWSimulator outputting binaryPath: " + output);
                 values.put(attr, output);
-                System.out.println("SWSimulator output binaryPath: " + values.get(attr));
+                //System.out.println("SWSimulator output binaryPath: " + values.get(attr));
             }
-            else if (attr.equals(binaryArgumentsOutputField)) {
+            else if (attr.equals(binaryArgumentsField)) {
                 JSONArray output = this.getBinaryArguments();
-                System.out.println("SWSimulator outputting binaryArguments: " + output);
+                //System.out.println("SWSimulator outputting binaryArguments: " + output);
                 values.put(attr, output);
-                System.out.println("SWSimulator output binaryArguments: " + values.get(attr));
+                //System.out.println("SWSimulator output binaryArguments: " + values.get(attr));
             }
         }
 
@@ -289,15 +343,25 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             Map<String, Object> attrs = (Map<String, Object>) entity.getValue();
 
             for (Map.Entry<String, Object> attr : attrs.entrySet()) {
-                System.out.println("SWSimulator input attribute: " + attr);
+                //System.out.println("SWSimulator input attribute: " + attr);
                 String attrName = attr.getKey();
                 // Output from other simulator is the input
-                if (attrName.equals(binaryExecutionStatsOutputField)) {
+                if (attrName.equals(binaryExecutionStatsField)) {
                     Collection<Object> binaryExecutionStats = ((JSONObject) attr.getValue()).values();
                     if (!binaryExecutionStats.isEmpty()) {
-                        JSONObject input = (JSONObject) (binaryExecutionStats.stream().findFirst().get());
-                        System.out.println("SWSimulator receiving binaryExecutionStats: " + input);
-                        this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), input);
+                        Object receivedInputStats = binaryExecutionStats.stream().findFirst().get();
+
+                        //System.out.println("SWSimulator receiving binaryExecutionStats: " + receivedInputStats);
+
+                        if (receivedInputStats instanceof JSONArray) {
+                            JSONArray inputStatsArray = (JSONArray) receivedInputStats;
+                            inputStatsArray.forEach(inputStats -> {
+                                this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), (JSONObject) inputStats);
+                            });
+                        }
+                        else if (receivedInputStats instanceof JSONObject) {
+                            this.softwareSimulationController.addBinaryExecutionStats(Long.valueOf(time), (JSONObject) receivedInputStats);
+                        }
                     }
                 }
                 else {
@@ -312,7 +376,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
      * called again.
      */
     protected Long getNextTimeStep(long time, long maxAdvance) {
-        System.out.println("SWSimulator stepped at time: " + time);
+        //System.out.println("SWSimulator stepped at time: " + time);
 
         Number nextStepTime = this.softwareSimulationController.getNextEventTime();
 
@@ -320,7 +384,7 @@ public class SoftwareSimulatorMosaikAPI extends Simulator {
             nextStepTime = Long.valueOf(time+1);
         }
         
-        System.out.println("SWSimulator next step at: " + nextStepTime.longValue());
+        //System.out.println("SWSimulator next step at: " + nextStepTime.longValue());
         return nextStepTime.longValue();
     }
 

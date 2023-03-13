@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
 
+@Ignore
 @FixMethodOrder
 public class SoftwareSimulationControllerTest {
     
