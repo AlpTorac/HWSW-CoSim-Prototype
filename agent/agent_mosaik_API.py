@@ -63,13 +63,16 @@ binary_arg_min: The minimum allowed value of the said binary argument as a numbe
 binary_arg_max: The maximum allowed value of the said binary argument as a number
 
 binary_arg_shift_magnitude: How much the value of the said argument will change as a number.
-It will change positively, if the current execution time is too short, and negatively, if
-the current execution time is too long. This behaviour can be inverted by providing a negative
+It will change positively, if the current value of the criterium is too small, and negatively, if
+the current value of the criterium is too large. This behaviour can be inverted by providing a negative
 value for this parameter
 
-target_exec_time: The desired run time (in seconds) as a number
+binary_stat_criterium: An entry in the binary execution statistics, which will be used as a
+criterium to adjust the value of a binary argument
 
-tolerance: The largest allowed number equal to abs(target_exec_time - actual execution time)
+criterium_target: The desired numerical value for the mentioned criterium
+
+tolerance: The largest allowed number equal to abs(criterium_target - actual criterium value)
 
 max_runs: The maximum amount of times the said binary will be run with its argument
 at position binary_arg_pos being adjusted
