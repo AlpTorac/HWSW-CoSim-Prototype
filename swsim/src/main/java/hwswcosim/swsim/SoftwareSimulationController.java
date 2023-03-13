@@ -12,9 +12,26 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 /**
- * This class manages the software simulation by acting as its controller.
+ * This class extends {@link SimulationProcess} from the JavaSim library
+ * and manages the software simulation by acting as its controller.
+ * 
+ * The classes in JavaSim library are coded in a way, which does not
+ * allow pausing the simulation (temporarily stopping it without having to
+ * reset its time). Therefore, at any given time between the start of the
+ * simulation (Simulation.start()) and its end (Simulation.end()), there
+ * will always be at least one SimulationProcess running. To pause the
+ * simulation without changing its time, one needs to code empty while-loops
+ * to force the currently active SimulationProcess (SimulationProcess.current())
+ * to wait and let the threads outside (threads that are not relevant to the
+ * simulation) do their work without causing race conditions,
+ * hence the empty while-loops in this class' implementation.
  */
 public class SoftwareSimulationController extends SimulationProcess {
+    /**
+     * A list of transitions given by an input character and a time point
+     * 
+     * @see {@link ScriptedTransitionEntry}
+     */
     private Collection<ScriptedTransitionEntry> transitionChain;
     private SoftwareSimulator simulator;
 
@@ -140,6 +157,18 @@ public class SoftwareSimulationController extends SimulationProcess {
      */
     public void await() {
         this.resumeProcess();
+
+        /* 
+         * Wait for JavaSim to run this SoftwareSimulationController instance
+         * by calling its run() method.
+         * 
+         * Removing this loop causes issues for the cases, where step()
+         * is called before simulation starts in run() method
+         * (with Simulation.start).
+         */
+        while (!this.hasSimulationBegun) {
+
+        }
     }
 
     /**
@@ -203,79 +232,45 @@ public class SoftwareSimulationController extends SimulationProcess {
     /**
      * Schedules the head element of {@link #transitionChain} with
      * {@link #scheduleNextTransitionEvent()} and runs it.
-     * 
-     * @param input The input of the next transition
-     * @param time The time of the next transition
      */
-    public void step(Character input, Number time) {
-        // ToDo: Try using synchronized keyword and removing the empty while-loops
-        while (this.isTransitionEventRunning) {
-
-        }
+    public void step() {
         if (!this.isSimulationTerminated()) {
             this.await();
 
-            // Wait for the simulation to start, if not
-            while (!this.hasSimulationBegun) {
-
-            }
-
-            //System.out.println("SWSimulator simulation time = " + this.time());
-            TransitionEvent scheduledEvent = this.scheduleNextTransitionEvent(input, time);
-
-            try {
-                //System.out.println("Switching to event");
-                this.isTransitionEventRunning = true;
-                this.reactivateAfter(scheduledEvent);
-
-                // Wait for the transition event to terminate
-                while (this.isTransitionEventRunning) {
-
-                }
-                //System.out.println("Switching to controller");
-            } catch (SimulationException | RestartException e) {
-                e.printStackTrace();
+            if (this.hasUnscheduledTransitionEvents()) {
+                //System.out.println("SWSimulator simulation time = " + this.time());
+                this.executeScheduledEvent(this.scheduleNextTransitionEvent());
+            } else {
+                this.isSimulationRunning = false;
             }
         }
     }
 
-    /**
-     * Schedules the head element of {@link #transitionChain} with
-     * {@link #scheduleNextTransitionEvent()} and runs it.
-     */
-    public void step() {
-        // ToDo: Try using synchronized keyword and removing the empty while-loops
+    protected void executeScheduledEvent(TransitionEvent scheduledEvent) {
+        /*
+         * If there is currently a TransitionEvent running, wait for
+         * it to finish before running another one.
+         * 
+         * Meant for the cases, where step() method is called before
+         * the said TransitionEvent terminates.
+         */
         while (this.isTransitionEventRunning) {
 
         }
-        if (!this.isSimulationTerminated()) {
-            this.await();
 
-            // Wait for the simulation to start, if not
-            while (!this.hasSimulationBegun) {
+        try {
+            //System.out.println("Switching to event");
+            this.isTransitionEventRunning = true;
+            this.reactivateAfter(scheduledEvent);
+        } catch (SimulationException | RestartException e) {
+            e.printStackTrace();
+        }
 
-            }
+        /*
+         * Wait for the scheduledEvent to terminate.
+         */
+        while (this.isTransitionEventRunning) {
 
-            if (this.hasUnscheduledTransitionEvents()) {
-                //System.out.println("SWSimulator simulation time = " + this.time());
-                TransitionEvent scheduledEvent = this.scheduleNextTransitionEvent();
-
-                try {
-                    //System.out.println("Switching to event");
-                    this.isTransitionEventRunning = true;
-                    this.reactivateAfter(scheduledEvent);
-
-                    // Wait for the transition event to terminate
-                    while (this.isTransitionEventRunning) {
-
-                    }
-                    //System.out.println("Switching to controller");
-                } catch (SimulationException | RestartException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                this.isSimulationRunning = false;
-            }
         }
     }
 

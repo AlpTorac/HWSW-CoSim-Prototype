@@ -176,14 +176,6 @@ public class EvaluationSoftwareSimulationController extends SoftwareSimulationCo
      * {@inheritDoc}
      */
     @Override
-    public void step(Character input, Number time) {
-        this.addTimeMeasurement("step", ()->super.step(input, time));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void step() {
         this.addTimeMeasurement("step", ()->super.step());
     }
