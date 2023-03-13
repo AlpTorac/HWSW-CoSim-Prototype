@@ -83,7 +83,7 @@ hw_model = hardware_simulator.HWModel(
     output_path=OUTPUT_DIR+'/hwsimOut',
     hardware_script_run_command=ROOT_DIR+'/hwsim/hardware_script.py')
 
-agent = agent_API.Agent(variable_info=[{
+agent = agent_API.Agent(agent_parameters=[{
                                                                 'binary_name': 'ackermann2',
                                                                 'binary_arg_pos': 0,
                                                                 'binary_arg_min': 0,
@@ -91,7 +91,7 @@ agent = agent_API.Agent(variable_info=[{
                                                                 'binary_arg_shift_magnitude': 10,
                                                                 'target_exec_time': 2,
                                                                 'tolerance': 0.1,
-                                                                'max_repeats': 5,
+                                                                'max_runs': 5,
                                                                 },
                                                                {
                                                                 'binary_name': 'ackermann3',
@@ -101,7 +101,7 @@ agent = agent_API.Agent(variable_info=[{
                                                                 'binary_arg_shift_magnitude': 1,
                                                                 'target_exec_time': 2,
                                                                 'tolerance': 0.1,
-                                                                'max_repeats': 3,
+                                                                'max_runs': 3,
                                                                 }])
 
 # Connect the agent with sw_model bi-directionally

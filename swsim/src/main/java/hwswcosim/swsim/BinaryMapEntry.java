@@ -4,9 +4,11 @@ import org.json.simple.JSONArray;
 
 import tel.schich.automata.transition.PlannedTransition;
 /**
- * Instances of this class represent map entries, whose keys
- * are {@link #transition} and value pairs are
+ * Instances of this class represent map entries, whose keys are {@link #transition} and value pairs are
  * ({@link #binaryPath}, {@link #binaryArguments}).
+ * 
+ * A BinaryMapEntry instance indicates that if the transition {@link #transition} is taken, it means that
+ * the binary at {@link #binaryPath} should be run with the arguments {@link #binaryArguments}.
  */
 public class BinaryMapEntry {
     private final PlannedTransition transition;

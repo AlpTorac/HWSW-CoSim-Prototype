@@ -4,24 +4,81 @@ import agent
 modelName = 'Agent'
 
 binary_path_input_field = 'binary_file_path_in'
+"""_summary_
+The absolute path to the binary file as a String, which is received.
+"""
 binary_path_output_field = 'binary_file_path_out'
+"""_summary_
+The absolute path to the binary file as a String, which will be sent.
+"""
 
 binary_execution_stats_output_field = 'binary_execution_stats_out'
+"""_summary_
+Binary execution statistics to be sent as json array of json object (one
+such json array can contain one or more json object). Each said json object
+contains statistics.
+
+stat_name_i have to be strings, stat_value_i can be of any type.
+
+Format:
+     json object: {"stat_name_1": stat_value_1, ..., "stat_name_N": stat_value_N}
+     json array: [json_object_1, ..., json_object_M]
+"""
 binary_execution_stats_input_field = 'binary_execution_stats_in'
+"""_summary_
+Binary execution statistics received in json object format.
+
+stat_name_i have to be strings, stat_value_i can be of any type.
+
+Format:
+     json object: {"stat_name_1": stat_value_1, ..., "stat_name_N": stat_value_N}
+"""
 
 binary_arguments_input_field = "binary_file_arguments_in"
+"""_summary_
+Binary arguments as a list that the agent receives.
+
+Format: [arg1, arg2, ..., arg3]
+"""
 binary_arguments_output_field = "binary_file_arguments_out"
+"""_summary_
+Binary arguments as a list that the agent sends.
 
-variable_info_field = "variable_info"
+Format: [arg1, arg2, ..., arg3]
+"""
 
-binary_path_field = 'binary_path'
-binary_args_field = 'binary_args'
-binary_stats_field = 'binary_stats'
+agent_parameters_field = "agent_parameters"
+"""_summary_
+A json object filled with parameters that will be used by
+the agent. The list of variables as of writing this comment is:
 
+binary_name: Name of the binary file (with extention, if present) as String
+
+binary_arg_pos: The position of the binary argument as integer (starting with 0),
+which will be changed (the value of the corresponding binary argument must be a number)
+
+binary_arg_min: The minimum allowed value of the said binary argument as a number
+
+binary_arg_max: The maximum allowed value of the said binary argument as a number
+
+binary_arg_shift_magnitude: How much the value of the said argument will change as a number.
+It will change positively, if the current execution time is too short, and negatively, if
+the current execution time is too long. This behaviour can be inverted by providing a negative
+value for this parameter
+
+target_exec_time: The desired run time (in seconds) as a number
+
+tolerance: The largest allowed number equal to abs(target_exec_time - actual execution time)
+
+max_runs: The maximum amount of times the said binary will be run with its argument
+at position binary_arg_pos being adjusted
+"""
 class AgentMosaikAPI(mosaik_api.Simulator):
     """_summary_
-    This is an agent that implements mosaik_api.Simulator and manipulates the
-    data flow between the software simulation and the hardware simulation.
+    This is an agent that implements mosaik_api.Simulator and manipulates a
+    given binary argument from a binary_path, binary_arguments pair with the
+    goal of finding the best value for the said argument, using the parameters
+    given with agent_parameters_field.
     """
 
     meta = {
@@ -30,7 +87,7 @@ class AgentMosaikAPI(mosaik_api.Simulator):
         'models': {
             modelName: {
                 'public': True,
-                'params': [variable_info_field],
+                'params': [agent_parameters_field],
                 'attrs': [binary_path_input_field, binary_path_output_field,
                 binary_execution_stats_output_field, binary_execution_stats_input_field,
                 binary_arguments_input_field, binary_arguments_output_field]
@@ -49,11 +106,29 @@ class AgentMosaikAPI(mosaik_api.Simulator):
         self.agent = None
         
         self.binary_path = None
+        """_summary_
+        The absolute path of the binary that is currently being run.
+        """
         self.binary_arguments = None
+        """_summary_
+        The current arguments, with which the binary at self.binary_path
+        is being run.
+        """
         self.binary_stats = None
+        """_summary_
+        The execution statistics from the most recent binary run.
+        """
         self.binary_run_count = 0
+        """_summary_
+        The amount of times the binary at self.binary_path has been
+        run so far.
+        """
         
         self.binary_execution_stats = []
+        """_summary_
+        The list of binary execution statistics to be sent, once
+        the binary at self.binary_path has been run enough times.
+        """
 
     def init(self, sid, time_resolution, **sim_params):
         if 'eid_prefix' in sim_params:
@@ -75,14 +150,25 @@ class AgentMosaikAPI(mosaik_api.Simulator):
     def create(self, num, model, **model_params):
         entities = []
         
-        if variable_info_field in model_params:
-            self.agent = self.init_agent(model_params[variable_info_field])
+        if agent_parameters_field in model_params:
+            self.agent = self.init_agent(model_params[agent_parameters_field])
             
         eid = '%s%d' % (self.eid_prefix, 0)
         entities.append({'eid': eid, 'type': model})
 
         return entities
 
+
+    def reset_binary_attributes(self):
+        """_summary_
+        Reset every member of this instance that is
+        relevant to binaries.
+        """
+        self.binary_execution_stats = []
+        self.binary_path = None
+        self.binary_arguments = None
+        self.binary_stats = None
+        self.binary_run_count = 0
 
     def get_data(self, outputs):
         data = {}
@@ -106,11 +192,7 @@ class AgentMosaikAPI(mosaik_api.Simulator):
                 for attr in attrs:
                     if attr == binary_execution_stats_output_field:
                         data[eid][attr] = self.binary_execution_stats
-                        self.binary_execution_stats = []
-                        self.binary_path = None
-                        self.binary_arguments = None
-                        self.binary_stats = None
-                        self.binary_run_count = 0
+                        self.reset_binary_attributes()
 
         return data
 
@@ -133,6 +215,8 @@ class AgentMosaikAPI(mosaik_api.Simulator):
             #print('arguments = %s' % self.binary_arguments)
             #print('stats = %s' % self.binary_stats)
             
+            # Process the received binary path, arguments and execution statistics
+            # if all of them are present and change binary arguments accordingly
             if self.binary_path is not None \
                 and self.binary_arguments is not None \
                 and self.binary_stats is not None:

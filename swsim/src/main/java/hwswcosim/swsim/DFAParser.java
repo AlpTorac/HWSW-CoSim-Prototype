@@ -22,7 +22,18 @@ import tel.schich.automata.transition.PlannedTransition;
  * the files provided ({@link #parseDFA(String, String)}).
  */
 public class DFAParser {
+    /**
+     * The pattern that should match state names.
+     */
     private final Pattern statePattern = Pattern.compile("\\w+");
+    /**
+     * The pattern that should match transitions and capture each
+     * parameter:
+     * 
+     * group(1): Source/Origin state
+     * group(2): Destination/Target state
+     * group(3): Transition character
+     */
     private final Pattern transitionPattern = Pattern.compile("\\(" 
         + "(" + statePattern.pattern() + ")" 
         + ",(" + statePattern.pattern() + ")" 
