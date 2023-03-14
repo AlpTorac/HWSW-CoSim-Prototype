@@ -114,7 +114,7 @@ public class SoftwareSimulatorOutputManager {
             });
 
             if (!stats.isEmpty()) {
-                result.put((String) outputName, this.computeOutputEntryValue(stats, (String) action));
+                result.put(((String) action)+'_'+((String) outputName), this.computeOutputEntryValue(stats, (String) action));
             }
         });
         

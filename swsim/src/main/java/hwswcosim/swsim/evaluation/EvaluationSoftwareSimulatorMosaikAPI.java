@@ -109,8 +109,8 @@ public class EvaluationSoftwareSimulatorMosaikAPI extends SoftwareSimulatorMosai
         if (this.softwareSimulatorOutputManager != null && this.evalOutputFilePath != null) {
             this.softwareSimulatorOutputManager.writeOutputMapToFile(
                 this.getCollector().reduceTimeMeasurements(), this.evalOutputFilePath,
-                "Software simulator time measurements:\n",
-                "\nSoftware simulator ran for: "
+                "All measurements are summed up and given in nanoseconds (ns)\nswsim time measurements:\n",
+                "\nswsim ran for: "
                 + (this.endTime - this.startTime) + "\n");
         }
     }
