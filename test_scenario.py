@@ -6,6 +6,10 @@ import os
 
 import re
 
+import sys
+sys.path.append('./scenario_python')
+import scenario_fields
+
 # Get the root directory of the project
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -51,17 +55,19 @@ hardware_simulator = world.start('DummyHWSimulator')
 RESOURCES_FOLDER = ROOT_DIR+'/swsim/src/test/resources'
 
 # Instantiate models
-sw_model = software_simulator.DFAWrapper(
-    resource_folder_path=RESOURCES_FOLDER,
-    dfa_file_name='dfa.json',
-    transition_to_binary_map_file_name='binaryMap.json',
-    transition_chain_file_name='transitionChain.json')
+sw_model = software_simulator.DFAWrapper(**{
+        scenario_fields.resource_folder_path_field:RESOURCES_FOLDER,
+        scenario_fields.dfa_file_name_field:'dfa.json',
+        scenario_fields.transition_to_binary_map_file_name_field:'binaryMap.json',
+        scenario_fields.transition_chain_file_name_field:'transitionChain.json'
+    }
+)
 
 hw_model = hardware_simulator.DummyHWModel()
 
 # Connect the sw_model and the hw_model bi-directionally
-world.connect(sw_model, hw_model, 'binary_file_path', 'binary_file_arguments')
-world.connect(hw_model, sw_model, 'binary_execution_stats', weak=True)
+world.connect(sw_model, hw_model, scenario_fields.binary_path_field, scenario_fields.binary_arguments_field)
+world.connect(hw_model, sw_model, scenario_fields.binary_execution_stats_field, weak=True)
 
 # Run simulation
 world.run(until=END)

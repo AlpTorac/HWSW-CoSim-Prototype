@@ -3,6 +3,9 @@ import re
 import sys
 sys.path.append('./evaluation_python')
 sys.path.append('./hwsim')
+sys.path.append('./scenario_python')
+
+from scenario_fields import *
 import evaluation_object
 
 import evaluation_scenario
@@ -194,6 +197,9 @@ def summarise_resources_used(relative_file_path, resource_note_and_file_tuples):
     resources_file.close()
 
 def run_transition_chain(scenario_resources_tuples, run_multiplier=1):
+    if run_multiplier == 0:
+        return 0
+    
     """_summary_
     Runs the given transition chain on the actual machine
     run_multiplier time per co-simulation evaluation run
@@ -303,11 +309,30 @@ if number_of_eval_runs > 0:
     
     # Write down all resources used throughout the evaluation
     summarise_resources_used(eval_folder_name+'/'+'usedResources.txt', resource_note_and_file_tuples)
+    
+    # Find the binary run time in simulation stored in swsim_output_dict
+    # and compute the average
+    average_binary_simulation_time = None
+    for key, value in swsim_output_dict.items():
+        if simSeconds_field in key:
+            average_binary_simulation_time = str(float(swsim_output_dict[key])/number_of_eval_runs)
+            break
+    
+    # Find the simulation time stored in swsim_output_dict
+    # and compute the average
+    average_hardware_simulation_time_on_host = None
+    for key, value in swsim_output_dict.items():
+        if hostSeconds_field in key:
+            average_hardware_simulation_time_on_host = str(float(swsim_output_dict[key])/number_of_eval_runs)
+            break
 
     # Take the average of every evalOutput.txt file and write them into new a new file
     accumulate_outputs(eval_folder_name+'/'+'allEvalOutputs.txt', eval_output_file_paths,
                     get_output_entry_dict_item_format, sum, average_final_output_entry,
+                    evaluation_object.evaluation_message(),
                     binary_run_on_host_count=str(number_of_eval_runs*binary_run_multiplier),
-                    average_binary_run_time_on_host=format_number(run_transition_chain(resource_file_tuples, binary_run_multiplier)/1000000000),
+                    average_binary_run_time_on_host=(format_number(run_transition_chain(resource_file_tuples, binary_run_multiplier)/1000000000)+' (in seconds)'),
                     simulation_run_count=str(number_of_eval_runs),
-                    average_simulation_time=str(swsim_output_dict['simSeconds']))
+                    average_binary_run_time_in_simulation=average_binary_simulation_time+' (in seconds)',
+                    average_hardware_simulation_time_on_host=average_hardware_simulation_time_on_host+' (in seconds)'
+    )

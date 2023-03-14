@@ -7,6 +7,9 @@ def get_current_system_time():
     """
     return time.time_ns()
 
+def evaluation_message():
+    return 'All measurements are summed up and given in nanoseconds (ns)\n'
+
 class EvaluationObject():
     """_summary_
     An interface meant to be implemented by classes, which are to be
@@ -57,6 +60,7 @@ class EvaluationObject():
         #print('Generating output at: ' + output_file_path)
         file = open(output_file_path, 'x')
 
+        file.write(evaluation_message())
         file.write(file_start_string)
 
         output_data = self.get_collector().reduce_time_measurements()

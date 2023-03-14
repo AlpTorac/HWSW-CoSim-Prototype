@@ -56,8 +56,8 @@ class EvaluationHardwareSimulatorMosaikAPI(hardware_simulator_mosaik_API.Hardwar
     def finalize(self):
         self.end_time = self.get_current_system_time()
         self.write_output(self.hardware_simulator_eval_output_file,
-                          'Hardware simulator time measurements:\n',
-                          '\nHardware simulator ran for: %.0f\n' % (self.end_time - self.start_time))
+                          'hwsim time measurements:\n',
+                          '\nhwsim ran for: %.0f\n' % (self.end_time - self.start_time))
 
 if __name__ == '__main__':
     mosaik_api.start_simulation(EvaluationHardwareSimulatorMosaikAPI())

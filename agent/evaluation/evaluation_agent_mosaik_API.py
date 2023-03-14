@@ -73,10 +73,9 @@ class EvaluationAgentMosaikAPI(agent_mosaik_API.AgentMosaikAPI, agent_evaluation
     def finalize(self):
         agent_mosaik_API.AgentMosaikAPI.finalize(self)
         self.end_time = self.get_current_system_time()
-        print('agent_eval_output_file_path = ' + self.agent_eval_output_file_path)
         self.write_output(self.agent_eval_output_file_path,
-                    'Agent time measurements:\n',
-                    '\nAgent ran for: %.0f\n' % (self.end_time - self.start_time))
+                    'agent time measurements:\n',
+                    '\nagent ran for: %.0f\n' % (self.end_time - self.start_time))
     
 if __name__ == '__main__':
     mosaik_api.start_simulation(EvaluationAgentMosaikAPI())

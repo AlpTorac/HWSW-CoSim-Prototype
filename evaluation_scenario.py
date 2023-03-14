@@ -13,6 +13,9 @@ import json
 sys.path.append('./hwsim')
 sys.path.append('./hwsim/evaluation')
 sys.path.append('./evaluation_python')
+sys.path.append('./scenario_python')
+
+from scenario_fields import *
 import evaluation_object
 
 class EvaluationScenario():
@@ -37,7 +40,6 @@ class EvaluationScenario():
         
         AGENT_OUTPUT_DIR = OUTPUT_DIR+'/agentOut'
         AGENT_OUTPUT_FILE_NAME = 'agentOutput.txt'
-        AGENT_OUTPUT_FILE_PATH = AGENT_OUTPUT_DIR+'/'+AGENT_OUTPUT_FILE_NAME
         AGENT_EVAL_OUTPUT_FILE_PATH = OUTPUT_DIR+'/agentEvalOutput.txt'
 
         # Gather all .jar files inside the project
@@ -95,26 +97,34 @@ class EvaluationScenario():
         #         none: Uses the first value it finds for output_name
         #
         
-        software_simulator = world.start('EvaluationSoftwareSimulator',software_simulator_output_dir=SWSIM_OUTPUT_DIR
-            , software_simulator_output_file_name=SWSIM_OUTPUT_FILE_NAME
-            , software_simulator_eval_output_file_path=SWSIM_EVAL_OUTPUT_FILE_PATH
-            , software_simulator_output_desc={
-                'simSeconds': 'add',
-                'hostSeconds': 'add',
-                'simTicks': 'add',
-                'finalTick': 'add',
-                'hostMemory': 'add',
-                'simInsts': 'add',
-                'simOps': 'add',
-                'simFreq': 'none',
-                'hostTickRate': 'avg',
-                'hostInstRate': 'avg',
-                'hostOpRate': 'avg'
-            })
+        software_simulator = world.start('EvaluationSoftwareSimulator',
+            **{
+                software_simulator_output_dir_field:SWSIM_OUTPUT_DIR,
+                software_simulator_output_file_name_field:SWSIM_OUTPUT_FILE_NAME,
+                software_simulator_eval_output_file_path_field:SWSIM_EVAL_OUTPUT_FILE_PATH,
+                software_simulator_output_desc_field:{
+                    simSeconds_field: add_operation,
+                    hostSeconds_field: add_operation,
+                    simTicks_field: add_operation,
+                    finalTick_field: add_operation,
+                    hostMemory_field: add_operation,
+                    simInsts_field: add_operation,
+                    simOps_field: add_operation,
+                    simFreq_field: no_operation,
+                    hostTickRate_field: average_operation,
+                    hostInstRate_field: average_operation,
+                    hostOpRate_field: average_operation
+                }
+            }
+        )
         
-        agent_API = world.start('EvaluationAgent', agent_output_dir=AGENT_OUTPUT_DIR
-            , agent_output_file_name=AGENT_OUTPUT_FILE_NAME
-            , agent_eval_output_file=AGENT_EVAL_OUTPUT_FILE_PATH)
+        agent_API = world.start('EvaluationAgent',
+            **{
+                agent_output_dir_field:AGENT_OUTPUT_DIR,
+                agent_output_file_name_field:AGENT_OUTPUT_FILE_NAME,
+                agent_eval_output_file_field:AGENT_EVAL_OUTPUT_FILE_PATH
+            }
+        )
         
         hardware_simulator = world.start('EvaluationHWSimulator'
             , hardware_simulator_eval_output_file=HWSIM_EVAL_OUTPUT_FILE_PATH)
@@ -124,47 +134,61 @@ class EvaluationScenario():
         transition_chain_file_name='transitionChain.json'
 
         # Instantiate models
-        sw_model = software_simulator.DFAWrapper(
-            resource_folder_path=RESOURCES_FOLDER,
-            dfa_file_name=dfa_file_name,
-            transition_to_binary_map_file_name=transition_to_binary_map_file_name,
-            transition_chain_file_name=transition_chain_file_name)
+        sw_model = software_simulator.DFAWrapper(**{
+                resource_folder_path_field:RESOURCES_FOLDER,
+                dfa_file_name_field:'dfa.json',
+                transition_to_binary_map_file_name_field:'binaryMap.json',
+                transition_chain_file_name_field:'transitionChain.json'
+            }
+        )
 
-        agent = agent_API.Agent(agent_parameters=[{
-                                                                        'binary_name': 'ackermann2',
-                                                                        'binary_arg_pos': 0,
-                                                                        'binary_arg_min': 0,
-                                                                        'binary_arg_max': 300,
-                                                                        'binary_arg_shift_magnitude': 10,
-                                                                        'binary_stat_criterium': 'hostSeconds',
-                                                                        'criterium_target': 0.5,
-                                                                        'tolerance': 0.05,
-                                                                        'max_runs': 5,
+        hw_model = hardware_simulator.HWModel(**{
+                hardware_simulator_run_command_field:GEM5_PATH,
+                output_path_field:OUTPUT_DIR+'/hwsimOut',
+                hardware_script_run_command_field:ROOT_DIR+'/hwsim/hardware_script.py'
+            }
+        )
+
+        agent = agent_API.Agent(
+            **{
+                agent_parameters_field:[{
+                                                                        binary_name_field: 'ackermann2',
+                                                                        binary_arg_pos_field: 0,
+                                                                        binary_arg_min_field: 0,
+                                                                        binary_arg_max_field: 300,
+                                                                        binary_arg_shift_magnitude_field: 10,
+                                                                        binary_stat_criterium_field: 'hostSeconds',
+                                                                        criterium_target_field: 0.5,
+                                                                        tolerance_field: 0.05,
+                                                                        max_runs_field: 5,
                                                                         },
                                                                     {
-                                                                        'binary_name': 'ackermann3',
-                                                                        'binary_arg_pos': 0,
-                                                                        'binary_arg_min': 0,
-                                                                        'binary_arg_max': 10,
-                                                                        'binary_arg_shift_magnitude': 1,
-                                                                        'binary_stat_criterium': 'hostSeconds',
-                                                                        'criterium_target': 0.5,
-                                                                        'tolerance': 0.01,
-                                                                        'max_runs': 3,
-                                                                        }])
-
-        hw_model = hardware_simulator.HWModel(
-            hardware_simulator_run_command=GEM5_PATH,
-            output_path=OUTPUT_DIR+'/hwsimOut',
-            hardware_script_run_command=ROOT_DIR+'/hwsim/hardware_script.py')
+                                                                        binary_name_field: 'ackermann3',
+                                                                        binary_arg_pos_field: 0,
+                                                                        binary_arg_min_field: 0,
+                                                                        binary_arg_max_field: 10,
+                                                                        binary_arg_shift_magnitude_field: 1,
+                                                                        binary_stat_criterium_field: 'hostSeconds',
+                                                                        criterium_target_field: 0.5,
+                                                                        tolerance_field: 0.01,
+                                                                        max_runs_field: 3,
+                                                                        }]
+            }
+        )
 
         # Connect the agent with sw_model bi-directionally
-        world.connect(sw_model, agent, ('binary_file_path', 'binary_file_path_in'), ('binary_file_arguments', 'binary_file_arguments_in'))
-        world.connect(agent, sw_model, ('binary_execution_stats_out', 'binary_execution_stats'), weak=True)
+        world.connect(sw_model, agent,
+                    (binary_path_field, binary_path_input_field),
+                    (binary_arguments_field, binary_arguments_input_field))
+        world.connect(agent, sw_model,
+                    (binary_execution_stats_output_field, binary_execution_stats_field), weak=True)
 
         # Connect the agent with hw_model bi-directionally
-        world.connect(agent, hw_model, ('binary_file_path_out', 'binary_file_path'), ('binary_file_arguments_out', 'binary_file_arguments'))
-        world.connect(hw_model, agent, ('binary_execution_stats', 'binary_execution_stats_in'), weak=True)
+        world.connect(agent, hw_model,
+                    (binary_path_output_field, binary_path_field),
+                    (binary_arguments_output_field, binary_arguments_field))
+        world.connect(hw_model, agent,
+                    (binary_execution_stats_field, binary_execution_stats_input_field), weak=True)
 
         # Run simulation
         world.run(until=END)
