@@ -13,6 +13,8 @@ import evaluation_scenario
 import os
 import json
 
+from functools import reduce
+
 import subprocess
 
 # Can be run with "python3 evaluation_script.py <number_of_eval_runs> <binary_run_multiplier>"
@@ -40,23 +42,20 @@ def format_number(number, prec=9):
 
     return result
 
-def reduce_outputs(output_file_paths, output_entry_finding_operation, binary_reduce_operation):
+def get_all_outputs(output_file_paths, output_entry_finding_operation):
     """_summary_
 
-    Reads all files given in output_file_paths, finds each line that matches the pattern
-    and performs the given binary operation to reduce all output_values found for the
-    same output_name. 
+    Reads all files given in output_file_paths, finds each line that matches the pattern.
 
     Args:
         output_file_paths (_type_): List of absolute paths to output files
         output_entry_finding_operation (_type_): An operation, which takes a String as
         input and returns the tuple (output_name, output_value) or None, if no such tuple
         exists in the String given
-        binary_reduce_operation (_type_): A binary operation, which will be used to reduce
-        output values
     
     Returns:
-        _type_: A dict of outputs reduced using the way described above
+        _type_: A dict of all outputs, where key=output_name as String,
+        value=output_value as list
     """
     output_entries = {}
 
@@ -68,10 +67,10 @@ def reduce_outputs(output_file_paths, output_entry_finding_operation, binary_red
             output_entry = output_entry_finding_operation(line)
             if output_entry is not None:
                 (output_name, output_value) = output_entry
-                if output_entries.get(output_name) is not None:
-                    output_entries[output_name] = binary_reduce_operation(output_entries[output_name], output_value)
+                if output_value is not None and output_entries.get(output_name) is not None:
+                    output_entries[output_name].append(output_value)
                 else:
-                    output_entries[output_name] = output_value
+                    output_entries[output_name] = [output_value]
         file.close()
     
     return output_entries
@@ -101,21 +100,40 @@ def get_output_entry_dict_item_format(line):
         return (output_name, output_value)
     return None
 
-def sum(x, y):
-    return x + y
+def add(x, y):
+    return float(x) + float(y)
 
-def average_final_output_entry(**kw_args):
+def final_output_entry(**kw_args):
     """_summary_
     An operation that only takes **kw_args as input to transform a given preliminary
     output entry to the String of the final version of the said output entry.
     
+    Performs the same operation that was used in individual evaluation runs. Defaults
+    to taking the mean value, if the output name does not contain the identifier of the
+    said operation.
+    
     Returns:
-        _type_: The output entry in String: "output_name: output_value/output_file_count"
+        _type_: The final version of the output entry in String
     """
-    return kw_args['output_name']+': '+format_number(float(kw_args['output_value'])/len(kw_args['output_file_paths']))
+    
+    output_name = kw_args['output_name']
+    output_value = kw_args['output_value']
+    
+    if add_operation+'_' in output_name:
+        return '{}: {}'.format(output_name, format_number(
+            reduce(add, output_value)
+        ))
+    elif no_operation+'_' in output_name:
+        return '{}: {}'.format(output_name, format_number(
+            output_value[0]
+        ))
+    else:
+        return '{}: {}'.format(output_name, format_number(
+            reduce(add, output_value)/len(kw_args['output_file_paths'])
+        ))
 
 def accumulate_outputs(relative_accumulation_file_path, output_file_paths
-                       ,output_entry_finding_operation, binary_reduce_operation
+                       ,output_entry_finding_operation
                        ,compute_final_output_entry
                        ,*additional_lines, **additional_kw_lines):
     """_summary_
@@ -133,8 +151,6 @@ def accumulate_outputs(relative_accumulation_file_path, output_file_paths
         output_entry_finding_operation (_type_): An operation, which takes a String as
         input and returns the tuple (output_name, output_value) or None, if no such tuple
         exists in the String given
-        binary_reduce_operation (_type_): A binary operation, which will be used to reduce
-        output values
         compute_final_output_entry (_type_): An operation that only takes **kw_args as input
         to transform a given preliminary output entry to the String of the final version of
         the said output entry
@@ -147,9 +163,8 @@ def accumulate_outputs(relative_accumulation_file_path, output_file_paths
     """
     accumulated_output_file = open(relative_accumulation_file_path, 'x')
     
-    output_entries = reduce_outputs(output_file_paths,
-                                    get_output_entry_dict_item_format,
-                                    sum)
+    output_entries = get_all_outputs(output_file_paths,
+                                    output_entry_finding_operation)
     
     # Take average of every output entry and
     # write them to a file with the given name
@@ -305,31 +320,28 @@ if number_of_eval_runs > 0:
     # Summarise all swsimOutput.txt files by computing average values for each field
     swsim_eval_outputs = eval_folder_name+'/'+'allSwsimOutputs.txt'
     swsim_output_dict = accumulate_outputs(swsim_eval_outputs, swsim_output_file_paths
-                        ,get_output_entry_dict_item_format, sum
-                        ,average_final_output_entry)
+                        ,get_output_entry_dict_item_format
+                        ,final_output_entry)
     
     # Write down all resources used throughout the evaluation
     summarise_resources_used(eval_folder_name+'/'+'usedResources.txt', resource_note_and_file_tuples)
     
     # Find the binary run time in simulation stored in swsim_output_dict
     # and compute the average
-    average_binary_simulation_time = None
-    for key, value in swsim_output_dict.items():
-        if simSeconds_field in key:
-            average_binary_simulation_time = str(float(swsim_output_dict[key])/number_of_eval_runs)
-            break
+    def compute_average_of(field):
+        for key, value in swsim_output_dict.items():
+            if field in key:
+                return str(reduce(add, value)/number_of_eval_runs)
+    
+    average_binary_simulation_time = compute_average_of(simSeconds_field)
     
     # Find the simulation time stored in swsim_output_dict
     # and compute the average
-    average_hardware_simulation_time_on_host = None
-    for key, value in swsim_output_dict.items():
-        if hostSeconds_field in key:
-            average_hardware_simulation_time_on_host = str(float(swsim_output_dict[key])/number_of_eval_runs)
-            break
+    average_hardware_simulation_time_on_host = compute_average_of(hostSeconds_field)
 
     # Take the average of every evalOutput.txt file and write them into new a new file
     accumulate_outputs(eval_folder_name+'/'+'allEvalOutputs.txt', eval_output_file_paths,
-                    get_output_entry_dict_item_format, sum, average_final_output_entry,
+                    get_output_entry_dict_item_format, final_output_entry,
                     evaluation_object.evaluation_message(),
                     binary_run_on_host_count=str(number_of_eval_runs*binary_run_multiplier),
                     average_binary_run_time_on_host=(format_number(run_transition_chain(resource_file_tuples, binary_run_multiplier)/1000000000)+' (in seconds)'),
