@@ -124,9 +124,15 @@ class AgentMosaikAPI(mosaik_api.Simulator):
     def binary_run_count_reached(self):
         """_summary_
         Returns:
-            _type_: True, if the current binary has reached its maximum allowed run count
+            _type_: True, if the current binary (at self.binary_path) has reached
+                    its maximum allowed run count. If the agent has no parameters
+                    about the current binary, it returns self.binary_run_count > 0
         """
-        return self.binary_run_count >= self.agent.get_max_repeat_count(self.binary_path)
+        if self.agent is not None:
+            repeat_count = self.agent.get_max_repeat_count(self.binary_path)
+            if repeat_count is not None:
+                return self.binary_run_count >= self.agent.get_max_repeat_count(self.binary_path)
+        return self.binary_run_count > 0
 
     def add_agent_output(self):
         """_summary_
@@ -218,8 +224,16 @@ class AgentMosaikAPI(mosaik_api.Simulator):
             else:
                 for attr, values in attrs.items():
                     if attr == binary_execution_stats_input_field:
-                        self.binary_stats = list(values.values())[0]
-                        self.binary_execution_stats.append(self.binary_stats)
+                        new_binary_stats = list(values.values())[0]
+                        if new_binary_stats is not None:
+                            if type(new_binary_stats) == list:
+                                if len(new_binary_stats) > 0:
+                                    # The most interesting statistics object is the last one
+                                    self.binary_stats = new_binary_stats[-1]
+                                    self.binary_execution_stats.extend(new_binary_stats)
+                            else:
+                                self.binary_stats = new_binary_stats
+                                self.binary_execution_stats.append(self.binary_stats)
             
             #print('path = %s' % self.binary_path)
             #print('arguments = %s' % self.binary_arguments)
