@@ -2,91 +2,12 @@ import mosaik_api
 import agent
 import pathlib
 
+import sys
+sys.path.append('./scenario_python')
+from scenario_fields import *
+
 modelName = 'Agent'
 
-binary_path_input_field = 'binary_file_path_in'
-"""_summary_
-The absolute path to the binary file as a String, which is received.
-"""
-binary_path_output_field = 'binary_file_path_out'
-"""_summary_
-The absolute path to the binary file as a String, which will be sent.
-"""
-
-binary_execution_stats_output_field = 'binary_execution_stats_out'
-"""_summary_
-Binary execution statistics to be sent as json array of json object (one
-such json array can contain one or more json object). Each said json object
-contains statistics.
-
-stat_name_i have to be strings, stat_value_i can be of any type.
-
-Format:
-     json object: {"stat_name_1": stat_value_1, ..., "stat_name_N": stat_value_N}
-     json array: [json_object_1, ..., json_object_M]
-"""
-binary_execution_stats_input_field = 'binary_execution_stats_in'
-"""_summary_
-Binary execution statistics received in json object format.
-
-stat_name_i have to be strings, stat_value_i can be of any type.
-
-Format:
-     json object: {"stat_name_1": stat_value_1, ..., "stat_name_N": stat_value_N}
-"""
-
-binary_arguments_input_field = "binary_file_arguments_in"
-"""_summary_
-Binary arguments as a list that the agent receives.
-
-Format: [arg1, arg2, ..., arg3]
-"""
-binary_arguments_output_field = "binary_file_arguments_out"
-"""_summary_
-Binary arguments as a list that the agent sends.
-
-Format: [arg1, arg2, ..., arg3]
-"""
-
-agent_parameters_field = "agent_parameters"
-"""_summary_
-A json object filled with parameters that will be used by
-the agent. The list of variables as of writing this comment is:
-
-binary_name: Name of the binary file (with extention, if present) as String
-
-binary_arg_pos: The position of the binary argument as integer (starting with 0),
-which will be changed (the value of the corresponding binary argument must be a number)
-
-binary_arg_min: The minimum allowed value of the said binary argument as a number
-
-binary_arg_max: The maximum allowed value of the said binary argument as a number
-
-binary_arg_shift_magnitude: How much the value of the said argument will change as a number.
-It will change positively, if the current value of the criterium is too small, and negatively, if
-the current value of the criterium is too large. This behaviour can be inverted by providing a negative
-value for this parameter
-
-binary_stat_criterium: An entry in the binary execution statistics, which will be used as a
-criterium to adjust the value of a binary argument
-
-criterium_target: The desired numerical value for the mentioned criterium
-
-tolerance: The largest allowed number equal to abs(criterium_target - actual criterium value)
-
-max_runs: The maximum amount of times the said binary will be run with its argument
-at position binary_arg_pos being adjusted
-"""
-
-agent_output_dir_field = "agent_output_dir"
-"""_summary_
-The absolute path to the output directory as String, where the agent will generate its output.
-"""
-
-agent_output_file_name_field = "agent_output_file_name"
-"""_summary_
-The name and the extension of the output file of the agent.
-"""
 class AgentMosaikAPI(mosaik_api.Simulator):
     """_summary_
     This is an agent that implements mosaik_api.Simulator and manipulates a
@@ -97,7 +18,7 @@ class AgentMosaikAPI(mosaik_api.Simulator):
 
     meta = {
         'api_version': mosaik_api.__api_version__,
-        'type': 'event-based',
+        type_field: 'event-based',
         'models': {
             modelName: {
                 'public': True,
@@ -173,8 +94,8 @@ class AgentMosaikAPI(mosaik_api.Simulator):
             self.agent_output_dir = sim_params[agent_output_dir_field]
         if agent_output_file_name_field in sim_params:
             self.agent_output_file_name = sim_params[agent_output_file_name_field]
-        if 'eid_prefix' in sim_params:
-            self.eid_prefix = sim_params['eid_prefix']
+        if eid_prefix_field in sim_params:
+            self.eid_prefix = sim_params[eid_prefix_field]
         return self.meta
 
     def init_agent(self, params):
@@ -196,7 +117,7 @@ class AgentMosaikAPI(mosaik_api.Simulator):
             self.agent = self.init_agent(model_params[agent_parameters_field])
             
         eid = '%s%d' % (self.eid_prefix, 0)
-        entities.append({'eid': eid, 'type': model})
+        entities.append({eid_field: eid, type_field: model})
 
         return entities
 
@@ -225,8 +146,8 @@ class AgentMosaikAPI(mosaik_api.Simulator):
                         all_execution_stats[key] = [value]
                     
         agent_binary_output = {
-            'binary_path': self.binary_path,
-            'binary_arguments': [binary_arguments_list for binary_arguments_list in self.current_binary_arguments],
+            binary_path_field: self.binary_path,
+            binary_arguments_field: [binary_arguments_list for binary_arguments_list in self.current_binary_arguments],
         }
         
         if all_execution_stats is not None:

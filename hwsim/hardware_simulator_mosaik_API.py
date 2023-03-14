@@ -1,48 +1,11 @@
 import mosaik_api
 import hardware_simulator
 
+import sys
+sys.path.append('./scenario_python')
+from scenario_fields import *
+
 modelName = 'HWModel'
-
-binary_path_field = 'binary_file_path'
-"""_summary_
-The absolute path to the binary file as a String, which will be run by an outside component.
-"""
-binary_execution_stats_field = 'binary_execution_stats'
-"""_summary_
-Binary execution statistics received in either json object format (if there is only a
-single statistics object) or json array of json object (if there can be multiple statistics objects. One
-such json array can also have a single json object).
-
-For each statistic, there is a name field (has to be String) and a value field (Any).
-
-Format:
-     json object: {"stat_name_1": stat_value_1, ..., "stat_name_N": stat_value_N}
-     json array: [json_object_1, ..., json_object_M]
-"""
-binary_arguments_field = "binary_file_arguments"
-"""_summary_
-Binary arguments that belong with the binary from binary_path_field as a list.
-Any type can be given as argument. As of now, it is not possible to define variables
-as arguments.
-
-Format: [arg1, arg2, ..., arg3]
-"""
-
-hardware_simulator_run_command_field = 'hardware_simulator_run_command'
-"""_summary_
-The command, with which the hardware will be run from the terminal.
-"""
-output_path_field = 'output_path'
-"""_summary_
-The path, at which the hardware simulator will generate its output. Should
-be passed as an argument, when hardware_simulator_run_command_field is called
-from the terminal.
-"""
-hardware_script_run_command_field = 'hardware_script_run_command'
-"""_summary_
-The command, with which the hardware model that will run the simulation
-will be built.
-"""
 
 class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
     """_summary_
@@ -52,7 +15,7 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
 
     meta = {
         'api_version': mosaik_api.__api_version__,
-        'type': 'event-based',
+        type_field: 'event-based',
         'models': {
             modelName: {
                 'public': True,
@@ -88,8 +51,8 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
         """
 
     def init(self, sid, time_resolution, **sim_params):
-        if 'eid_prefix' in sim_params:
-            self.eid_prefix = sim_params['eid_prefix']
+        if eid_prefix_field in sim_params:
+            self.eid_prefix = sim_params[eid_prefix_field]
         self.simulator = self.init_simulator()
         return self.meta
 
@@ -106,7 +69,7 @@ class HardwareSimulatorMosaikAPI(mosaik_api.Simulator):
 
         self.simulator.init_hardware_model(**model_params)
         eid = '%s%d' % (self.eid_prefix, 0)
-        entities.append({'eid': eid, 'type': model})
+        entities.append({eid_field: eid, type_field: model})
 
         return entities
 

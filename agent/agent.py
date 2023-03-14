@@ -1,5 +1,9 @@
 import re
 
+import sys
+sys.path.append('./scenario_python')
+from scenario_fields import *
+
 class Agent():
     """_summary_
     This class manipulates binary arguments based on the
@@ -51,14 +55,14 @@ class Agent():
         if param is not None and stats is not None:
             new_binary_args = binary_args
             
-            criterium = float(stats[param['binary_stat_criterium']])
-            arg_pos = int(param['binary_arg_pos'])
+            criterium = float(stats[param[binary_stat_criterium_field]])
+            arg_pos = int(param[binary_arg_pos_field])
             arg = float(new_binary_args[arg_pos])
-            criterium_target = float(param['criterium_target'])
-            tolerance = float(param['tolerance'])
-            binary_max_arg = float(param['binary_arg_max'])
-            binary_min_arg = float(param['binary_arg_min'])
-            binary_arg_shift = float(param['binary_arg_shift_magnitude'])
+            criterium_target = float(param[criterium_target_field])
+            tolerance = float(param[tolerance_field])
+            binary_max_arg = float(param[binary_arg_max_field])
+            binary_min_arg = float(param[binary_arg_min_field])
+            binary_arg_shift = float(param[binary_arg_shift_magnitude_field])
             
             # Criterium was tolerable
             if abs(criterium_target - criterium) <= tolerance:
@@ -92,7 +96,7 @@ class Agent():
         """
         binary_name = self.get_binary_name(binary_path)
         for param in self.params:
-            if param['binary_name'] == binary_name:
+            if param[binary_name_field] == binary_name:
                 return param
             
         return None
@@ -108,6 +112,6 @@ class Agent():
         param = self.get_param_for(binary_path)
         
         if param is not None:
-            return int(param['max_runs'])
+            return int(param[max_runs_field])
         
         return None

@@ -1,21 +1,16 @@
 import mosaik
 import mosaik.util
 
-import fnmatch
 import os
 
-import re
-
 import sys
-
-import json
 
 sys.path.append('./hwsim')
 sys.path.append('./hwsim/evaluation')
 sys.path.append('./evaluation_python')
 sys.path.append('./scenario_python')
 
-from scenario_fields import *
+from scenario_imports import *
 import evaluation_object
 
 class EvaluationScenario():
@@ -42,16 +37,11 @@ class EvaluationScenario():
         AGENT_OUTPUT_FILE_NAME = 'agentOutput.txt'
         AGENT_EVAL_OUTPUT_FILE_PATH = OUTPUT_DIR+'/agentEvalOutput.txt'
 
+        TRANSITION_CHAIN_FILE_NAME = 'transitionChain.json'
+        END = get_mosaik_end_value(RESOURCES_FOLDER+'/'+TRANSITION_CHAIN_FILE_NAME)
+        
         # Gather all .jar files inside the project
-        dependencies = ''
-        swsim_jar_pattern = re.compile('swsim.*\.jar')
-        swsim_jar_path = ''
-        for root, dirnames, filenames in os.walk(ROOT_DIR):
-            for filename in fnmatch.filter(filenames, '*.jar'):
-                dependencies += ':' + os.path.join(root, filename)
-                if swsim_jar_pattern.match(filename) is not None:
-                    swsim_jar_path = os.path.join(root, filename)
-
+        (dependencies, swsim_jar_path) = get_all_swsim_dependencies(ROOT_DIR)
 
         # Run the main(...) methods of the mosaik APIs
         # with the dependencies gathered above
@@ -67,36 +57,12 @@ class EvaluationScenario():
             },
         }
         
-        
-        # End needs a buffer of at least 2 time steps, otherwise the software simulator
-        # cannot receive its last input from the hardware simulator.
-        # 
-        # Receiving input is a part of the step() method and if the time it outputs
-        # is >= END, step() will not be called again. Therefore, to ensure that step() is
-        # called to receive the last input, one has to give it a buffer of at least 2
-        # time steps.
-        transition_chain_file = open(RESOURCES_FOLDER+'/transitionChain.json')
-        END = int(((json.loads(transition_chain_file.read()))[-1])['time']) + 2
-        transition_chain_file.close()
-
         start_time = evaluation_object.get_current_system_time()
 
         # Create World
         world = mosaik.World(SIM_CONFIG)
-
-
-        # Start simulators
-        # software_simulator_output_desc specifies how the software simulator should
-        # summarise the statistics received from the hardware simulator.
-        #
-        # Format: 'output_name': 'action'
-        # Actions:
-        #         add:  Sums up the values of the same desired global statistics
-        #               (output names that do not begin with "system.")
-        #         avg:  Computes the average value of the desired global statistics
-        #         none: Uses the first value it finds for output_name
-        #
         
+        # Start the simulators
         software_simulator = world.start('EvaluationSoftwareSimulator',
             **{
                 software_simulator_output_dir_field:SWSIM_OUTPUT_DIR,
@@ -131,14 +97,14 @@ class EvaluationScenario():
 
         dfa_file_name='dfa.json'
         transition_to_binary_map_file_name='binaryMap.json'
-        transition_chain_file_name='transitionChain.json'
+        transition_chain_file_name=TRANSITION_CHAIN_FILE_NAME
 
         # Instantiate models
         sw_model = software_simulator.DFAWrapper(**{
                 resource_folder_path_field:RESOURCES_FOLDER,
-                dfa_file_name_field:'dfa.json',
-                transition_to_binary_map_file_name_field:'binaryMap.json',
-                transition_chain_file_name_field:'transitionChain.json'
+                dfa_file_name_field:dfa_file_name,
+                transition_to_binary_map_file_name_field:transition_to_binary_map_file_name,
+                transition_chain_file_name_field:transition_chain_file_name
             }
         )
 
@@ -195,6 +161,8 @@ class EvaluationScenario():
         
         end_time = evaluation_object.get_current_system_time()
         
+        # Write output from this evaluation run and add the used
+        # resources to the given kw_args
         eval_output = open(EVAL_OUTPUT_FILE_PATH, 'x')
         swsim_eval_output = open(SWSIM_EVAL_OUTPUT_FILE_PATH)
         hwsim_eval_output = open(HWSIM_EVAL_OUTPUT_FILE_PATH)

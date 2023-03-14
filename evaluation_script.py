@@ -1,11 +1,12 @@
 import re
+import os
 
 import sys
 sys.path.append('./evaluation_python')
 sys.path.append('./hwsim')
 sys.path.append('./scenario_python')
 
-from scenario_fields import *
+from scenario_imports import *
 import evaluation_object
 
 import evaluation_scenario

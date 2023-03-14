@@ -1,6 +1,9 @@
 """_summary_
 This file contains names of the output statistics, which will be generated
-by hwsim.
+by the hardware simulator the hwsim wraps.
+
+Refer to the used hardware simulator for an explanation of each statistic
+given below.
 """
 
 simSeconds_field = 'simSeconds'

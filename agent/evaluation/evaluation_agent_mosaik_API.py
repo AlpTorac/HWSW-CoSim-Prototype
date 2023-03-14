@@ -2,13 +2,12 @@ import mosaik_api
 import evaluation_agent
 import agent_mosaik_API
 
+import sys
+sys.path.append('./scenario_python')
+from scenario_fields import *
+
 import agent_evaluation_object
 
-agent_eval_output_file_path_field = 'agent_eval_output_file'
-"""_summary_
-The path, where the file will be created, in which this evaluation class
-will generate its output.
-"""
 class EvaluationAgentMosaikAPI(agent_mosaik_API.AgentMosaikAPI, agent_evaluation_object.AgentEvaluationObject):
     """_summary_
     This is an agent that implements mosaik_api.Simulator and manipulates a
@@ -30,9 +29,9 @@ class EvaluationAgentMosaikAPI(agent_mosaik_API.AgentMosaikAPI, agent_evaluation
     def init(self, sid, time_resolution, **sim_params):
         self.start_time = self.get_current_system_time()
         
-        if agent_eval_output_file_path_field in sim_params:
-            self.agent_eval_output_file_path = sim_params[agent_eval_output_file_path_field]
-            print(agent_eval_output_file_path_field + ' found: ' + self.agent_eval_output_file_path)
+        if agent_eval_output_file_field in sim_params:
+            self.agent_eval_output_file_path = sim_params[agent_eval_output_file_field]
+            print(agent_eval_output_file_field + ' found: ' + self.agent_eval_output_file_path)
         
         return self.add_time_measurement(self, 'init',
             agent_mosaik_API.AgentMosaikAPI.init,

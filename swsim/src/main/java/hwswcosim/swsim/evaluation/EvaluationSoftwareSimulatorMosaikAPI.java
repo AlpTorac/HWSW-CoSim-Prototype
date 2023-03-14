@@ -14,8 +14,13 @@ import hwswcosim.swsim.SoftwareSimulatorMosaikAPI;
  */
 public class EvaluationSoftwareSimulatorMosaikAPI extends SoftwareSimulatorMosaikAPI implements IEvaluationObject {
 
-    private static final String softwareSimulatorEvalOutputFilePathName = "software_simulator_eval_output_file_path";
     private static final String simulatorName = "EvaluationSoftwareSimulator";
+
+    /**
+     * The absolute path to the output file, in which the taken measurements will be written by
+     * {@link #cleanup()}
+     */
+    private static final String softwareSimulatorEvalOutputFilePathName = "software_simulator_eval_output_file_path";
 
     /**
      * The system time at the start of the simulation.
