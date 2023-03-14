@@ -50,7 +50,7 @@ public interface IEvaluationObject {
      * unnecessary try-catch blocks, which falsify measured run times.
      */
     public default <I,O> O addTimeMeasurement(String methodName, Function<I, O> functionToApply) {
-        return this.addTimeMeasurement(this.getFullMethodName(methodName), functionToApply, null);
+        return this.addTimeMeasurement(methodName, functionToApply, null);
     }
 
     /**
@@ -67,7 +67,7 @@ public interface IEvaluationObject {
      * that take no parameters and return nothing.
      */
     public default void addTimeMeasurement(String methodName, Runnable method) {
-        this.addTimeMeasurement(this.getFullMethodName(methodName), (i)->{method.run();return i;}, null);
+        this.addTimeMeasurement(methodName, (i)->{method.run();return i;}, null);
     }
 
     /**
