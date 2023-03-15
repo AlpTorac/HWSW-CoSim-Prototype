@@ -21,7 +21,7 @@ class EvaluationScenario():
     def run_scenario_script(self, run_number, relative_scenario_resources_path, **file_paths):
         # Get the root directory of the project
         ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-        RESOURCES_FOLDER = ROOT_DIR+relative_scenario_resources_path
+        RESOURCES_FOLDER = ROOT_DIR+'/'+relative_scenario_resources_path
         GEM5_PATH = ROOT_DIR+'/git-modules/gem5/build/X86/gem5.opt'
         OUTPUT_DIR = ROOT_DIR+'/eval/out'+str(run_number)
         EVAL_OUTPUT_FILE_PATH = OUTPUT_DIR+'/evalOutput.txt'

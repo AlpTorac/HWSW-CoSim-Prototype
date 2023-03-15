@@ -1,3 +1,17 @@
+"""_summary_
+Can be run with "python3 evaluation_script.py <relative_scenario_resources_path> <number_of_eval_runs> <number_of_eval_runs> <binary_run_multiplier>"
+
+relative_scenario_resources_path (mandatory): The relative path to the scenario resources from the position of this file (evaluation_script.py)
+
+number_of_eval_runs (optional, default value = 1): How many times the co-simulation evaluation will run
+
+binary_run_multiplier (optional, default value = 1): How many times the binaries simulated in
+co-simulation will run on the actual machine per co-simulation evaluation run
+
+For number_of_eval_runs=x and binary_run_multiplier=y, the co-simulation will run x times
+and then the binaries simulated will run x*y times on the host machine.
+"""
+
 import re
 import os
 
@@ -17,16 +31,17 @@ from functools import reduce
 
 import subprocess
 
-# Can be run with "python3 evaluation_script.py <number_of_eval_runs> <binary_run_multiplier>"
-#
-# number_of_eval_runs: How many times the co-simulation evaluation will run
-#
-# binary_run_multiplier (optional, default value=1): How many times the binaries simulated in
-# co-simulation will run on the actual machine per co-simulation evaluation run
-number_of_eval_runs = int(sys.argv[1])
+relative_scenario_resources_path = None
+if len(sys.argv) > 1:
+    relative_scenario_resources_path = sys.argv[1]
+
+number_of_eval_runs = 1
+if len(sys.argv) > 2:
+    number_of_eval_runs = int(sys.argv[2])
+
 binary_run_multiplier = 1
-if len(sys.argv) > 2 :
-    binary_run_multiplier = int(sys.argv[2])
+if len(sys.argv) > 3 :
+    binary_run_multiplier = int(sys.argv[3])
 
 eval_folder_name = 'eval'
 # Check if an evaluation folder already exists
@@ -109,8 +124,19 @@ def final_output_entry(**kw_args):
     output entry to the String of the final version of the said output entry.
     
     Performs the same operation that was used in individual evaluation runs. Defaults
-    to taking the mean value, if the output name does not contain the identifier of the
+    to summing up the values, if the output name does not contain the identifier of the
     said operation.
+    
+    Args:
+        kw_args (_type_): A dict that has to contain 'output_name' and 'output_value' as key:
+                        'output_name': The name of the output 
+                        'output_value': A list of all output values from the given 'output_name'.
+                        'reduce_operation' (optional): A binary operation, which will be used
+                        to reduce values from 'output_value'
+                        'suppress_reduce_operation' (optional): If True, the output values will be
+                        reduced based on what their name suggests, instead of reduce_operation. If
+                        their name does not have any specifications as to how the values should be
+                        reduced, reduce_operation will be used.
     
     Returns:
         _type_: The final version of the output entry in String
@@ -118,22 +144,25 @@ def final_output_entry(**kw_args):
     
     output_name = kw_args['output_name']
     output_value = kw_args['output_value']
+    result = None
     
-    if add_operation+'_' in output_name:
-        return '{}: {}'.format(output_name, format_number(
-            reduce(add, output_value)
-        ))
-    elif no_operation+'_' in output_name:
-        return '{}: {}'.format(output_name, format_number(
-            output_value[0]
-        ))
+    if 'suppress_reduce_operation' in kw_args and not kw_args['suppress_reduce_operation']:
+        result = reduce(kw_args['reduce_operation'], output_value)
     else:
-        return '{}: {}'.format(output_name, format_number(
-            reduce(add, output_value)/len(kw_args['output_file_paths'])
-        ))
+        if add_operation+'_' in output_name:
+            result = reduce(add, output_value)
+        elif no_operation+'_' in output_name:
+            result = output_value[0]
+        elif average_operation+'_' in output_name:
+            result = reduce(add, output_value)/len(output_value)
+        elif 'reduce_operation' in kw_args:
+            result = reduce(kw_args['reduce_operation'], output_value)
+        else:
+            result = reduce(add, output_value)
+    
+    return '{}: {}'.format(output_name, format_number(result))
 
-def accumulate_outputs(relative_accumulation_file_path, output_file_paths
-                       ,output_entry_finding_operation
+def accumulate_outputs(relative_accumulation_file_path, output_entries
                        ,compute_final_output_entry
                        ,*additional_lines, **additional_kw_lines):
     """_summary_
@@ -163,13 +192,10 @@ def accumulate_outputs(relative_accumulation_file_path, output_file_paths
     """
     accumulated_output_file = open(relative_accumulation_file_path, 'x')
     
-    output_entries = get_all_outputs(output_file_paths,
-                                    output_entry_finding_operation)
-    
     # Take average of every output entry and
     # write them to a file with the given name
     for output_name, output_value in output_entries.items():
-        output_entry = compute_final_output_entry(output_name=output_name, output_value=output_value, output_file_paths=output_file_paths)
+        output_entry = compute_final_output_entry(output_name=output_name, output_value=output_value)
         
         accumulated_output_file.write(output_entry+'\n')
 
@@ -311,41 +337,38 @@ if number_of_eval_runs > 0:
     # Run the co-simulation evaluation
     for x in range(number_of_eval_runs):
         eval_scenario = evaluation_scenario.EvaluationScenario()
-        eval_scenario.run_scenario_script(x, '/scenario-resources/agent-scenario-resources',
+        eval_scenario.run_scenario_script(x, relative_scenario_resources_path,
             eval_output_file_paths=eval_output_file_paths,
             swsim_output_file_paths=swsim_output_file_paths,
             resource_note_and_file_tuples=resource_note_and_file_tuples,
             resource_file_tuples=resource_file_tuples)
 
-    # Summarise all swsimOutput.txt files by computing average values for each field
-    swsim_eval_outputs = eval_folder_name+'/'+'allSwsimOutputs.txt'
-    swsim_output_dict = accumulate_outputs(swsim_eval_outputs, swsim_output_file_paths
-                        ,get_output_entry_dict_item_format
-                        ,final_output_entry)
-    
     # Write down all resources used throughout the evaluation
     summarise_resources_used(eval_folder_name+'/'+'usedResources.txt', resource_note_and_file_tuples)
     
-    # Find the binary run time in simulation stored in swsim_output_dict
-    # and compute the average
-    def compute_average_of(field):
-        for key, value in swsim_output_dict.items():
-            if field in key:
-                return str(reduce(add, value)/number_of_eval_runs)
+    # Summarise all swsimOutput.txt files by computing average values for each field
+    swsim_eval_outputs = eval_folder_name+'/'+'allSwsimOutputs.txt'
+    swsim_output_entries = get_all_outputs(swsim_output_file_paths,
+                                get_output_entry_dict_item_format)
+    swsim_output_dict = accumulate_outputs(swsim_eval_outputs, swsim_output_entries
+                        ,final_output_entry)
     
-    average_binary_simulation_time = compute_average_of(simSeconds_field)
-    
-    # Find the simulation time stored in swsim_output_dict
-    # and compute the average
-    average_hardware_simulation_time_on_host = compute_average_of(hostSeconds_field)
+    eval_output_entries = get_all_outputs(eval_output_file_paths,
+                            get_output_entry_dict_item_format)
 
-    # Take the average of every evalOutput.txt file and write them into new a new file
-    accumulate_outputs(eval_folder_name+'/'+'allEvalOutputs.txt', eval_output_file_paths,
-                    get_output_entry_dict_item_format, final_output_entry,
-                    evaluation_object.evaluation_message(),
+    # Take the average of every desired swsim and eval outputs
+    average_dict = {}
+    for key, val in {**swsim_output_dict, **eval_output_entries}.items():
+        average_dict[key] = format_number(reduce(add, val)/number_of_eval_runs)
+
+    # Write average_dict into new a new file
+    accumulate_outputs(eval_folder_name+'/'+'allEvalOutputs.txt', eval_output_entries,
+                    final_output_entry,
+                    'Above, '+evaluation_object.evaluation_message(),
+                    'The mean value of each measurement can be found below',
+                    'For the units of the values below, refer to their original output file',
                     binary_run_on_host_count=str(number_of_eval_runs*binary_run_multiplier),
                     average_binary_run_time_on_host=(format_number(run_transition_chain(resource_file_tuples, binary_run_multiplier)/1000000000)+' (in seconds)'),
                     simulation_run_count=str(number_of_eval_runs),
-                    average_binary_run_time_in_simulation=average_binary_simulation_time+' (in seconds)',
-                    average_hardware_simulation_time_on_host=average_hardware_simulation_time_on_host+' (in seconds)'
+                    **average_dict
     )
