@@ -67,10 +67,10 @@ public class SoftwareSimulatorOutputManager {
      * @return Sum of all elements in "stats"
      */
     protected Number addAction(Collection<Object> stats) {
-        return (Double) stats.stream().reduce((val1, val2) -> {
+        return Double.valueOf(stats.stream().reduce((val1, val2) -> {
             return Double.valueOf(Double.valueOf(val1.toString()).doubleValue() 
             + Double.valueOf(val2.toString()).doubleValue());
-        }).get();
+        }).get().toString());
     }
 
     /**
