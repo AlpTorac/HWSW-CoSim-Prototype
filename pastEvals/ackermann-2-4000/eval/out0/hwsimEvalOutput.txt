@@ -1,0 +1,11 @@
+All measurements are summed up and given in nanoseconds (ns)
+hwsim time measurements:
+EvaluationHardwareSimulatorMosaikAPI.init: 4700
+EvaluationHardwareSimulatorMosaikAPI.create: 280601
+EvaluationBinaryRunner.run_binary: 638336559971
+EvaluationHardwareModel.run_binary: 638338623371
+EvaluationHardwareSimulator.run_binary: 638338714171
+EvaluationHardwareSimulatorMosaikAPI.step: 638338985471
+EvaluationHardwareSimulatorMosaikAPI.get_data: 5400
+
+hwsim ran for: 638457650108

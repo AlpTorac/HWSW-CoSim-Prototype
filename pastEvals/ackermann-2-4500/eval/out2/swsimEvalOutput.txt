@@ -1,0 +1,26 @@
+All measurements are summed up and given in nanoseconds (ns)
+swsim time measurements:
+EvaluationSoftwareSimulationController.exit: 6400
+EvaluationSoftwareSimulator.init: 929700
+EvaluationSoftwareSimulationController.run: 3139010400723
+EvaluationSoftwareSimulationController.getExecutionStats: 5400
+EvaluationSoftwareSimulationController.getBinaryFilePath: 7400
+EvaluationSoftwareSimulationController.scheduleNextTransitionEvent: 849500
+EvaluationSoftwareSimulationController.addBinaryExecutionStats: 53600
+EvaluationSoftwareSimulationController.getNextEventTime: 76300
+EvaluationSoftwareSimulator.cleanup: 6523200
+EvaluationSoftwareSimulationController.await: 3837200
+EvaluationSoftwareSimulationController.hasUnscheduledTransitionEvents: 33600
+EvaluationSoftwareSimulationController.hasBinaryFilePath: 15300
+EvaluationSoftwareSimulationController.initModel: 6303400
+EvaluationSoftwareSimulationController.triggerTransitionEvent: 512700
+EvaluationSoftwareSimulator.create: 11945700
+EvaluationSoftwareSimulationController.step: 10468100
+EvaluationSoftwareSimulator.step: 14496500
+EvaluationSoftwareSimulationController.getBinaryArguments: 6400
+EvaluationSoftwareSimulator.getData: 768800
+EvaluationSoftwareSimulationController.initSoftwareSimulation: 10903100
+EvaluationSoftwareSimulationController.initSoftwareSimulator: 2429800
+EvaluationSoftwareSimulationController.initTransitionChain: 650500
+
+swsim ran for: 3139326139528

@@ -1,0 +1,58 @@
+swsim evaluation outputs:
+All measurements are summed up and given in nanoseconds (ns)
+swsim time measurements:
+EvaluationSoftwareSimulationController.exit: 3800
+EvaluationSoftwareSimulator.init: 1112000
+EvaluationSoftwareSimulationController.run: 3178028139655
+EvaluationSoftwareSimulationController.getExecutionStats: 5200
+EvaluationSoftwareSimulationController.getBinaryFilePath: 8200
+EvaluationSoftwareSimulationController.scheduleNextTransitionEvent: 617000
+EvaluationSoftwareSimulationController.addBinaryExecutionStats: 51500
+EvaluationSoftwareSimulationController.getNextEventTime: 100700
+EvaluationSoftwareSimulator.cleanup: 6249900
+EvaluationSoftwareSimulationController.await: 3195900
+EvaluationSoftwareSimulationController.hasUnscheduledTransitionEvents: 32100
+EvaluationSoftwareSimulationController.hasBinaryFilePath: 19900
+EvaluationSoftwareSimulationController.initModel: 17339599
+EvaluationSoftwareSimulationController.triggerTransitionEvent: 906800
+EvaluationSoftwareSimulator.create: 23350399
+EvaluationSoftwareSimulationController.step: 9195600
+EvaluationSoftwareSimulator.step: 16482500
+EvaluationSoftwareSimulationController.getBinaryArguments: 6400
+EvaluationSoftwareSimulator.getData: 1314600
+EvaluationSoftwareSimulationController.initSoftwareSimulation: 22382299
+EvaluationSoftwareSimulationController.initSoftwareSimulator: 3068700
+EvaluationSoftwareSimulationController.initTransitionChain: 422300
+
+swsim ran for: 3178656734537
+
+hwsim evaluation outputs:
+All measurements are summed up and given in nanoseconds (ns)
+hwsim time measurements:
+EvaluationHardwareSimulatorMosaikAPI.init: 5600
+EvaluationHardwareSimulatorMosaikAPI.create: 316900
+EvaluationBinaryRunner.run_binary: 3177985274355
+EvaluationHardwareModel.run_binary: 3177988098055
+EvaluationHardwareSimulator.run_binary: 3177988210355
+EvaluationHardwareSimulatorMosaikAPI.step: 3177988492855
+EvaluationHardwareSimulatorMosaikAPI.get_data: 20800
+
+hwsim ran for: 3178133519153
+
+agent evaluation outputs:
+All measurements are summed up and given in nanoseconds (ns)
+agent time measurements:
+EvaluationAgentMosaikAPI.init: 5200
+EvaluationAgentMosaikAPI.create: 119200
+EvaluationAgentMosaikAPI.step: 266000
+EvaluationAgent.get_binary_name: 31000
+EvaluationAgent.get_param_for: 156100
+EvaluationAgent.get_max_repeat_count: 134000
+EvaluationAgentMosaikAPI.binary_run_count_reached: 160900
+EvaluationAgentMosaikAPI.get_data: 260300
+EvaluationAgent.process_stats: 134200
+EvaluationAgentMosaikAPI.reset_binary_attributes: 33700
+
+agent ran for: 3178409708644
+
+Entire simulation took: 3179105350926

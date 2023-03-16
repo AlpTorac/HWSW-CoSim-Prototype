@@ -1,0 +1,14 @@
+All measurements are summed up and given in nanoseconds (ns)
+agent time measurements:
+EvaluationAgentMosaikAPI.init: 2700
+EvaluationAgentMosaikAPI.create: 118300
+EvaluationAgentMosaikAPI.step: 393500
+EvaluationAgent.get_binary_name: 63100
+EvaluationAgent.get_param_for: 160600
+EvaluationAgent.get_max_repeat_count: 86900
+EvaluationAgentMosaikAPI.binary_run_count_reached: 111900
+EvaluationAgentMosaikAPI.get_data: 227500
+EvaluationAgent.process_stats: 207000
+EvaluationAgentMosaikAPI.reset_binary_attributes: 33400
+
+agent ran for: 3139207304625

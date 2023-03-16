@@ -1,0 +1,11 @@
+hostInstRate: 967202.5
+hostOpRate: 1960460.75
+simFreq: 1000000000000
+hostTickRate: 1276584184.5
+simInsts: 593438628
+simTicks: 783262668720
+hostMemory: 34245284
+hostSeconds: 613.6
+simOps: 1202864304
+simSeconds: 0.783264
+finalTick: 783262668720

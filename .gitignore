@@ -10,6 +10,5 @@ target
 *.out
 *~*
 __pycache__
-out
-eval
-pastEvals
+/out
+/eval

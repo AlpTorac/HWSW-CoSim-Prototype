@@ -1,0 +1,106 @@
+EvaluationSoftwareSimulationController.exit: 2800
+EvaluationSoftwareSimulator.init: 1090601
+EvaluationSoftwareSimulationController.run: 638368453683
+EvaluationSoftwareSimulationController.getExecutionStats: 4400
+EvaluationSoftwareSimulationController.getBinaryFilePath: 4000
+EvaluationSoftwareSimulationController.scheduleNextTransitionEvent: 577201
+EvaluationSoftwareSimulationController.addBinaryExecutionStats: 60600
+EvaluationSoftwareSimulationController.getNextEventTime: 56300
+EvaluationSoftwareSimulator.cleanup: 14760000
+EvaluationSoftwareSimulationController.await: 4071504
+EvaluationSoftwareSimulationController.hasUnscheduledTransitionEvents: 39500
+EvaluationSoftwareSimulationController.hasBinaryFilePath: 26500
+EvaluationSoftwareSimulationController.initModel: 8194309
+EvaluationSoftwareSimulationController.triggerTransitionEvent: 400900
+EvaluationSoftwareSimulator.create: 13404014
+EvaluationSoftwareSimulationController.step: 9271909
+EvaluationSoftwareSimulator.step: 17094911
+EvaluationSoftwareSimulationController.getBinaryArguments: 32200
+EvaluationSoftwareSimulator.getData: 752400
+EvaluationSoftwareSimulationController.initSoftwareSimulation: 12480113
+EvaluationSoftwareSimulationController.initSoftwareSimulator: 2674803
+EvaluationSoftwareSimulationController.initTransitionChain: 386801
+swsim ran for: 638865597676
+EvaluationHardwareSimulatorMosaikAPI.init: 4700
+EvaluationHardwareSimulatorMosaikAPI.create: 280601
+EvaluationBinaryRunner.run_binary: 638336559971
+EvaluationHardwareModel.run_binary: 638338623371
+EvaluationHardwareSimulator.run_binary: 638338714171
+EvaluationHardwareSimulatorMosaikAPI.step: 638338985471
+EvaluationHardwareSimulatorMosaikAPI.get_data: 5400
+hwsim ran for: 638457650108
+EvaluationAgentMosaikAPI.init: 2300
+EvaluationAgentMosaikAPI.create: 116400
+EvaluationAgentMosaikAPI.step: 225000
+EvaluationAgent.get_binary_name: 39200
+EvaluationAgent.get_param_for: 84700
+EvaluationAgent.get_max_repeat_count: 18500
+EvaluationAgentMosaikAPI.binary_run_count_reached: 26000
+EvaluationAgentMosaikAPI.get_data: 86000
+EvaluationAgent.process_stats: 97600
+EvaluationAgentMosaikAPI.reset_binary_attributes: 24700
+agent ran for: 638644330335
+Entire simulation took: 639171744107
+
+Above, All measurements are summed up and given in nanoseconds (ns)
+
+The mean value of each measurement can be found below
+For the units of the values below, refer to their original output file
+
+binary_run_on_host_count: 10
+average_binary_run_time_on_host: 0.07630152 (in seconds)
+simulation_run_count: 1
+avg_hostTickRate: 1268465555
+avg_hostOpRate: 1884140
+add_hostSeconds: 637.56
+add_simOps: 1201246167
+add_simSeconds: 0.808718
+add_finalTick: 808718251185
+avg_hostInstRate: 929514
+add_hostMemory: 8561328
+add_simTicks: 808718251185
+add_simInsts: 592617702
+none_simFreq: 1000000000000
+EvaluationSoftwareSimulationController.exit: 2800
+EvaluationSoftwareSimulator.init: 1090601
+EvaluationSoftwareSimulationController.run: 638368453683
+EvaluationSoftwareSimulationController.getExecutionStats: 4400
+EvaluationSoftwareSimulationController.getBinaryFilePath: 4000
+EvaluationSoftwareSimulationController.scheduleNextTransitionEvent: 577201
+EvaluationSoftwareSimulationController.addBinaryExecutionStats: 60600
+EvaluationSoftwareSimulationController.getNextEventTime: 56300
+EvaluationSoftwareSimulator.cleanup: 14760000
+EvaluationSoftwareSimulationController.await: 4071504
+EvaluationSoftwareSimulationController.hasUnscheduledTransitionEvents: 39500
+EvaluationSoftwareSimulationController.hasBinaryFilePath: 26500
+EvaluationSoftwareSimulationController.initModel: 8194309
+EvaluationSoftwareSimulationController.triggerTransitionEvent: 400900
+EvaluationSoftwareSimulator.create: 13404014
+EvaluationSoftwareSimulationController.step: 9271909
+EvaluationSoftwareSimulator.step: 17094911
+EvaluationSoftwareSimulationController.getBinaryArguments: 32200
+EvaluationSoftwareSimulator.getData: 752400
+EvaluationSoftwareSimulationController.initSoftwareSimulation: 12480113
+EvaluationSoftwareSimulationController.initSoftwareSimulator: 2674803
+EvaluationSoftwareSimulationController.initTransitionChain: 386801
+swsim ran for: 638865597676
+EvaluationHardwareSimulatorMosaikAPI.init: 4700
+EvaluationHardwareSimulatorMosaikAPI.create: 280601
+EvaluationBinaryRunner.run_binary: 638336559971
+EvaluationHardwareModel.run_binary: 638338623371
+EvaluationHardwareSimulator.run_binary: 638338714171
+EvaluationHardwareSimulatorMosaikAPI.step: 638338985471
+EvaluationHardwareSimulatorMosaikAPI.get_data: 5400
+hwsim ran for: 638457650108
+EvaluationAgentMosaikAPI.init: 2300
+EvaluationAgentMosaikAPI.create: 116400
+EvaluationAgentMosaikAPI.step: 225000
+EvaluationAgent.get_binary_name: 39200
+EvaluationAgent.get_param_for: 84700
+EvaluationAgent.get_max_repeat_count: 18500
+EvaluationAgentMosaikAPI.binary_run_count_reached: 26000
+EvaluationAgentMosaikAPI.get_data: 86000
+EvaluationAgent.process_stats: 97600
+EvaluationAgentMosaikAPI.reset_binary_attributes: 24700
+agent ran for: 638644330335
+Entire simulation took: 639171744107

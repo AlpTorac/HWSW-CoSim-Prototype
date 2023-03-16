@@ -1,0 +1,13 @@
+avg_hostTickRate: 1268465555
+avg_hostOpRate: 1884140
+add_hostSeconds: 637.56
+add_simOps: 1201246167
+add_simSeconds: 0.808718
+add_finalTick: 808718251185
+avg_hostInstRate: 929514
+add_hostMemory: 8561328
+add_simTicks: 808718251185
+add_simInsts: 592617702
+none_simFreq: 1000000000000
+
+

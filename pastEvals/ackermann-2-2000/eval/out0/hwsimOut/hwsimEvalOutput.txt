@@ -1,0 +1,11 @@
+Hardware simulator time measurements:
+EvaluationHardwareSimulatorMosaikAPI.init: 9100
+EvaluationHardwareSimulatorMosaikAPI.create: 255700
+EvaluationBinaryRunner.execute_hardware_script: 615952241853
+EvaluationBinaryRunner.run_binary: 615952438053
+EvaluationHardwareModel.run_binary: 615954499454
+EvaluationHardwareSimulator.run_binary: 615954547554
+EvaluationHardwareSimulatorMosaikAPI.step: 615954613354
+EvaluationHardwareSimulatorMosaikAPI.get_data: 19800
+
+Hardware simulator ran for: 616116160358
