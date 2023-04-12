@@ -1,0 +1,14 @@
+
+binary_file_path: /root/HWSW-CoSim-Prototype/./scenario-resources/accuracy-scenario-resources/ackermann
+binary_file_arguments: [['2', '15000']]
+simSeconds: ['18.581887']
+simTicks: ['18581886713655']
+finalTick: ['18581886713655']
+simFreq: ['1000000000000']
+hostSeconds: ['10042.20']
+hostTickRate: ['1850380117']
+hostMemory: ['8561328']
+simInsts: ['8327036753']
+simOps: ['16879161255']
+hostInstRate: ['829204']
+hostOpRate: ['1680823']

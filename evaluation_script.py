@@ -1,5 +1,5 @@
 """_summary_
-Can be run with "python3 evaluation_script.py <relative_scenario_resources_path> <number_of_eval_runs> <number_of_eval_runs> <binary_run_multiplier>"
+Can be run with "python3 evaluation_script.py <relative_scenario_resources_path> <number_of_eval_runs> <binary_run_multiplier>"
 
 relative_scenario_resources_path (mandatory): The relative path to the scenario resources from the position of this file (evaluation_script.py)
 

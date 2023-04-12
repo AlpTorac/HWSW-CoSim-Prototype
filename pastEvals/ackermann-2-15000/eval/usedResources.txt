@@ -1,0 +1,21 @@
+DFA used in run=0
+
+{
+	"states": ["q0", "q1"],
+	"transitions": ["(q0,q1,a)"],
+	"start_state": "q0",
+	"end_states": ["q1"]
+}
+
+Binary map used in run=0
+
+[
+	{"transition": "(q0,q1,a)", "binary": "ackermann", "arguments": ["2", "15000"]}
+]
+
+Transition chain used in run=0
+
+[
+    {"input": "a", "time": "1"}
+]
+
